@@ -178,7 +178,7 @@ export const InfluencerAuth: React.FC = () => {
                   onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
                   className="mt-2"
                 >
-                  {mode === 'signin' ? 'Sign up as influencer' : 'Sign in here'}
+                  Standard Signup
                 </Button>
               </div>
             </motion.div>

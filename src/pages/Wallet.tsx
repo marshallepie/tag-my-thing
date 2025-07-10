@@ -287,14 +287,15 @@ export const Wallet: React.FC = () => {
   ];
 
   // Add influencer referrals for influencers
-  if (profile?.role === 'influencer') {
+  // All users can now access referrals
+  if (profile) {
     quickActions.unshift({
-      title: 'Influencer Referrals',
-      description: 'Manage your referral program',
+      title: 'Referral Program',
+      description: 'Earn tokens by referring friends',
       icon: <Crown className="h-4 w-4" />,
       action: () => {
-        // Use React Router navigation instead of window.location
-        window.location.href = '/influencer-referrals';
+        // Navigate to referrals page for all users
+        window.location.href = '/referrals';
       }
     });
   }

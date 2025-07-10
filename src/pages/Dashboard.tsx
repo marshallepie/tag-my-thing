@@ -28,10 +28,10 @@ export const Dashboard: React.FC = () => {
       color: 'bg-secondary-600',
     },
     {
-      title: 'Manage NOK',
-      description: 'Set up Next of Kin access',
+      title: 'Refer Friends',
+      description: 'Earn tokens through referrals',
       icon: <Users className="h-8 w-8" />,
-      link: '/nok',
+      link: '/referrals',
       color: 'bg-accent-600',
     },
   ];

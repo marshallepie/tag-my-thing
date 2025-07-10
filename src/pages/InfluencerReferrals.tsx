@@ -154,8 +154,9 @@ export const InfluencerReferrals: React.FC = () => {
   }
 
   // Redirect if not authenticated or not an influencer
-  if (!isAuthenticated || profile?.role !== 'influencer') {
-    console.log('InfluencerReferrals - Redirecting, auth:', isAuthenticated, 'role:', profile?.role);
+  // Allow all authenticated users to access referrals
+  if (!isAuthenticated) {
+    console.log('InfluencerReferrals - Redirecting, auth:', isAuthenticated);
     return <Navigate to="/dashboard" replace />;
   }
 

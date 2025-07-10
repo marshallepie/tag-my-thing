@@ -235,11 +235,8 @@ export const useReferrals = () => {
       return null;
     }
 
-    // Ensure user is an influencer
-    if (profile.role !== 'influencer') {
-      console.log('generateReferralCode - User is not an influencer');
-      return null;
-    }
+    // All users can now generate referral codes
+    console.log('generateReferralCode - Starting for user role:', profile.role);
 
     console.log('generateReferralCode - Starting with profile:', profile);
 
@@ -323,7 +320,8 @@ export const useReferrals = () => {
       console.log('getReferralUrl - Got code:', code);
       if (!code) return null;
 
-      const url = `${window.location.origin}/auth?ref=${code}`;
+      // All referral links now point to influencer signup page
+      const url = `${window.location.origin}/influencer-signup?ref=${code}`;
       console.log('getReferralUrl - Generated URL:', url);
       return url;
     } catch (error) {

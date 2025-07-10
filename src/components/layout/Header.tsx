@@ -40,8 +40,9 @@ export const Header: React.FC = () => {
   ];
 
   // Add influencer-specific navigation
-  if (profile?.role === 'influencer') {
-    navigation.push({ name: 'Referrals', href: '/influencer-referrals' });
+  // All users can access referrals now
+  if (profile) {
+    navigation.push({ name: 'Referrals', href: '/referrals' });
   }
 
   if (isAdmin) {

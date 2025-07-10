@@ -77,8 +77,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-// Influencer Route Component
-const InfluencerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Referrals Route Component (for all authenticated users)
+const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { profile, loading, initialized, isAuthenticated } = useAuth();
 
   if (!initialized || loading) {
@@ -89,9 +89,7 @@ const InfluencerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return <Navigate to="/auth" replace />;
   }
 
-  if (profile?.role !== 'influencer') {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // All authenticated users can access referrals now
 
   return <>{children}</>;
 };
@@ -233,16 +231,22 @@ function App() {
               }
             />
 
-            {/* Influencer Only Routes */}
+            {/* Referrals Routes (All Users) */}
             <Route
-              path="/influencer-referrals"
+              path="/referrals"
               element={
                 <SafeRoute>
-                  <InfluencerRoute>
+                  <ReferralsRoute>
                     <InfluencerReferrals />
-                  </InfluencerRoute>
+                  </ReferralsRoute>
                 </SafeRoute>
               }
+            />
+            
+            {/* Legacy route redirect */}
+            <Route
+              path="/influencer-referrals"
+              element={<Navigate to="/referrals" replace />}
             />
 
             {/* Catch all route - 404 handler */}
