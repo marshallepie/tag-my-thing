@@ -268,14 +268,8 @@ export const Profile: React.FC = () => {
   };
 
   const getSubscriptionBadge = (plan: string) => {
-    switch (plan) {
-      case 'pro':
-        return 'bg-primary-100 text-primary-800';
-      case 'enterprise':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    // Only freemium plan is available now
+    return 'bg-gray-100 text-gray-800';
   };
 
   const languageOptions = [
