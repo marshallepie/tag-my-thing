@@ -28,6 +28,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
+import { supabase } from '../lib/supabase';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
