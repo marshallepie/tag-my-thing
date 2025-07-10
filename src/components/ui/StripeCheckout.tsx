@@ -31,16 +31,40 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [isElementsReady, setIsElementsReady] = useState(false);
+
+  // Check if elements are ready
+  useEffect(() => {
+    if (elements) {
+      const paymentElement = elements.getElement('payment');
+      if (paymentElement) {
+        // Listen for the ready event
+        paymentElement.on('ready', () => {
+          setIsElementsReady(true);
+        });
+      }
+    }
+  }, [elements]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    event.stopPropagation();
 
     if (!stripe || !elements) {
+      console.log('Stripe or Elements not ready');
       return;
     }
 
+    // Double-check that elements are ready before proceeding
+    if (!isElementsReady) {
+      console.log('Elements not ready yet');
+      setMessage('Payment form is still loading. Please wait...');
+      return;
+    }
     setLoading(true);
     setMessage(null);
+
+    console.log('Starting payment confirmation...');
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
@@ -51,9 +75,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     });
 
     if (error) {
+      console.error('Payment error:', error);
       setMessage(error.message || 'An unexpected error occurred.');
       onError(error.message || 'Payment failed');
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+      console.log('Payment succeeded:', paymentIntent);
       // Pass the entire paymentIntent object to onSuccess
       onSuccess(paymentIntent);
     }
@@ -61,6 +87,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setLoading(false);
   };
 
+  // Calculate if the form should be disabled
+  const isFormDisabled = !stripe || !elements || loading || !isElementsReady;
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Package Summary */}
@@ -82,9 +110,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           <span>Your payment information is secure and encrypted</span>
         </div>
         
+        {/* Loading indicator while elements are initializing */}
+        {!isElementsReady && (
+          <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mr-3"></div>
+            <span className="text-gray-600">Loading payment form...</span>
+          </div>
+        )}
+        
         <PaymentElement 
           options={{
             layout: 'tabs',
+          }}
+          onReady={() => {
+            console.log('PaymentElement is ready');
+            setIsElementsReady(true);
+          }}
+          onLoadError={(error) => {
+            console.error('PaymentElement load error:', error);
+            setMessage('Failed to load payment form. Please refresh and try again.');
           }}
         />
       </div>
@@ -104,15 +148,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={!stripe || loading}
+        disabled={isFormDisabled}
         loading={loading}
         className="w-full"
         size="lg"
       >
         <CreditCard className="h-5 w-5 mr-2" />
-        {loading ? 'Processing...' : `Pay ${amount}`}
+        {loading 
+          ? 'Processing...' 
+          : !isElementsReady 
+            ? 'Loading...' 
+            : `Pay ${amount}`
+        }
       </Button>
 
+      {/* Debug info in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-xs text-gray-500 space-y-1">
+          <div>Stripe ready: {stripe ? '✅' : '❌'}</div>
+          <div>Elements ready: {elements ? '✅' : '❌'}</div>
+          <div>Payment form ready: {isElementsReady ? '✅' : '❌'}</div>
+          <div>Loading: {loading ? '✅' : '❌'}</div>
+        </div>
+      )}
       {/* Security Notice */}
       <div className="text-xs text-gray-500 text-center">
         <p>Powered by Stripe. Your payment information is secure and never stored on our servers.</p>
