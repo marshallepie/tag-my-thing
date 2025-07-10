@@ -290,6 +290,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
           <Input
             label="Full Name"
             name="fullName"
+            id="auth-full-name"
             type="text"
             value={formData.fullName}
             onChange={handleChange}
@@ -301,6 +302,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
         <Input
           label="Email"
           name="email"
+          id="auth-email"
           type="email"
           value={formData.email}
           onChange={handleChange}
@@ -312,6 +314,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
           <Input
             label="Password"
             name="password"
+            id="auth-password"
             type={showPassword ? 'text' : 'password'}
             value={formData.password}
             onChange={handleChange}

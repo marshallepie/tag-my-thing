@@ -361,12 +361,15 @@ export const Wallet: React.FC = () => {
                   placeholder="Search transactions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  name="transaction-search"
                   className="flex-1"
                 />
                 
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value as any)}
+                  id="transaction-type-filter"
+                  name="transaction-type-filter"
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="all">All Types</option>
@@ -377,6 +380,8 @@ export const Wallet: React.FC = () => {
                 <select
                   value={filterSource}
                   onChange={(e) => setFilterSource(e.target.value)}
+                  id="transaction-source-filter"
+                  name="transaction-source-filter"
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="all">All Sources</option>

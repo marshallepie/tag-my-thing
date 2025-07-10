@@ -254,6 +254,8 @@ export const Settings: React.FC = () => {
               <select
                 value={appSettings.language}
                 onChange={(e) => setAppSettings(prev => ({ ...prev, language: e.target.value }))}
+                id="settings-language"
+                name="settings-language"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 {languageOptions.map(lang => (
@@ -271,6 +273,8 @@ export const Settings: React.FC = () => {
               <select
                 value={appSettings.currency}
                 onChange={(e) => setAppSettings(prev => ({ ...prev, currency: e.target.value as any }))}
+                id="settings-currency"
+                name="settings-currency"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 {currencyOptions.map(currency => (
@@ -289,6 +293,8 @@ export const Settings: React.FC = () => {
             <select
               value={appSettings.timezone}
               onChange={(e) => setAppSettings(prev => ({ ...prev, timezone: e.target.value }))}
+              id="settings-timezone"
+              name="settings-timezone"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               {timezoneOptions.map(tz => (
@@ -544,6 +550,8 @@ export const Settings: React.FC = () => {
             <select
               value={securitySettings.session_timeout}
               onChange={(e) => setSecuritySettings(prev => ({ ...prev, session_timeout: parseInt(e.target.value) }))}
+              id="session-timeout"
+              name="session-timeout"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value={15}>15 minutes</option>

@@ -532,6 +532,8 @@ export const Profile: React.FC = () => {
                     <div className="relative">
                       <Languages className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                       <select
+                        id="language-select"
+                        name="language"
                         value={profileData.language}
                         onChange={(e) => setProfileData(prev => ({ ...prev, language: e.target.value }))}
                         disabled={!isEditing}
@@ -700,6 +702,7 @@ export const Profile: React.FC = () => {
               <div className="relative">
                 <Input
                   type={showPasswordFields ? 'text' : 'password'}
+                  name="current-password"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                   placeholder="Enter current password"
@@ -723,6 +726,7 @@ export const Profile: React.FC = () => {
             <Input
               label="New Password"
               type={showPasswordFields ? 'text' : 'password'}
+              name="new-password"
               value={passwordData.newPassword}
               onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
               placeholder="Enter new password"
@@ -733,6 +737,7 @@ export const Profile: React.FC = () => {
             <Input
               label="Confirm New Password"
               type={showPasswordFields ? 'text' : 'password'}
+              name="confirm-password"
               value={passwordData.confirmPassword}
               onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
               placeholder="Confirm new password"
