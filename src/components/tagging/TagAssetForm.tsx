@@ -117,6 +117,8 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
               Description
             </label>
             <textarea
+              id="asset-description"
+              name="description"
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
               placeholder="Add any additional details about this asset"
@@ -155,6 +157,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Add tags (press Enter)"
+                name="tag-input"
                 icon={<Tag className="h-5 w-5 text-gray-400" />}
               />
               <Button type="button" onClick={addTag} variant="outline">
@@ -166,6 +169,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
           <Input
             label="Estimated Value (£)"
             type="number"
+            name="estimated-value"
             value={formData.estimatedValue || ''}
             onChange={(e) => handleChange('estimatedValue', parseFloat(e.target.value) || 0)}
             placeholder="0.00"
@@ -174,6 +178,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
 
           <Input
             label="Location"
+            name="location"
             value={formData.location}
             onChange={(e) => handleChange('location', e.target.value)}
             placeholder="Where is this asset located?"

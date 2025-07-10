@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
+  id?: string;
+  name?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -11,12 +13,17 @@ export const Input: React.FC<InputProps> = ({
   error,
   icon,
   className = '',
+  id: providedId,
+  name,
   ...props
 }) => {
+  const generatedId = useId();
+  const inputId = providedId || generatedId;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1">
           {label}
         </label>
       )}
@@ -27,6 +34,8 @@ export const Input: React.FC<InputProps> = ({
           </div>
         )}
         <input
+          id={inputId}
+          name={name || inputId}
           className={`
             w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm
             focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
