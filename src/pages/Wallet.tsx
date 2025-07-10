@@ -86,44 +86,23 @@ export const Wallet: React.FC = () => {
 
   const fetchTokenPackages = async () => {
     try {
-      // Mock data for now - in production, fetch from Supabase
-      const packages: TokenPackage[] = [
-        {
-          id: '1',
-          name: 'Starter Pack',
-          token_amount: 100,
-          bonus_tokens: 0,
-          price_gbp: 1.00,
-          price_xaf: 500
-        },
-        {
-          id: '2',
-          name: 'Value Pack',
-          token_amount: 250,
-          bonus_tokens: 25,
-          price_gbp: 2.50,
-          price_xaf: 1250
-        },
-        {
-          id: '3',
-          name: 'Power Pack',
-          token_amount: 500,
-          bonus_tokens: 75,
-          price_gbp: 4.50,
-          price_xaf: 2250
-        },
-        {
-          id: '4',
-          name: 'Mega Pack',
-          token_amount: 1000,
-          bonus_tokens: 200,
-          price_gbp: 7.99,
-          price_xaf: 4000
-        }
-      ];
-      setTokenPackages(packages);
+      // Fetch token packages from Supabase
+      const { data: packages, error } = await supabase
+        .from('token_packages')
+        .select('*')
+        .eq('active', true)
+        .order('price_gbp', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching token packages:', error);
+        toast.error('Failed to load token packages');
+        return;
+      }
+
+      setTokenPackages(packages || []);
     } catch (error) {
       console.error('Error fetching token packages:', error);
+      toast.error('Failed to load token packages');
     } finally {
       setLoading(false);
     }
@@ -504,7 +483,7 @@ export const Wallet: React.FC = () => {
                     
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Base Tokens:</span>
+                        <span className="text-gray-600">Total Tokens:</span>
                         <span className="font-medium">{pkg.token_amount} TMT</span>
                       </div>
                       {pkg.bonus_tokens > 0 && (
@@ -512,11 +491,11 @@ export const Wallet: React.FC = () => {
                           <span className="text-gray-600">Bonus:</span>
                           <span className="font-medium text-success-600">+{pkg.bonus_tokens} TMT</span>
                         </div>
+                        <div className="flex items-center justify-between text-sm font-semibold border-t pt-2">
+                          <span className="text-gray-900">Total:</span>
+                          <span className="text-primary-600">{pkg.token_amount + pkg.bonus_tokens} TMT</span>
+                        </div>
                       )}
-                      <div className="flex items-center justify-between text-sm font-semibold border-t pt-2">
-                        <span className="text-gray-900">Total:</span>
-                        <span className="text-primary-600">{pkg.token_amount + pkg.bonus_tokens} TMT</span>
-                      </div>
                     </div>
 
                     <Button
@@ -591,7 +570,7 @@ export const Wallet: React.FC = () => {
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Base Tokens:</span>
+                      <span>Total Tokens:</span>
                       <span>{selectedPackage.token_amount} TMT</span>
                     </div>
                     {selectedPackage.bonus_tokens > 0 && (
@@ -599,11 +578,11 @@ export const Wallet: React.FC = () => {
                         <span>Bonus Tokens:</span>
                         <span>+{selectedPackage.bonus_tokens} TMT</span>
                       </div>
+                      <div className="flex justify-between font-semibold border-t pt-2">
+                        <span>Total Tokens:</span>
+                        <span>{selectedPackage.token_amount + selectedPackage.bonus_tokens} TMT</span>
+                      </div>
                     )}
-                    <div className="flex justify-between font-semibold border-t pt-2">
-                      <span>Total Tokens:</span>
-                      <span>{selectedPackage.token_amount + selectedPackage.bonus_tokens} TMT</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -666,7 +645,7 @@ export const Wallet: React.FC = () => {
                   >
                     <div className="font-medium text-gray-900 mb-1">{pkg.name}</div>
                     <div className="text-sm text-gray-600 mb-2">
-                      {pkg.token_amount + pkg.bonus_tokens} TMT
+                      {pkg.token_amount}{pkg.bonus_tokens > 0 ? ` + ${pkg.bonus_tokens} bonus` : ''} TMT
                     </div>
                     <div className="font-semibold text-primary-600">
                       {currency === 'gbp' ? `£${pkg.price_gbp.toFixed(2)}` : `${pkg.price_xaf} XAF`}
