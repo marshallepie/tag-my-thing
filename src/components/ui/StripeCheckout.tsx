@@ -144,6 +144,8 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
   onError,
   onCancel,
 }) => {
+  console.log("clientSecret in StripeCheckout:", clientSecret);
+
   const options = {
     clientSecret,
     appearance: {
