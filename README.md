@@ -136,6 +136,7 @@ src/
 - **NOK** - Next-of-kin with limited asset access
 - **Moderator** - Content moderation capabilities
 - **Admin** - Full platform administration
+- **Influencer** - Enhanced referral capabilities
 
 ---
 
@@ -148,7 +149,9 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - `assets` - Tagged assets with metadata
 - `next_of_kin` - Next-of-kin relationships
 - `token_transactions` - Token earning/spending history
-- `payments` - Payment processing records
+- `payments` - Token purchase records
+- `referrals` - Referral tracking system
+- `referral_rewards` - Referral token rewards
 
 All tables implement Row Level Security (RLS) for data protection.
 

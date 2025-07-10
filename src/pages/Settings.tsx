@@ -757,11 +757,11 @@ export const Settings: React.FC = () => {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Last Updated:</span>
-            <span className="font-medium">December 2024</span>
+            <span className="font-medium">January 2025</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Build:</span>
-            <span className="font-medium font-mono">2024.12.001</span>
+            <span className="font-medium font-mono">2025.01.001</span>
           </div>
         </div>
 
