@@ -131,7 +131,7 @@ export const TagAsset: React.FC = () => {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/influencer-signup')}
               className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors"
             >
               Create Account & Save Asset

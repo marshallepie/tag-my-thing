@@ -171,14 +171,14 @@ export const InfluencerAuth: React.FC = () => {
               
               <div className="text-center mt-6">
                 <p className="text-gray-600">
-                  {mode === 'signin' ? "Don't have an influencer account?" : 'Already have an influencer account?'}
+                  {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
                 </p>
                 <Button
                   variant="ghost"
                   onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
                   className="mt-2"
                 >
-                  Standard Signup
+                  {mode === 'signin' ? 'Create Account' : 'Sign In'}
                 </Button>
               </div>
             </motion.div>

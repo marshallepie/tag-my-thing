@@ -13,7 +13,7 @@ export const Auth: React.FC = () => {
   // Check if there's a referral code in the URL to determine initial mode
   const urlParams = new URLSearchParams(location.search);
   const hasReferralCode = urlParams.has('ref');
-  const [mode, setMode] = useState<'signin' | 'signup'>(hasReferralCode ? 'signup' : 'signin');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin'); // Always default to signin
 
   if (!initialized || loading) {
     return (
@@ -25,6 +25,14 @@ export const Auth: React.FC = () => {
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // Redirect new users to influencer signup
+  if (mode === 'signup' || hasReferralCode) {
+    const redirectUrl = hasReferralCode 
+      ? `/influencer-signup?ref=${urlParams.get('ref')}`
+      : '/influencer-signup';
+    return <Navigate to={redirectUrl} replace />;
   }
 
   const handleSuccess = () => {
@@ -45,14 +53,14 @@ export const Auth: React.FC = () => {
           
           <div className="text-center mt-6">
             <p className="text-gray-600">
-              {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
+              Don't have an account?
             </p>
             <Button
               variant="ghost"
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+              onClick={() => navigate('/influencer-signup')}
               className="mt-2"
             >
-              {mode === 'signin' ? 'Sign up here' : 'Sign in here'}
+              Join TagMyThing
             </Button>
           </div>
         </motion.div>

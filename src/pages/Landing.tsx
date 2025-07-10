@@ -144,18 +144,18 @@ export const Landing: React.FC = () => {
               <Button 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/tag')}
+                onClick={() => handleNavigation('/influencer-signup')}
               >
                   <Camera className="h-5 w-5 mr-2" />
-                  Tag an Asset Now
+                  Join TagMyThing
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/auth')}
+                onClick={() => handleNavigation('/influencer-signup')}
               >
-                  Get Started Free
+                  Sign Up Now
                   <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -288,7 +288,7 @@ export const Landing: React.FC = () => {
                   onClick={() => handleNavigation('/auth')}
                 >
                     Start Free Today
-                    <ArrowRight className="h-5 w-5 ml-2" />
+                  Join TagMyThing
                 </Button>
               </div>
             </motion.div>
@@ -319,7 +319,7 @@ export const Landing: React.FC = () => {
                 onClick={() => handleNavigation('/tag')}
               >
                   <Camera className="h-5 w-5 mr-2" />
-                  Tag Your First Asset
+                  Join TagMyThing
               </Button>
               <Button 
                 variant="outline" 
@@ -327,7 +327,7 @@ export const Landing: React.FC = () => {
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
                 onClick={() => handleNavigation('/auth')}
               >
-                  Create Account
+                  Sign In
               </Button>
             </div>
           </motion.div>

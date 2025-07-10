@@ -201,6 +201,13 @@ export const Header: React.FC = () => {
                 >
                     Sign In
                 </Button>
+                <Button 
+                  variant="primary" 
+                  size="sm"
+                  onClick={() => handleNavigation('/influencer-signup')}
+                >
+                    Join Now
+                </Button>
               </div>
             )}
           </div>
