@@ -163,8 +163,8 @@ export const Dashboard: React.FC = () => {
           {/* Recent Activity */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
-            <p className="text-2xl font-bold text-primary-600">
-              Freemium
+            <Card>
+              {recentTransactions.length > 0 ? (
                 <div className="space-y-4">
                   {recentTransactions.map((transaction: any) => (
                     <div key={transaction.id} className="flex items-center justify-between">
@@ -198,7 +198,7 @@ export const Dashboard: React.FC = () => {
                   </p>
                 </div>
               )}
-            </p></Card>
+            </Card>
           </div>
         </div>
       </div>
