@@ -1,183 +1,156 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'npm:@supabase/supabase-js@2'
-
+import Stripe from 'npm:stripe@12.18.0';
+import { createClient } from 'npm:@supabase/supabase-js@2.39.0';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
-interface PaymentRequest {
-  packageId: string
-  currency: 'gbp' | 'xaf'
-}
-
-serve(async (req) => {
-  // Handle CORS preflight requests
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+Deno.serve(async (req)=>{
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response('ok', {
+      headers: corsHeaders
+    });
   }
-
   try {
-    console.log('=== CREATE PAYMENT INTENT START ===')
-    console.log('Request method:', req.method)
-    console.log('Request headers:', Object.fromEntries(req.headers.entries()))
-    
-    // Get the authorization header
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      console.error('No authorization header provided')
-      throw new Error('No authorization header')
+    // ✅ ADD THIS LOG HERE
+    console.log("Edge Function: Authorization header received:", req.headers.get('Authorization'));
+    if (req.method !== 'POST') {
+      return new Response(JSON.stringify({
+        error: 'Method not allowed'
+      }), {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
     }
-    console.log('Auth header present:', authHeader.substring(0, 20) + '...')
-
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    )
-
-    // Get the current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser()
-
-    if (userError || !user) {
-      console.error('User authentication failed:', userError)
-      throw new Error('Unauthorized')
+    const { packageId, currency = 'gbp' } = await req.json();
+    if (!packageId) {
+      return new Response(JSON.stringify({
+        error: 'Package ID is required'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
     }
-    console.log('User authenticated:', user.id)
-
-    // Parse request body
-    const { packageId, currency }: PaymentRequest = await req.json()
-    console.log('Request data:', { packageId, currency })
-
-    // Get token package details
-    const { data: tokenPackage, error: packageError } = await supabaseClient
-      .from('token_packages')
-      .select('*')
-      .eq('id', packageId)
-      .eq('active', true)
-      .single()
-
-    if (packageError || !tokenPackage) {
-      console.error('Token package error:', packageError)
-      console.log('Package ID requested:', packageId)
-      throw new Error('Invalid token package')
-    }
-    console.log('Token package found:', tokenPackage)
-
-    // Calculate amount in smallest currency unit
-    const amount = currency === 'gbp' 
-      ? Math.round(tokenPackage.price_gbp * 100) // pence
-      : Math.round(tokenPackage.price_xaf) // XAF doesn't use decimal places
-    
-    console.log('Payment amount calculated:', { 
-      currency, 
-      originalPrice: currency === 'gbp' ? tokenPackage.price_gbp : tokenPackage.price_xaf,
-      amount 
-    })
-
-    // Initialize Stripe
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeSecretKey) {
-      console.error('STRIPE_SECRET_KEY environment variable not set')
-      throw new Error('Stripe configuration error')
+      return new Response(JSON.stringify({
+        error: 'Stripe secret key not configured'
+      }), {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
     }
-    console.log('Stripe key present:', stripeSecretKey.substring(0, 10) + '...')
-    
-    const stripe = new (await import('npm:stripe@14')).default(
-      stripeSecretKey,
-      {
-        apiVersion: '2023-10-16',
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2023-10-16'
+    });
+    const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: {
+        headers: {
+          Authorization: req.headers.get('Authorization') ?? ''
+        }
       }
-    )
-
-    // Validate currency
-    const stripeCurrency = currency === 'gbp' ? 'gbp' : 'xaf'
-    console.log('Creating payment intent with:', {
-      amount,
-      currency: stripeCurrency,
-      userId: user.id,
-      packageId: tokenPackage.id
-    })
-
-    // Create Payment Intent
+    });
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(req.headers.get("Authorization")?.replace("Bearer ", "") || "");
+    console.log("getUser() result:", JSON.stringify({
+      user,
+      userError
+    }));
+    if (userError || !user) {
+      return new Response(JSON.stringify({
+        error: 'Authentication required'
+      }), {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    // ✅ Look up package in the database
+    const { data: tokenPackage, error: packageError } = await supabaseClient.from('token_packages').select('*').eq('id', packageId).single();
+    if (packageError || !tokenPackage) {
+      return new Response(JSON.stringify({
+        error: 'Invalid token package'
+      }), {
+        status: 404,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    // ✅ Get the price for the specified currency
+    const priceField = currency === 'gbp' ? 'price_gbp' : 'price_xaf';
+    const amount = Number(tokenPackage[priceField]);
+    if (!amount || amount <= 0) {
+      return new Response(JSON.stringify({
+        error: 'Package price is invalid'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: stripeCurrency,
+      amount: Math.round(amount * 100),
+      currency,
       automatic_payment_methods: {
-        enabled: true,
+        enabled: true
       },
       metadata: {
-        userId: user.id,
-        packageId: tokenPackage.id,
-        tokenAmount: tokenPackage.token_amount.toString(),
-        bonusTokens: tokenPackage.bonus_tokens.toString(),
-      },
-    })
-    
-    console.log('Payment intent created:', {
-      id: paymentIntent.id,
-      status: paymentIntent.status,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency,
-      client_secret: paymentIntent.client_secret ? 'present' : 'missing'
-    })
-
-    // Create payment record in database
-    const { error: paymentError } = await supabaseClient
-      .from('payments')
-      .insert({
         user_id: user.id,
-        amount: currency === 'gbp' ? tokenPackage.price_gbp : tokenPackage.price_xaf,
-        currency: currency.toUpperCase(),
-        payment_method: 'stripe',
-        stripe_payment_intent_id: paymentIntent.id,
-        status: 'pending',
-        type: 'tokens',
-        metadata: {
-          packageId: tokenPackage.id,
-          tokenAmount: tokenPackage.token_amount,
-          bonusTokens: tokenPackage.bonus_tokens,
-        },
-      })
-
-    if (paymentError) {
-      console.error('Database payment record error:', paymentError)
-      throw new Error('Failed to create payment record')
+        packageId: tokenPackage.id,
+        tokenAmount: tokenPackage.token_amount,
+        bonusTokens: tokenPackage.bonus_tokens
+      }
+    });
+    // Optionally store the payment record in your DB
+    const { error: insertError } = await supabaseClient.from('payments').insert({
+      user_id: user.id,
+      stripe_payment_intent_id: paymentIntent.id,
+      status: 'pending',
+      amount,
+      currency,
+      metadata: {
+        tokenAmount: tokenPackage.token_amount,
+        bonusTokens: tokenPackage.bonus_tokens
+      }
+    });
+    if (insertError) {
+      console.error('Error saving payment record:', insertError);
     }
-    console.log('Payment record created in database')
-
-    console.log('=== CREATE PAYMENT INTENT SUCCESS ===')
-    return new Response(
-      JSON.stringify({
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+    return new Response(JSON.stringify({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    }), {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
       }
-    )
+    });
   } catch (error) {
-    console.error('=== CREATE PAYMENT INTENT ERROR ===')
-    console.error('Error details:', error)
-    console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+    console.error('Error creating payment intent:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to create payment intent'
+    }), {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
       }
-    )
+    });
   }
-})
+});
