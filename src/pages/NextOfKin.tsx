@@ -414,6 +414,8 @@ export const NextOfKin: React.FC = () => {
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value as any)}
+                    id="status-filter"
+                    name="status-filter"
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="all">All Status</option>
@@ -556,6 +558,8 @@ export const NextOfKin: React.FC = () => {
                 Relationship *
               </label>
               <select
+                id="relationship-select"
+                name="relationship"
                 value={formData.relationship}
                 onChange={(e) => setFormData(prev => ({ ...prev, relationship: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -644,6 +648,8 @@ export const NextOfKin: React.FC = () => {
                 Relationship *
               </label>
               <select
+                id="edit-relationship-select"
+                name="edit-relationship"
                 value={formData.relationship}
                 onChange={(e) => setFormData(prev => ({ ...prev, relationship: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
