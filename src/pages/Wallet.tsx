@@ -491,11 +491,11 @@ export const Wallet: React.FC = () => {
                           <span className="text-gray-600">Bonus:</span>
                           <span className="font-medium text-success-600">+{pkg.bonus_tokens} TMT</span>
                         </div>
-                        <div className="flex items-center justify-between text-sm font-semibold border-t pt-2">
-                          <span className="text-gray-900">Total:</span>
-                          <span className="text-primary-600">{pkg.token_amount + pkg.bonus_tokens} TMT</span>
-                        </div>
                       )}
+                      <div className="flex items-center justify-between text-sm font-semibold border-t pt-2">
+                        <span className="text-gray-900">Total:</span>
+                        <span className="text-primary-600">{pkg.token_amount + pkg.bonus_tokens} TMT</span>
+                      </div>
                     </div>
 
                     <Button
