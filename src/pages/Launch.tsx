@@ -176,7 +176,7 @@ export const Launch: React.FC = () => {
                     Tag an Asset Now
                   </Button>
                 </Link>
-                <Link to="/tag">
+                <Link to="/influencer-signup">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
                     Get Started Free
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -250,15 +250,15 @@ export const Launch: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/tag">
+                <Link to="/influencer-signup">
                   <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                     <Camera className="h-5 w-5 mr-2" />
-                    Start Tagging
+                    Get Free Tokens
                   </Button>
                 </Link>
-                <Link to="/influencer-signup">
+                <Link to="/tag">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600">
-                    Get Free Tokens
+                    Start Tagging
                   </Button>
                 </Link>
               </div>
@@ -440,10 +440,9 @@ export const Launch: React.FC = () => {
                           Start Tagging Now
                         </Button>
                       </Link>
-                      <Link to="/tag">
+                      <Link to="/influencer-signup">
                         <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                          <Camera className="h-5 w-5 mr-2" />
-                          Start Tagging
+                          Get Started Free
                         </Button>
                       </Link>
                     </div>
