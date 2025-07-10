@@ -218,7 +218,28 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
         borderRadius: '8px',
       },
     },
+    loader: 'auto',
   };
+
+  // Validate clientSecret format
+  if (!clientSecret || !clientSecret.includes('_secret_')) {
+    console.error('Invalid clientSecret format:', clientSecret);
+    return (
+      <div className="max-w-md mx-auto">
+        <Card>
+          <div className="text-center p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Error</h2>
+            <p className="text-error-600 mb-4">
+              Invalid payment session. Please try again.
+            </p>
+            <Button onClick={onCancel} variant="outline">
+              Go Back
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto">
@@ -228,7 +249,11 @@ export const StripeCheckout: React.FC<StripeCheckoutProps> = ({
           <p className="text-gray-600">Secure payment powered by Stripe</p>
         </div>
 
-        <Elements stripe={stripePromise} options={options}>
+        <Elements 
+          stripe={stripePromise} 
+          options={options}
+          key={clientSecret} // Force re-render if clientSecret changes
+        >
           <CheckoutForm
             clientSecret={clientSecret}
             paymentIntentId={paymentIntentId}

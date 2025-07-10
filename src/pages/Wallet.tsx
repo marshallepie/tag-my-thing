@@ -170,11 +170,15 @@ export const Wallet: React.FC = () => {
 
     setPaymentLoading(true);
     try {
+      console.log('Processing purchase for package:', selectedPackage);
       const result = await createPaymentIntent(selectedPackage.id, currency);
+      console.log('Payment intent result:', result);
+      
       setPaymentData({
         clientSecret: result.clientSecret,
         paymentIntentId: result.paymentIntentId,
       });
+      
       setShowPurchaseModal(false);
       setShowStripeCheckout(true);
     } catch (error: any) {
@@ -189,6 +193,8 @@ export const Wallet: React.FC = () => {
     if (!selectedPackage || !user) return;
 
     try {
+      console.log('Payment success result:', result);
+      
       // Get payment record from database using the paymentIntent ID
       const { data: payment, error: paymentError } = await supabase
         .from('payments')
@@ -198,10 +204,12 @@ export const Wallet: React.FC = () => {
         .single();
 
       if (paymentError || !payment) {
+        console.error('Payment record not found:', paymentError);
         throw new Error('Payment record not found');
       }
 
       if (payment.status === 'completed') {
+        console.log('Payment already completed');
         toast.success('Payment already processed!');
         setShowStripeCheckout(false);
         setSelectedPackage(null);
