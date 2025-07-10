@@ -198,7 +198,7 @@ export const Dashboard: React.FC = () => {
                   </p>
                 </div>
               )}
-            </Card>
+            </p></Card>
           </div>
         </div>
       </div>
