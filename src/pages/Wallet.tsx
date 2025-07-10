@@ -574,14 +574,16 @@ export const Wallet: React.FC = () => {
                       <span>{selectedPackage.token_amount} TMT</span>
                     </div>
                     {selectedPackage.bonus_tokens > 0 && (
-                      <div className="flex justify-between text-success-600">
-                        <span>Bonus Tokens:</span>
-                        <span>+{selectedPackage.bonus_tokens} TMT</span>
-                      </div>
-                      <div className="flex justify-between font-semibold border-t pt-2">
-                        <span>Total Tokens:</span>
-                        <span>{selectedPackage.token_amount + selectedPackage.bonus_tokens} TMT</span>
-                      </div>
+                      <>
+                        <div className="flex justify-between text-success-600">
+                          <span>Bonus Tokens:</span>
+                          <span>+{selectedPackage.bonus_tokens} TMT</span>
+                        </div>
+                        <div className="flex justify-between font-semibold border-t pt-2">
+                          <span>Total Tokens:</span>
+                          <span>{selectedPackage.token_amount + selectedPackage.bonus_tokens} TMT</span>
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
