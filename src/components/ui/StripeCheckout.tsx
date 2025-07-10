@@ -13,7 +13,7 @@ interface CheckoutFormProps {
   amount: string;
   currency: string;
   totalTokens: number;
-  onSuccess: (result: any) => void;
+  onSuccess: (paymentIntent: any) => void;
   onError: (error: string) => void;
 }
 
@@ -54,7 +54,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       setMessage(error.message || 'An unexpected error occurred.');
       onError(error.message || 'Payment failed');
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      onSuccess({ paymentIntentId, paymentIntent });
+      // Pass the entire paymentIntent object to onSuccess
+      onSuccess(paymentIntent);
     }
 
     setLoading(false);
@@ -127,7 +128,7 @@ interface StripeCheckoutProps {
   amount: string;
   currency: string;
   totalTokens: number;
-  onSuccess: (result: any) => void;
+  onSuccess: (paymentIntent: any) => void;
   onError: (error: string) => void;
   onCancel: () => void;
 }

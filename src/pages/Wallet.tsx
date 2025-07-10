@@ -186,10 +186,79 @@ export const Wallet: React.FC = () => {
   };
 
   const handlePaymentSuccess = async (result: any) => {
+    if (!selectedPackage || !user) return;
+
     try {
-      const confirmResult = await confirmPayment(result.paymentIntentId);
+      // Get payment record from database using the paymentIntent ID
+      const { data: payment, error: paymentError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('stripe_payment_intent_id', result.id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (paymentError || !payment) {
+        throw new Error('Payment record not found');
+      }
+
+      if (payment.status === 'completed') {
+        toast.success('Payment already processed!');
+        setShowStripeCheckout(false);
+        setSelectedPackage(null);
+        setPaymentData(null);
+        return;
+      }
+
+      // Calculate total tokens (selectedPackage.token_amount already includes any bonuses)
+      const totalTokens = selectedPackage.token_amount;
+
+      // Update payment status
+      const { error: updatePaymentError } = await supabase
+        .from('payments')
+        .update({ status: 'completed' })
+        .eq('id', payment.id);
+
+      if (updatePaymentError) {
+        throw new Error('Failed to update payment status');
+      }
+
+      // Get current wallet balance
+      const { data: wallet, error: walletError } = await supabase
+        .from('user_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single();
+
+      if (walletError || !wallet) {
+        throw new Error('User wallet not found');
+      }
+
+      // Update wallet balance
+      const { error: updateWalletError } = await supabase
+        .from('user_wallets')
+        .update({ balance: wallet.balance + totalTokens })
+        .eq('user_id', user.id);
+
+      if (updateWalletError) {
+        throw new Error('Failed to update wallet balance');
+      }
+
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('token_transactions')
+        .insert({
+          user_id: user.id,
+          amount: totalTokens,
+          type: 'earned',
+          source: 'purchase',
+          description: `Purchased ${totalTokens} TMT tokens`,
+        });
+
+      if (transactionError) {
+        throw new Error('Failed to create transaction record');
+      }
       
-      toast.success(`Payment successful! ${confirmResult.tokensAdded} TMT tokens added to your wallet.`);
+      toast.success(`Payment successful! ${totalTokens} TMT tokens added to your wallet.`);
       
       // Refresh wallet data
       await refreshWallet();

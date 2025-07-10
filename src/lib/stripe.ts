@@ -21,20 +21,4 @@ export const createPaymentIntent = async (packageId: string, currency: 'gbp' | '
   return response.json();
 };
 
-export const confirmPayment = async (paymentIntentId: string) => {
-  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/confirm-payment`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-    },
-    body: JSON.stringify({ paymentIntentId }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to confirm payment');
-  }
-
-  return response.json();
-};
+// Note: confirmPayment function removed - payment confirmation now handled client-side
