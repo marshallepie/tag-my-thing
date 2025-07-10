@@ -189,10 +189,10 @@ export const Header: React.FC = () => {
                   variant="ghost" 
                   size="sm" 
                   className="flex items-center"
-                  onClick={() => handleNavigation('/launch')}
+                  onClick={() => handleNavigation('/tag')}
                 >
-                    <Megaphone className="h-4 w-4 mr-1" />
-                    Launch
+                    <Camera className="h-4 w-4 mr-1" />
+                    Tag Asset
                 </Button>
                 <Button 
                   variant="outline" 
@@ -200,13 +200,6 @@ export const Header: React.FC = () => {
                   onClick={() => handleNavigation('/auth')}
                 >
                     Sign In
-                </Button>
-                <Button 
-                  variant="primary" 
-                  size="sm"
-                  onClick={() => handleNavigation('/influencer-signup')}
-                >
-                    Join Now
                 </Button>
               </div>
             )}

@@ -144,18 +144,18 @@ export const Landing: React.FC = () => {
               <Button 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/tag')}
               >
                   <Camera className="h-5 w-5 mr-2" />
-                  Join TagMyThing
+                  Tag an Asset Now
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/tag')}
               >
-                  Sign Up Now
+                  Get Started Free
                   <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -285,10 +285,10 @@ export const Landing: React.FC = () => {
                   variant="secondary" 
                   size="lg" 
                   className="w-full"
-                  onClick={() => handleNavigation('/auth')}
+                onClick={() => handleNavigation('/tag')}
                 >
                     Start Free Today
-                  Join TagMyThing
+                    <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>
             </motion.div>
@@ -319,15 +319,15 @@ export const Landing: React.FC = () => {
                 onClick={() => handleNavigation('/tag')}
               >
                   <Camera className="h-5 w-5 mr-2" />
-                  Join TagMyThing
+                  Tag Your First Asset
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
-                onClick={() => handleNavigation('/auth')}
+                onClick={() => handleNavigation('/tag')}
               >
-                  Sign In
+                  Create Account
               </Button>
             </div>
           </motion.div>

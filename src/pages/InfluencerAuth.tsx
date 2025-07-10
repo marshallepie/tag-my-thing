@@ -44,9 +44,19 @@ export const InfluencerAuth: React.FC = () => {
   }
 
   const handleSuccess = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirect');
+    const from = urlParams.get('from');
+    
     console.log('InfluencerAuth - Signup/signin successful');
-    // Navigate immediately - React Router will handle the transition
-    navigate('/dashboard', { replace: true });
+    
+    if (from === 'tagging' && redirect) {
+      // Redirect back to complete asset saving
+      navigate(`${redirect}?from=tagging`, { replace: true });
+    } else {
+      // Default redirect to dashboard
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   const influencerBenefits = [

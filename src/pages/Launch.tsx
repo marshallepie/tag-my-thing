@@ -176,7 +176,7 @@ export const Launch: React.FC = () => {
                     Tag an Asset Now
                   </Button>
                 </Link>
-                <Link to="/influencer-signup">
+                <Link to="/tag">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
                     Get Started Free
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -250,14 +250,15 @@ export const Launch: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/influencer-signup">
+                <Link to="/tag">
                   <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-                    Get Free Tokens
+                    <Camera className="h-5 w-5 mr-2" />
+                    Start Tagging
                   </Button>
                 </Link>
-                <Link to="/wallet">
+                <Link to="/influencer-signup">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600">
-                    Buy More Tokens
+                    Get Free Tokens
                   </Button>
                 </Link>
               </div>
@@ -439,9 +440,10 @@ export const Launch: React.FC = () => {
                           Start Tagging Now
                         </Button>
                       </Link>
-                      <Link to="/influencer-signup">
+                      <Link to="/tag">
                         <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                          Create Free Account
+                          <Camera className="h-5 w-5 mr-2" />
+                          Start Tagging
                         </Button>
                       </Link>
                     </div>
@@ -470,7 +472,7 @@ export const Launch: React.FC = () => {
               <Link to="/tag">
                 <Button variant="secondary" size="lg">
                   <Camera className="h-5 w-5 mr-2" />
-                  Tag Your First Asset
+                  Start Tagging Now
                 </Button>
               </Link>
             </motion.div>

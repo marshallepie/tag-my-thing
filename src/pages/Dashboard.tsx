@@ -153,7 +153,7 @@ export const Dashboard: React.FC = () => {
                 <Link to="/tag">
                   <Button variant="secondary" size="lg">
                     <Plus className="h-5 w-5 mr-2" />
-                    Start Tagging
+                    Tag Your First Asset
                   </Button>
                 </Link>
               </Card>
