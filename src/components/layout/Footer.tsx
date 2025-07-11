@@ -11,6 +11,7 @@ export const Footer: React.FC = () => {
       links: [
         { name: 'Privacy Policy', href: '/privacy-policy', internal: true },
         { name: 'Terms of Service', href: '/terms-of-service', internal: true },
+        { name: 'GDPR Compliance', href: '/gdpr-compliance', internal: true },
         { name: 'Cookie Policy', href: '#', internal: true },
       ]
     },

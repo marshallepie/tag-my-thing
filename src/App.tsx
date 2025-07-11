@@ -16,6 +16,7 @@ import { InfluencerReferrals } from './pages/InfluencerReferrals';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CustomerSupport } from './pages/CustomerSupport';
+import { GDPRCompliance } from './pages/GDPRCompliance';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -171,6 +172,14 @@ function App() {
               element={
                 <SafeRoute>
                   <CustomerSupport />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/gdpr-compliance" 
+              element={
+                <SafeRoute>
+                  <GDPRCompliance />
                 </SafeRoute>
               } 
             />
