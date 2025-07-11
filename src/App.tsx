@@ -13,6 +13,7 @@ import { NextOfKin } from './pages/NextOfKin';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
 import { InfluencerReferrals } from './pages/InfluencerReferrals';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -160,6 +161,14 @@ function App() {
               element={
                 <SafeRoute>
                   <TagAsset />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/privacy-policy" 
+              element={
+                <SafeRoute>
+                  <PrivacyPolicy />
                 </SafeRoute>
               } 
             />
