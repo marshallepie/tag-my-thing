@@ -21,7 +21,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
 
-export const Landing: React.FC = () => {
+export const Launch: React.FC = () => {
   const navigate = useNavigate();
   const [copiedPost, setCopiedPost] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState({
