@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Crown, Star, Users, TrendingUp, Gift, CheckCircle } from 'lucide-react';
 import { AuthForm } from '../components/auth/AuthForm';
@@ -8,8 +8,14 @@ import { useAuth } from '../hooks/useAuth';
 
 export const InfluencerAuth: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const { isAuthenticated, loading, initialized, user } = useAuth();
+
+  // Extract URL parameters for redirect after auth
+  const urlParams = new URLSearchParams(location.search);
+  const redirectParam = urlParams.get('redirect');
+  const fromParam = urlParams.get('from');
 
   // Navigation handler
   const handleNavigation = (path: string) => {
@@ -39,27 +45,21 @@ export const InfluencerAuth: React.FC = () => {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
+    // Check if we need to redirect to a specific page (e.g., after tagging an asset)
+    if (fromParam === 'tagging' && redirectParam) {
+      console.log('InfluencerAuth - Authenticated, redirecting to original destination:', `${redirectParam}?from=${fromParam}`);
+      return <Navigate to={`${redirectParam}?from=${fromParam}`} replace />;
+    }
     console.log('InfluencerAuth - User already authenticated, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
   const handleSuccess = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get('redirect');
-    const from = urlParams.get('from');
-    
     console.log('InfluencerAuth - Signup/signin successful');
     
-    if (from === 'tagging' && redirect) {
+    if (fromParam === 'tagging' && redirectParam) {
       // Redirect back to complete asset saving
-      navigate(`${redirect}?from=tagging`, { replace: true });
-    } else {
-      // Default redirect to dashboard
-      navigate('/dashboard', { replace: true });
-    }
-    if (from === 'tagging' && redirect) {
-      // Redirect back to complete asset saving
-      navigate(`${redirect}?from=tagging`, { replace: true });
+      navigate(`${redirectParam}?from=tagging`, { replace: true });
     } else {
       // Default redirect to dashboard
       navigate('/dashboard', { replace: true });
