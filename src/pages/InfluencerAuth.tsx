@@ -48,10 +48,6 @@ export const InfluencerAuth: React.FC = () => {
     const redirect = urlParams.get('redirect');
     const from = urlParams.get('from');
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get('redirect');
-    const from = urlParams.get('from');
-    
     console.log('InfluencerAuth - Signup/signin successful');
     
     if (from === 'tagging' && redirect) {
