@@ -17,6 +17,8 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CustomerSupport } from './pages/CustomerSupport';
 import { GDPRCompliance } from './pages/GDPRCompliance';
+import { CookiePolicy } from './pages/CookiePolicy';
+import { DataProcessingAgreement } from './pages/DataProcessingAgreement';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -196,6 +198,22 @@ function App() {
               element={
                 <SafeRoute>
                   <TermsOfService />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/cookie-policy" 
+              element={
+                <SafeRoute>
+                  <CookiePolicy />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/data-processing-agreement" 
+              element={
+                <SafeRoute>
+                  <DataProcessingAgreement />
                 </SafeRoute>
               } 
             />
