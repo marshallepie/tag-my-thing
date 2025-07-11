@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Camera, Shield, Smartphone, Globe, ArrowRight, CheckCircle, Megaphone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { Layout } from '../components/layout/Layout';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -58,47 +59,7 @@ export const Landing: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <button 
-              onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src="/tagmaithing.png" 
-                alt="TagMyThing" 
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-xl font-bold text-gray-900">TagMyThing</span>
-            </button>
-
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex items-center"
-                onClick={() => handleNavigation('/launch')}
-              >
-                  <Megaphone className="h-4 w-4 mr-1" />
-                  Launch Campaign
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleNavigation('/auth')}
-              >
-                  Sign In
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <Layout>
       {/* Launch Announcement Banner */}
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -333,6 +294,6 @@ export const Landing: React.FC = () => {
           </motion.div>
         </div>
       </section>
-    </div>
+    </Layout>
   );
 };
