@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Camera, Shield, Smartphone, Globe, ArrowRight, CheckCircle, Megaphone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { Footer } from '../components/layout/Footer';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -333,6 +334,9 @@ export const Landing: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
