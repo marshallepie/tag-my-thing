@@ -14,6 +14,7 @@ import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
 import { InfluencerReferrals } from './pages/InfluencerReferrals';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsOfService } from './pages/TermsOfService';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -169,6 +170,14 @@ function App() {
               element={
                 <SafeRoute>
                   <PrivacyPolicy />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/terms-of-service" 
+              element={
+                <SafeRoute>
+                  <TermsOfService />
                 </SafeRoute>
               } 
             />

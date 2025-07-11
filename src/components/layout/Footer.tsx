@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
       title: 'Legal',
       links: [
         { name: 'Privacy Policy', href: '/privacy-policy', internal: true },
-        { name: 'Terms of Service', href: '#', internal: true },
+        { name: 'Terms of Service', href: '/terms-of-service', internal: true },
         { name: 'Cookie Policy', href: '#', internal: true },
       ]
     },
