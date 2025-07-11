@@ -20,6 +20,7 @@ import {
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
+import { Layout } from '../components/layout/Layout';
 
 export const Launch: React.FC = () => {
   const navigate = useNavigate();
