@@ -33,20 +33,9 @@ import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Modal } from '../components/ui/Modal';
-import { StripeCheckout } from '../components/ui/StripeCheckout';
-import { createPaymentIntent, confirmPayment } from '../lib/stripe';
+import { TOKEN_PACKAGES, STRIPE_PAYMENT_LINK } from '../lib/constants';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-
-interface TokenPackage {
-  id: string;
-  name: string;
-  token_amount: number;
-  bonus_tokens: number;
-  price_gbp: number;
-  price_xaf: number;
-}
 
 interface Transaction {
   id: string;
@@ -58,56 +47,76 @@ interface Transaction {
 }
 
 export const Wallet: React.FC = () => {
-  const [tokenPackages, setTokenPackages] = useState<TokenPackage[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [showStripeCheckout, setShowStripeCheckout] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'earned' | 'spent'>('all');
   const [filterSource, setFilterSource] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [currency, setCurrency] = useState<'gbp' | 'xaf'>('gbp');
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentData, setPaymentData] = useState<{
-    clientSecret: string;
-    paymentIntentId: string;
-  } | null>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
   
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { balance, transactions, loading: tokensLoading, refreshWallet } = useTokens();
 
   useEffect(() => {
-    fetchTokenPackages();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     filterTransactions();
   }, [transactions, filterType, filterSource, searchTerm]);
 
-  const fetchTokenPackages = async () => {
-    try {
-      // Fetch token packages from Supabase
-      const { data: packages, error } = await supabase
-        .from('token_packages')
-        .select('*')
-        .eq('active', true)
-        .order('price_gbp', { ascending: true });
+  // Handle Stripe Payment Link redirect
+  useEffect(() => {
+    const handleStripeRedirect = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (sessionId && !processingPayment) {
+        setProcessingPayment(true);
+        
+        try {
+          // Get the current user's session to extract the access token
+          const { data } = await supabase.auth.getSession();
+          const access_token = data.session?.access_token;
+          
+          if (!access_token) {
+            throw new Error('User is not authenticated.');
+          }
 
-      if (error) {
-        console.error('Error fetching token packages:', error);
-        toast.error('Failed to load token packages');
-        return;
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-stripe-session`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${access_token}`,
+            },
+            body: JSON.stringify({ sessionId }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            toast.success(`Payment successful! Your wallet has been credited with ${result.tokensAdded} TMT tokens.`);
+            await refreshWallet();
+          } else if (result.already_processed) {
+            toast.info('This payment has already been processed.');
+          } else {
+            toast.error(result.error || 'Payment verification failed. Please contact support.');
+          }
+        } catch (error: any) {
+          console.error('Error verifying payment:', error);
+          toast.error('Payment verification failed. Please contact support if your payment was successful.');
+        } finally {
+          setProcessingPayment(false);
+          
+          // Clean up URL parameters
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
       }
+    };
 
-      setTokenPackages(packages || []);
-    } catch (error) {
-      console.error('Error fetching token packages:', error);
-      toast.error('Failed to load token packages');
-    } finally {
-      setLoading(false);
-    }
-  };
+    handleStripeRedirect();
+  }, [processingPayment, refreshWallet]);
 
   const filterTransactions = () => {
     let filtered = transactions;
@@ -160,136 +169,21 @@ export const Wallet: React.FC = () => {
     ).join(' ');
   };
 
-  const handlePurchase = (pkg: TokenPackage) => {
-    setSelectedPackage(pkg);
-    setShowPurchaseModal(true);
-  };
-
-  const processPurchase = async () => {
-    if (!selectedPackage) return;
-
-    setPaymentLoading(true);
-    try {
-      console.log('Processing purchase for package:', selectedPackage);
-      const result = await createPaymentIntent(selectedPackage.id, currency);
-      console.log('Payment intent result:', result);
-      
-      setPaymentData({
-        clientSecret: result.clientSecret,
-        paymentIntentId: result.paymentIntentId,
-      });
-      
-      setShowPurchaseModal(false);
-      setShowStripeCheckout(true);
-    } catch (error: any) {
-      console.error('Error creating payment intent:', error);
-      toast.error(error.message || 'Failed to initiate payment');
-    } finally {
-      setPaymentLoading(false);
+  const handlePurchase = () => {
+    if (!user) {
+      toast.error('Please sign in to purchase tokens');
+      return;
     }
-  };
 
-  const handlePaymentSuccess = async (result: any) => {
-    if (!selectedPackage || !user) return;
-
-    try {
-      console.log('Payment success result:', result);
-      
-      // Get payment record from database using the paymentIntent ID
-      const { data: payment, error: paymentError } = await supabase
-        .from('payments')
-        .select('*')
-        .eq('stripe_payment_intent_id', result.id)
-        .eq('user_id', user.id)
-        .single();
-
-      if (paymentError || !payment) {
-        console.error('Payment record not found:', paymentError);
-        throw new Error('Payment record not found');
-      }
-
-      if (payment.status === 'completed') {
-        console.log('Payment already completed');
-        toast.success('Payment already processed!');
-        setShowStripeCheckout(false);
-        setSelectedPackage(null);
-        setPaymentData(null);
-        return;
-      }
-
-      // Calculate total tokens (selectedPackage.token_amount already includes any bonuses)
-      const totalTokens = selectedPackage.token_amount;
-
-      // Update payment status
-      const { error: updatePaymentError } = await supabase
-        .from('payments')
-        .update({ status: 'completed' })
-        .eq('id', payment.id);
-
-      if (updatePaymentError) {
-        throw new Error('Failed to update payment status');
-      }
-
-      // Get current wallet balance
-      const { data: wallet, error: walletError } = await supabase
-        .from('user_wallets')
-        .select('balance')
-        .eq('user_id', user.id)
-        .single();
-
-      if (walletError || !wallet) {
-        throw new Error('User wallet not found');
-      }
-
-      // Update wallet balance
-      const { error: updateWalletError } = await supabase
-        .from('user_wallets')
-        .update({ balance: wallet.balance + totalTokens })
-        .eq('user_id', user.id);
-
-      if (updateWalletError) {
-        throw new Error('Failed to update wallet balance');
-      }
-
-      // Create transaction record
-      const { error: transactionError } = await supabase
-        .from('token_transactions')
-        .insert({
-          user_id: user.id,
-          amount: totalTokens,
-          type: 'earned',
-          source: 'purchase',
-          description: `Purchased ${totalTokens} TMT tokens`,
-        });
-
-      if (transactionError) {
-        throw new Error('Failed to create transaction record');
-      }
-      
-      toast.success(`Payment successful! ${totalTokens} TMT tokens added to your wallet.`);
-      
-      // Refresh wallet data
-      await refreshWallet();
-      
-      // Close modals and reset state
-      setShowStripeCheckout(false);
-      setSelectedPackage(null);
-      setPaymentData(null);
-    } catch (error: any) {
-      console.error('Error confirming payment:', error);
-      toast.error(error.message || 'Failed to confirm payment');
-    }
-  };
-
-  const handlePaymentError = (error: string) => {
-    toast.error(error);
-  };
-
-  const handlePaymentCancel = () => {
-    setShowStripeCheckout(false);
-    setSelectedPackage(null);
-    setPaymentData(null);
-    setShowPurchaseModal(true);
+    // Construct the Stripe Payment Link URL with success and cancel URLs
+    const baseUrl = window.location.origin;
+    const successUrl = `${baseUrl}/wallet?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/wallet?canceled=true`;
+    
+    const paymentUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${user.id}&success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+    
+    // Redirect to Stripe Payment Link
+    window.location.href = paymentUrl;
   };
 
   const stats = [
@@ -321,7 +215,7 @@ export const Wallet: React.FC = () => {
 
   const uniqueSources = [...new Set(transactions.map((tx: any) => tx.source))];
 
-  // Quick actions - now includes influencer referrals for influencers
+  // Quick actions - now includes referrals for all users
   const quickActions = [
     {
       title: 'Refer a Friend',
@@ -343,15 +237,13 @@ export const Wallet: React.FC = () => {
     }
   ];
 
-  // Add influencer referrals for influencers
-  // All users can now access referrals
+  // Add referral program for all users
   if (profile) {
     quickActions.unshift({
       title: 'Referral Program',
       description: 'Earn tokens by referring friends',
       icon: <Crown className="h-4 w-4" />,
       action: () => {
-        // Navigate to referrals page for all users
         window.location.href = '/referrals';
       }
     });
@@ -390,9 +282,9 @@ export const Wallet: React.FC = () => {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button onClick={() => setShowPurchaseModal(true)}>
+            <Button onClick={handlePurchase} disabled={processingPayment}>
               <Plus className="h-5 w-5 mr-2" />
-              Buy Tokens
+              {processingPayment ? 'Processing...' : 'Buy Tokens'}
             </Button>
           </div>
         </div>
@@ -524,32 +416,10 @@ export const Wallet: React.FC = () => {
             <Card>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Buy Tokens</h2>
-                <div className="flex bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setCurrency('gbp')}
-                    className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                      currency === 'gbp'
-                        ? 'bg-white text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    GBP
-                  </button>
-                  <button
-                    onClick={() => setCurrency('xaf')}
-                    className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                      currency === 'xaf'
-                        ? 'bg-white text-primary-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    XAF
-                  </button>
-                </div>
               </div>
 
               <div className="space-y-4">
-                {tokenPackages.map((pkg, index) => (
+                {TOKEN_PACKAGES.map((pkg, index) => (
                   <motion.div
                     key={pkg.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -560,7 +430,7 @@ export const Wallet: React.FC = () => {
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
                       <span className="text-lg font-bold text-primary-600">
-                        {currency === 'gbp' ? `£${pkg.price_gbp.toFixed(2)}` : `${pkg.price_xaf} XAF`}
+                        £{pkg.price_gbp.toFixed(2)}
                       </span>
                     </div>
                     
@@ -569,14 +439,19 @@ export const Wallet: React.FC = () => {
                         <span className="text-gray-600">Tokens:</span>
                         <span className="font-medium">{pkg.token_amount} TMT</span>
                       </div>
+                      <div className="text-xs text-gray-500">
+                        <div>≈ {pkg.price_xaf.toLocaleString()} XAF</div>
+                        <div>≈ {pkg.price_ngn.toLocaleString()} NGN</div>
+                      </div>
                     </div>
 
                     <Button
-                      onClick={() => handlePurchase(pkg)}
+                      onClick={handlePurchase}
                       className="w-full"
                       size="sm"
+                      disabled={processingPayment}
                     >
-                      Purchase
+                      {processingPayment ? 'Processing...' : 'Buy Now'}
                     </Button>
                   </motion.div>
                 ))}
@@ -620,127 +495,6 @@ export const Wallet: React.FC = () => {
             </Card>
           </div>
         </div>
-
-        {/* Purchase Modal */}
-        <Modal
-          isOpen={showPurchaseModal}
-          onClose={() => {
-            setShowPurchaseModal(false);
-            setSelectedPackage(null);
-          }}
-          title="Purchase Tokens"
-        >
-          {selectedPackage ? (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {selectedPackage.name}
-                </h3>
-                <div className="text-3xl font-bold text-primary-600 mb-4">
-                  {currency === 'gbp' ? `£${selectedPackage.price_gbp.toFixed(2)}` : `${selectedPackage.price_xaf} XAF`}
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between font-semibold">
-                      <span>Tokens:</span>
-                      <span>{selectedPackage.token_amount} TMT</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-900">Select Payment Method</h4>
-                
-                <div className="space-y-3">
-                  <button 
-                    onClick={processPurchase}
-                    disabled={paymentLoading}
-                    className="w-full p-4 border border-gray-300 rounded-lg hover:border-primary-300 transition-colors text-left disabled:opacity-50"
-                  >
-                    <div className="flex items-center">
-                      <CreditCard className="h-5 w-5 text-gray-600 mr-3" />
-                      <div>
-                        <div className="font-medium text-gray-900">Credit/Debit Card</div>
-                        <div className="text-sm text-gray-600">Powered by Stripe</div>
-                      </div>
-                    </div>
-                  </button>
-                  
-                  <button 
-                    disabled
-                    className="w-full p-4 border border-gray-300 rounded-lg opacity-50 cursor-not-allowed text-left"
-                  >
-                    <div className="flex items-center">
-                      <Smartphone className="h-5 w-5 text-gray-600 mr-3" />
-                      <div>
-                        <div className="font-medium text-gray-900">Mobile Money</div>
-                        <div className="text-sm text-gray-600">Coming Soon</div>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowPurchaseModal(false);
-                    setSelectedPackage(null);
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Choose a Token Package</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {tokenPackages.map((pkg) => (
-                  <button
-                    key={pkg.id}
-                    onClick={() => setSelectedPackage(pkg)}
-                    className="p-4 border border-gray-300 rounded-lg hover:border-primary-300 transition-colors text-left"
-                  >
-                    <div className="font-medium text-gray-900 mb-1">{pkg.name}</div>
-                    <div className="text-sm text-gray-600 mb-2">
-                      {pkg.token_amount} TMT
-                    </div>
-                    <div className="font-semibold text-primary-600">
-                      {currency === 'gbp' ? `£${pkg.price_gbp.toFixed(2)}` : `${pkg.price_xaf} XAF`}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </Modal>
-
-        {/* Stripe Checkout Modal */}
-        <Modal
-          isOpen={showStripeCheckout}
-          onClose={handlePaymentCancel}
-          title=""
-          size="lg"
-        >
-          {paymentData && selectedPackage && (
-            <StripeCheckout
-              clientSecret={paymentData.clientSecret}
-              paymentIntentId={paymentData.paymentIntentId}
-              packageName={selectedPackage.name}
-              amount={currency === 'gbp' ? `£${selectedPackage.price_gbp.toFixed(2)}` : `${selectedPackage.price_xaf} XAF`}
-              currency={currency}
-              totalTokens={selectedPackage.token_amount}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-              onCancel={handlePaymentCancel}
-            />
-          )}
-        </Modal>
       </div>
     </Layout>
   );
