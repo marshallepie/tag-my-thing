@@ -15,6 +15,7 @@ import { Settings } from './pages/Settings';
 import { InfluencerReferrals } from './pages/InfluencerReferrals';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
+import { CustomerSupport } from './pages/CustomerSupport';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -162,6 +163,14 @@ function App() {
               element={
                 <SafeRoute>
                   <TagAsset />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/support" 
+              element={
+                <SafeRoute>
+                  <CustomerSupport />
                 </SafeRoute>
               } 
             />
