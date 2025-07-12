@@ -237,7 +237,7 @@ export const TagAsset: React.FC = () => {
         
         // Redirect to signup with tracking parameters
         console.log('TagAsset - Redirecting to signup with params');
-        navigate('/influencer-signup?redirect=/assets&from=tagging');
+        navigate('/influencer-signup?redirect=/tag&from=tagging');
         return;
       }
 
