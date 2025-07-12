@@ -67,30 +67,32 @@ export const Landing: React.FC = () => {
             {/* Logo */}
             <button 
               onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-1 sm:space-x-3 hover:opacity-80 transition-opacity"
             >
               <img 
                 src="/tagmaithing.png" 
                 alt="TagMyThing" 
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-xl font-bold text-gray-900">TagMyThing</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">TagMyThing</span>
             </button>
 
             {/* Navigation Links */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-3">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex items-center"
+                className="flex items-center text-xs sm:text-sm px-2 sm:px-3"
                 onClick={() => handleNavigation('/launch')}
               >
                   <Megaphone className="h-4 w-4 mr-1" />
-                  Launch Campaign
+                  <span className="hidden xs:inline">Launch Campaign</span>
+                  <span className="xs:hidden">Launch</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
+                className="text-xs sm:text-sm px-2 sm:px-3"
                 onClick={() => handleNavigation('/auth')}
               >
                   Sign In
