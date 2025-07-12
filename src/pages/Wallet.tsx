@@ -33,7 +33,7 @@ import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { TOKEN_PACKAGES, STRIPE_PAYMENT_LINK } from '../lib/constants';
+import { TOKEN_PACKAGES } from '../lib/constants';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -169,9 +169,19 @@ export const Wallet: React.FC = () => {
     ).join(' ');
   };
 
-  const handlePurchase = () => {
+  const handlePurchase = (packageId?: string) => {
     if (!user) {
       toast.error('Please sign in to purchase tokens');
+      return;
+    }
+
+    // Find the selected package or use the first one as default
+    const selectedPackage = packageId 
+      ? TOKEN_PACKAGES.find(pkg => pkg.id === packageId) 
+      : TOKEN_PACKAGES[0];
+    
+    if (!selectedPackage) {
+      toast.error('Invalid token package');
       return;
     }
 
@@ -180,7 +190,7 @@ export const Wallet: React.FC = () => {
     const successUrl = `${baseUrl}/wallet?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/wallet?canceled=true`;
     
-    const paymentUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${user.id}&success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+    const paymentUrl = `${selectedPackage.stripe_payment_link}?client_reference_id=${user.id}&success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
     
     // Redirect to Stripe Payment Link
     window.location.href = paymentUrl;
@@ -446,7 +456,7 @@ export const Wallet: React.FC = () => {
                     </div>
 
                     <Button
-                      onClick={handlePurchase}
+                      onClick={() => handlePurchase(pkg.id)}
                       className="w-full"
                       size="sm"
                       disabled={processingPayment}

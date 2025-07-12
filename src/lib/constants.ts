@@ -13,6 +13,7 @@ export const TOKEN_PACKAGES = [
     price_gbp: 1.00,
     price_xaf: Math.round(1.00 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(1.00 * CURRENCY_RATES.NGN_RATE),
+    stripe_payment_link: 'https://buy.stripe.com/00w4gA4hJ8lm7mr9k1ak000'
   },
   {
     id: 'power',
@@ -21,8 +22,6 @@ export const TOKEN_PACKAGES = [
     price_gbp: 4.50,
     price_xaf: Math.round(4.50 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(4.50 * CURRENCY_RATES.NGN_RATE),
+    stripe_payment_link: 'https://buy.stripe.com/5kQ9AU8xZcBC4afdAhak001'
   },
 ] as const;
-
-// Stripe Payment Link URL
-export const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/00w4gA4hJ8lm7mr9k1ak000';
