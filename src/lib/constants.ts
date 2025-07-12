@@ -24,4 +24,13 @@ export const TOKEN_PACKAGES = [
     price_ngn: Math.round(4.50 * CURRENCY_RATES.NGN_RATE),
     stripe_payment_link: 'https://buy.stripe.com/5kQ9AU8xZcBC4afdAhak001'
   },
+  {
+    id: 'mega',
+    name: 'Mega Pack',
+    token_amount: 5000,
+    price_gbp: 39.99,
+    price_xaf: Math.round(39.99 * CURRENCY_RATES.XAF_RATE),
+    price_ngn: Math.round(39.99 * CURRENCY_RATES.NGN_RATE),
+    stripe_payment_link: 'https://buy.stripe.com/6oU5kE6pR6de2273ZHak002'
+  },
 ] as const;
