@@ -7,7 +7,7 @@ export interface Database {
           email: string;
           full_name: string | null;
           avatar_url: string | null;
-          role: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer';
+          role: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer' | 'admin_influencer';
           subscription_plan: 'freemium' | 'pro' | 'enterprise';
           created_at: string;
           updated_at: string;
@@ -20,7 +20,7 @@ export interface Database {
           email: string;
           full_name?: string | null;
           avatar_url?: string | null;
-          role?: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer';
+          role?: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer' | 'admin_influencer';
           subscription_plan?: 'freemium' | 'pro' | 'enterprise';
           location?: string | null;
           language?: string | null;
@@ -29,7 +29,7 @@ export interface Database {
         Update: {
           full_name?: string | null;
           avatar_url?: string | null;
-          role?: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer';
+          role?: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer' | 'admin_influencer';
           subscription_plan?: 'freemium' | 'pro' | 'enterprise';
           location?: string | null;
           language?: string | null;

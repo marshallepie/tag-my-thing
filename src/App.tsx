@@ -13,6 +13,8 @@ import { NextOfKin } from './pages/NextOfKin';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
 import { InfluencerReferrals } from './pages/InfluencerReferrals';
+import { AdminInfluencerDashboard } from './pages/AdminInfluencerDashboard';
+import { Unauthorized } from './pages/Unauthorized';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { CustomerSupport } from './pages/CustomerSupport';
@@ -78,6 +80,25 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Admin Influencer Route Component
+const AdminInfluencerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAdminInfluencer, loading, initialized, isAuthenticated } = useAuth();
+
+  if (!initialized || loading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isAdminInfluencer) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
@@ -301,6 +322,28 @@ function App() {
             <Route
               path="/influencer-referrals"
               element={<Navigate to="/referrals" replace />}
+            />
+
+            {/* Admin Influencer Dashboard Route */}
+            <Route
+              path="/admin-influencer-dashboard"
+              element={
+                <SafeRoute>
+                  <AdminInfluencerRoute>
+                    <AdminInfluencerDashboard />
+                  </AdminInfluencerRoute>
+                </SafeRoute>
+              }
+            />
+
+            {/* Unauthorized Route */}
+            <Route
+              path="/unauthorized"
+              element={
+                <SafeRoute>
+                  <Unauthorized />
+                </SafeRoute>
+              }
             />
 
             {/* Catch all route - 404 handler */}

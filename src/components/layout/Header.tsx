@@ -8,7 +8,7 @@ import { Button } from '../ui/Button';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, signOut, isAuthenticated, isAdmin, isModerator } = useAuth();
+  const { user, profile, signOut, isAuthenticated, isAdmin, isModerator, isAdminInfluencer } = useAuth();
   const { balance } = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,7 +45,9 @@ export const Header: React.FC = () => {
     navigation.push({ name: 'Referrals', href: '/referrals' });
   }
 
-  if (isAdmin) {
+  if (isAdminInfluencer) {
+    navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
+  } else if (isAdmin) {
     navigation.push({ name: 'Admin', href: '/admin' });
   } else if (isModerator) {
     navigation.push({ name: 'Moderator', href: '/moderator' });
