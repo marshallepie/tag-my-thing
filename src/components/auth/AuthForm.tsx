@@ -188,10 +188,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
           console.log('AuthForm - Signup completed successfully, calling onSuccess');
           toast.success(successMessage);
           
-          // Add a small delay to ensure all operations complete
+          // Add longer delay to ensure auth state is fully established
           setTimeout(() => {
             onSuccess();
-          }, 300);
+          }, 1000);
         }
       } else {
         console.log('AuthForm - Starting signin process');
@@ -207,10 +207,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
         console.log('AuthForm - Signin completed successfully');
         toast.success('Welcome back!');
         
-        // Small delay for auth state to update
+        // Longer delay for auth state to fully update
         setTimeout(() => {
           onSuccess();
-        }, 100);
+        }, 800);
       }
     } catch (error: any) {
       console.error('Auth error:', error);

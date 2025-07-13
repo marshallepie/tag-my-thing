@@ -124,15 +124,20 @@ const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 // Auth redirect component
 const AuthRedirect: React.FC = () => {
   const { isAuthenticated, loading, initialized } = useAuth();
+  
+  console.log('AuthRedirect - State:', { isAuthenticated, loading, initialized });
 
   if (!initialized || loading) {
+    console.log('AuthRedirect - Showing loading screen');
     return <LoadingScreen />;
   }
 
   if (isAuthenticated) {
+    console.log('AuthRedirect - User authenticated, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
+  console.log('AuthRedirect - User not authenticated, showing auth form');
   return <Auth />;
 };
 

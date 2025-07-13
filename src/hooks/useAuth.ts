@@ -85,9 +85,6 @@ export const useAuth = () => {
   const setAuthenticatedState = useCallback(async (authUser: User) => {
     setUser(authUser);
     
-    // Add a small delay to ensure database operations have completed
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
     const profileData = await fetchProfile(authUser.id);
     setLoading(false);
     setInitialized(true);
@@ -169,12 +166,10 @@ export const useAuth = () => {
           console.log('useAuth - User signed in/token refreshed, setting authenticated state');
           setLoading(true);
           
-          // Add delay for database operations to complete
-          setTimeout(async () => {
-            if (mounted) {
-              await setAuthenticatedState(session.user);
-            }
-          }, 200);
+          // Set authenticated state immediately
+          if (mounted) {
+            await setAuthenticatedState(session.user);
+          }
         }
       }
     );

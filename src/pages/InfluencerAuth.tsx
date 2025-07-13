@@ -59,10 +59,14 @@ export const InfluencerAuth: React.FC = () => {
     
     if (fromParam === 'tagging' && redirectParam) {
       // Redirect back to complete asset saving
-      navigate(`${redirectParam}?from=tagging`, { replace: true });
+      setTimeout(() => {
+        navigate(`${redirectParam}?from=tagging`, { replace: true });
+      }, 100);
     } else {
       // Default redirect to dashboard
-      navigate('/dashboard', { replace: true });
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 100);
     }
   };
 

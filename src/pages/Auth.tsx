@@ -36,9 +36,11 @@ export const Auth: React.FC = () => {
   }
 
   const handleSuccess = () => {
-    // Navigate to dashboard immediately after successful auth
-    console.log('Auth - Signup/signin successful');
-    navigate('/dashboard');
+    // Navigate to dashboard with delay to ensure auth state is ready
+    console.log('Auth - Signup/signin successful, navigating to dashboard');
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 100);
   };
 
   return (
