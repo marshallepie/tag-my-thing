@@ -131,8 +131,18 @@ export const calculateTokens = async (mediaItems: MediaItem[]): Promise<TokenCal
     }
 
     totalTokens += itemTokenCost;
-    breakdown[item.type].count++;
-    breakdown[item.type].cost += itemTokenCost;
+    
+    // Use explicit type checking to avoid TypeError
+    if (item.type === 'photo') {
+      breakdown.photos.count++;
+      breakdown.photos.cost += itemTokenCost;
+    } else if (item.type === 'video') {
+      breakdown.videos.count++;
+      breakdown.videos.cost += itemTokenCost;
+    } else if (item.type === 'pdf') {
+      breakdown.pdfs.count++;
+      breakdown.pdfs.cost += itemTokenCost;
+    }
 
     calculatedMediaItems.push({
       ...item,
