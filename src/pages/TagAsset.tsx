@@ -106,7 +106,7 @@ export const TagAsset: React.FC = () => {
       fileCount: files.length,
       formData,
       totalTokens: tokenCalculation.totalTokens,
-      userId: user?.id
+      userId: user?.id,
       currentBalance: balance
     });
     
