@@ -22,6 +22,7 @@ export const TagAsset: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [waitingForTokens, setWaitingForTokens] = useState(false);
   const [hasProcessedPendingAsset, setHasProcessedPendingAsset] = useState(false);
+  const [isProcessingPendingAsset, setIsProcessingPendingAsset] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { spendTokens, balance, loading: tokensLoading } = useTokens();
   const navigate = useNavigate();
@@ -123,13 +124,21 @@ export const TagAsset: React.FC = () => {
   }, [user, balance, spendTokens]);
 
   const handlePostSignupSave = React.useCallback(async () => {
-    console.log('TagAsset - handlePostSignupSave called, hasProcessedPendingAsset:', hasProcessedPendingAsset);
+    console.log('TagAsset - handlePostSignupSave called', {
+      hasProcessedPendingAsset,
+      isProcessingPendingAsset,
+      user: !!user,
+      balance
+    });
     
-    // Prevent duplicate processing
-    if (hasProcessedPendingAsset) {
-      console.log('TagAsset - Already processed pending asset, skipping');
+    // STRICT GATEKEEPER: Prevent any duplicate processing
+    if (hasProcessedPendingAsset || isProcessingPendingAsset) {
+      console.log('TagAsset - Already processed or currently processing pending asset, skipping');
       return;
     }
+    
+    // Set processing flag IMMEDIATELY to prevent re-entry
+    setIsProcessingPendingAsset(true);
     
     try {
       const savedMediaData = sessionStorage.getItem('tagmything_pending_media_data');
@@ -144,10 +153,14 @@ export const TagAsset: React.FC = () => {
 
       if (!savedMediaData || !savedFormData || !savedTokenCalculation) {
         console.log('TagAsset - Missing required data in sessionStorage');
-        setHasProcessedPendingAsset(true); // Mark as processed to prevent retries
+        setHasProcessedPendingAsset(true);
+        setIsProcessingPendingAsset(false);
         return;
       }
 
+      // Mark as processed BEFORE starting the save operation
+      setHasProcessedPendingAsset(true);
+      
       console.log('TagAsset - All required data found, proceeding with save');
       setLoading(true);
       
@@ -191,22 +204,23 @@ export const TagAsset: React.FC = () => {
         sessionStorage.removeItem('tagmything_pending_form_data');
         sessionStorage.removeItem('tagmything_pending_token_calculation');
         
-        // Mark as processed to prevent duplicate saves
-        setHasProcessedPendingAsset(true);
-        
         toast.success('Asset saved successfully!');
         navigate('/assets');
       } else {
         console.log('TagAsset - Save failed, keeping data for potential retry');
-        // Don't clear sessionStorage on failure to allow retry
+        // Reset flags on failure to allow retry
+        setHasProcessedPendingAsset(false);
       }
     } catch (error) {
       console.error('TagAsset - Error in post-signup save:', error);
       toast.error('Failed to save your asset. Please try again.');
+      // Reset flags on error to allow retry
+      setHasProcessedPendingAsset(false);
     } finally {
       setLoading(false);
+      setIsProcessingPendingAsset(false);
     }
-  }, [user, balance, saveAsset, hasProcessedPendingAsset, navigate]);
+  }, [user, balance, saveAsset, hasProcessedPendingAsset, isProcessingPendingAsset, navigate]);
 
   // Check for post-signup asset saving
   useEffect(() => {
@@ -217,15 +231,30 @@ export const TagAsset: React.FC = () => {
       tokensLoading,
       balance,
       waitingForTokens,
-      hasProcessedPendingAsset
+      hasProcessedPendingAsset,
+      isProcessingPendingAsset
     });
     
     const urlParams = new URLSearchParams(location.search);
     const fromTagging = urlParams.get('from') === 'tagging';
     console.log('TagAsset - URL params check:', { fromTagging });
     
-    if (fromTagging && isAuthenticated && user && !hasProcessedPendingAsset) {
+    // STRICT CONDITIONS: Only proceed if all conditions are met and not already processed/processing
+    if (fromTagging && isAuthenticated && user && !hasProcessedPendingAsset && !isProcessingPendingAsset) {
       console.log('TagAsset - Conditions met for post-signup save, checking token status');
+      
+      // Check if we have pending data before proceeding
+      const hasPendingData = !!(
+        sessionStorage.getItem('tagmything_pending_media_data') &&
+        sessionStorage.getItem('tagmything_pending_form_data') &&
+        sessionStorage.getItem('tagmything_pending_token_calculation')
+      );
+      
+      if (!hasPendingData) {
+        console.log('TagAsset - No pending data found, marking as processed');
+        setHasProcessedPendingAsset(true);
+        return;
+      }
       
       if (tokensLoading) {
         console.log('TagAsset - Tokens still loading, waiting...');
@@ -252,11 +281,12 @@ export const TagAsset: React.FC = () => {
         fromTagging,
         isAuthenticated,
         hasUser: !!user,
-        hasProcessedPendingAsset
+        hasProcessedPendingAsset,
+        isProcessingPendingAsset
       });
       setWaitingForTokens(false);
     }
-  }, [isAuthenticated, user, location, tokensLoading, balance, hasProcessedPendingAsset, handlePostSignupSave, navigate]);
+  }, [isAuthenticated, user, location, tokensLoading, balance, hasProcessedPendingAsset, isProcessingPendingAsset, handlePostSignupSave, navigate]);
 
   const handleCapture = (files: MediaFile[]) => {
     setMediaFiles(files);
