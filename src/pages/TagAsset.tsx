@@ -20,8 +20,9 @@ export const TagAsset: React.FC = () => {
   const [step, setStep] = useState<'capture' | 'form'>('capture');
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);
+  const [waitingForTokens, setWaitingForTokens] = useState(false);
   const { isAuthenticated, user } = useAuth();
-  const { spendTokens } = useTokens();
+  const { spendTokens, balance, loading: tokensLoading } = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,7 +31,10 @@ export const TagAsset: React.FC = () => {
     console.log('TagAsset - useEffect triggered with:', {
       isAuthenticated,
       hasUser: !!user,
-      locationSearch: location.search
+      locationSearch: location.search,
+      tokensLoading,
+      balance,
+      waitingForTokens
     });
     
     const urlParams = new URLSearchParams(location.search);
@@ -38,16 +42,36 @@ export const TagAsset: React.FC = () => {
     console.log('TagAsset - URL params check:', { fromTagging });
     
     if (fromTagging && isAuthenticated && user) {
-      console.log('TagAsset - Conditions met for post-signup save, calling handlePostSignupSave');
-      handlePostSignupSave();
+      console.log('TagAsset - Conditions met for post-signup save, checking token status');
+      
+      if (tokensLoading) {
+        console.log('TagAsset - Tokens still loading, waiting...');
+        setWaitingForTokens(true);
+        return;
+      }
+      
+      if (balance > 0) {
+        console.log('TagAsset - Tokens available, proceeding with save');
+        setWaitingForTokens(false);
+        handlePostSignupSave();
+      } else {
+        console.log('TagAsset - No tokens available after signup, this is unexpected');
+        toast.error('Token allocation failed. Please contact support.');
+        // Clear pending data and redirect
+        sessionStorage.removeItem('tagmything_pending_media_data');
+        sessionStorage.removeItem('tagmything_pending_form_data');
+        sessionStorage.removeItem('tagmything_pending_token_calculation');
+        navigate('/dashboard');
+      }
     } else {
       console.log('TagAsset - Conditions not met for post-signup save:', {
         fromTagging,
         isAuthenticated,
         hasUser: !!user
       });
+      setWaitingForTokens(false);
     }
-  }, [isAuthenticated, user, location]);
+  }, [isAuthenticated, user, location, tokensLoading, balance]);
 
   const handleCapture = (files: MediaFile[]) => {
     setMediaFiles(files);
@@ -83,6 +107,7 @@ export const TagAsset: React.FC = () => {
       formData,
       totalTokens: tokenCalculation.totalTokens,
       userId: user?.id
+      currentBalance: balance
     });
     
     if (!user) return false;
@@ -198,7 +223,8 @@ export const TagAsset: React.FC = () => {
         console.log('TagAsset - Parsed data:', { 
           mediaCount: mediaData.length, 
           formData, 
-          totalTokens: tokenCalculation.totalTokens 
+          totalTokens: tokenCalculation.totalTokens,
+          currentBalance: balance
         });
         
         // Convert base64 back to files
@@ -306,6 +332,19 @@ export const TagAsset: React.FC = () => {
     }
   };
 
+  // Show loading screen while waiting for tokens after signup
+  if (waitingForTokens) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Setting up your account...</h2>
+          <p className="text-gray-600">Please wait while we prepare your free tokens</p>
+        </div>
+      </div>
+    );
+  }
+
   if (step === 'capture') {
     return (
       <CameraCapture
@@ -322,7 +361,7 @@ export const TagAsset: React.FC = () => {
           mediaFiles={mediaFiles}
           onSubmit={handleFormSubmit}
           onCancel={() => navigate('/dashboard')}
-          loading={loading}
+          loading={loading || waitingForTokens}
         />
       </div>
     );
