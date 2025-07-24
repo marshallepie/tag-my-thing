@@ -1,8 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Video, RotateCcw, Check, X, Upload, Plus, Trash2, FileText, Image, Film } from 'lucide-react';
+import { Camera, Video, RotateCcw, Check, X, Upload, Plus, Trash2, FileText, Image, Film, Eye } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { Modal } from '../ui/Modal';
 import { getMediaTypeFromFile, getVideoDuration, formatFileSize, formatDuration } from '../../lib/tokenCalculator';
 
 interface MediaFile {
@@ -31,6 +32,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [capturedMedia, setCapturedMedia] = useState<{ url: string; type: 'photo' | 'video' } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedMediaForPreview, setSelectedMediaForPreview] = useState<MediaFile | null>(null);
 
   React.useEffect(() => {
     if (mode === 'camera') {
@@ -275,6 +277,63 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
           </div>
         </div>
 
+        {/* Media Preview Modal */}
+        <Modal
+          isOpen={!!selectedMediaForPreview}
+          onClose={() => setSelectedMediaForPreview(null)}
+          title={selectedMediaForPreview?.file.name || 'Media Preview'}
+          size="xl"
+        >
+          {selectedMediaForPreview && (
+            <div className="space-y-4">
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                {selectedMediaForPreview.type === 'photo' ? (
+                  <img
+                    src={selectedMediaForPreview.preview}
+                    alt="Preview"
+                    className="w-full h-full object-contain"
+                  />
+                ) : selectedMediaForPreview.type === 'video' ? (
+                  <video
+                    src={selectedMediaForPreview.preview}
+                    controls
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <iframe
+                    src={selectedMediaForPreview.preview}
+                    className="w-full h-full border-0"
+                    title="PDF Preview"
+                  />
+                )}
+              </div>
+              
+              {/* File Details */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-900">Type:</span>
+                    <span className="ml-2 text-gray-600 capitalize">{selectedMediaForPreview.type}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-900">Size:</span>
+                    <span className="ml-2 text-gray-600">{formatFileSize(selectedMediaForPreview.file.size)}</span>
+                  </div>
+                  {selectedMediaForPreview.duration && (
+                    <div>
+                      <span className="font-medium text-gray-900">Duration:</span>
+                      <span className="ml-2 text-gray-600">{formatDuration(selectedMediaForPreview.duration)}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-medium text-gray-900">Name:</span>
+                    <span className="ml-2 text-gray-600 truncate">{selectedMediaForPreview.file.name}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal>
         <div className="bg-black bg-opacity-90 p-4">
           <div className="flex justify-center space-x-4">
             <Button
@@ -350,7 +409,10 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                     </div>
                   </div>
 
-                  {/* Remove Button */}
+                    <div 
+                      className="aspect-video bg-gray-100 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setSelectedMediaForPreview(mediaFile)}
+                    >
                   <button
                     onClick={() => removeMediaFile(index)}
                     className="absolute top-2 right-2 bg-error-600 text-white p-1 rounded-full hover:bg-error-700 transition-colors"
@@ -368,6 +430,13 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                       {mediaFile.duration && (
                         <div>Duration: {formatDuration(mediaFile.duration)}</div>
                       )}
+                      
+                      {/* Preview overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+                        <div className="bg-white bg-opacity-90 rounded-full p-2">
+                          <Eye className="h-5 w-5 text-gray-700" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </Card>

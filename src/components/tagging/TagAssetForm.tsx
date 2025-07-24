@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
+import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2, Eye } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import { Modal } from '../ui/Modal';
 import { calculateTokens, formatFileSize, formatDuration, type TokenCalculationResult } from '../../lib/tokenCalculator';
 
 interface MediaFile {
@@ -48,6 +49,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [tokenCalculation, setTokenCalculation] = useState<TokenCalculationResult | null>(null);
   const [calculationLoading, setCalculationLoading] = useState(true);
+  const [selectedMediaForPreview, setSelectedMediaForPreview] = useState<MediaFile | null>(null);
 
   // Calculate tokens when component mounts or media files change
   useEffect(() => {
@@ -123,7 +125,10 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {mediaFiles.map((mediaFile, index) => (
             <div key={index} className="relative">
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+              <div 
+                className="aspect-video bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => setSelectedMediaForPreview(mediaFile)}
+              >
                 {mediaFile.type === 'photo' ? (
                   <img
                     src={mediaFile.preview}
@@ -133,14 +138,21 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                 ) : mediaFile.type === 'video' ? (
                   <video
                     src={mediaFile.preview}
-                    controls
                     className="w-full h-full object-cover"
+                    muted
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <FileText className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
+                
+                {/* Preview overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+                  <div className="bg-white bg-opacity-90 rounded-full p-2">
+                    <Eye className="h-5 w-5 text-gray-700" />
+                  </div>
+                </div>
               </div>
 
               {/* Media Type Badge */}
@@ -454,6 +466,64 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
           </div>
         </form>
       </Card>
+
+      {/* Media Preview Modal */}
+      <Modal
+        isOpen={!!selectedMediaForPreview}
+        onClose={() => setSelectedMediaForPreview(null)}
+        title={selectedMediaForPreview?.file.name || 'Media Preview'}
+        size="xl"
+      >
+        {selectedMediaForPreview && (
+          <div className="space-y-4">
+            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+              {selectedMediaForPreview.type === 'photo' ? (
+                <img
+                  src={selectedMediaForPreview.preview}
+                  alt="Preview"
+                  className="w-full h-full object-contain"
+                />
+              ) : selectedMediaForPreview.type === 'video' ? (
+                <video
+                  src={selectedMediaForPreview.preview}
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <iframe
+                  src={selectedMediaForPreview.preview}
+                  className="w-full h-full border-0"
+                  title="PDF Preview"
+                />
+              )}
+            </div>
+            
+            {/* File Details */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-900">Type:</span>
+                  <span className="ml-2 text-gray-600 capitalize">{selectedMediaForPreview.type}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-900">Size:</span>
+                  <span className="ml-2 text-gray-600">{formatFileSize(selectedMediaForPreview.file.size)}</span>
+                </div>
+                {selectedMediaForPreview.duration && (
+                  <div>
+                    <span className="font-medium text-gray-900">Duration:</span>
+                    <span className="ml-2 text-gray-600">{formatDuration(selectedMediaForPreview.duration)}</span>
+                  </div>
+                )}
+                <div className="col-span-2">
+                  <span className="font-medium text-gray-900">Name:</span>
+                  <span className="ml-2 text-gray-600">{selectedMediaForPreview.file.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
