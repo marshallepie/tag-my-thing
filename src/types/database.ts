@@ -69,6 +69,13 @@ export interface Database {
           blockchain_status: 'pending' | 'published' | 'failed' | null;
           created_at: string;
           updated_at: string;
+          media_items: Array<{
+            url: string;
+            type: 'photo' | 'video' | 'pdf';
+            size?: number; // in bytes
+            duration?: number; // in seconds, for video
+            token_cost: number;
+          }> | null;
         };
         Insert: {
           user_id: string;
@@ -83,6 +90,7 @@ export interface Database {
           blockchain_hash?: string | null;
           blockchain_network?: string | null;
           blockchain_status?: 'pending' | 'published' | 'failed' | null;
+          media_items?: Array<{ url: string; type: 'photo' | 'video' | 'pdf'; size?: number; duration?: number; token_cost: number; }> | null;
         };
         Update: {
           title?: string;
@@ -94,6 +102,7 @@ export interface Database {
           blockchain_hash?: string | null;
           blockchain_network?: string | null;
           blockchain_status?: 'pending' | 'published' | 'failed' | null;
+          media_items?: Array<{ url: string; type: 'photo' | 'video' | 'pdf'; size?: number; duration?: number; token_cost: number; }> | null;
         };
       };
       next_of_kin: {
