@@ -409,10 +409,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                     </div>
                   </div>
 
-                    <div 
-                      className="aspect-video bg-gray-100 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => setSelectedMediaForPreview(mediaFile)}
-                    >
                   <button
                     onClick={() => removeMediaFile(index)}
                     className="absolute top-2 right-2 bg-error-600 text-white p-1 rounded-full hover:bg-error-700 transition-colors"
@@ -432,7 +428,10 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                       )}
                       
                       {/* Preview overlay */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+                      <div 
+                        className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer"
+                        onClick={() => setSelectedMediaForPreview(mediaFile)}
+                      >
                         <div className="bg-white bg-opacity-90 rounded-full p-2">
                           <Eye className="h-5 w-5 text-gray-700" />
                         </div>
