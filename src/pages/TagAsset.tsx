@@ -21,83 +21,13 @@ export const TagAsset: React.FC = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [waitingForTokens, setWaitingForTokens] = useState(false);
+  const [hasProcessedPendingAsset, setHasProcessedPendingAsset] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { spendTokens, balance, loading: tokensLoading } = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check for post-signup asset saving
-  useEffect(() => {
-    console.log('TagAsset - useEffect triggered with:', {
-      isAuthenticated,
-      hasUser: !!user,
-      locationSearch: location.search,
-      tokensLoading,
-      balance,
-      waitingForTokens
-    });
-    
-    const urlParams = new URLSearchParams(location.search);
-    const fromTagging = urlParams.get('from') === 'tagging';
-    console.log('TagAsset - URL params check:', { fromTagging });
-    
-    if (fromTagging && isAuthenticated && user) {
-      console.log('TagAsset - Conditions met for post-signup save, checking token status');
-      
-      if (tokensLoading) {
-        console.log('TagAsset - Tokens still loading, waiting...');
-        setWaitingForTokens(true);
-        return;
-      }
-      
-      if (balance > 0) {
-        console.log('TagAsset - Tokens available, proceeding with save');
-        setWaitingForTokens(false);
-        handlePostSignupSave();
-      } else {
-        console.log('TagAsset - No tokens available after signup, this is unexpected');
-        toast.error('Token allocation failed. Please contact support.');
-        // Clear pending data and redirect
-        sessionStorage.removeItem('tagmything_pending_media_data');
-        sessionStorage.removeItem('tagmything_pending_form_data');
-        sessionStorage.removeItem('tagmything_pending_token_calculation');
-        navigate('/dashboard');
-      }
-    } else {
-      console.log('TagAsset - Conditions not met for post-signup save:', {
-        fromTagging,
-        isAuthenticated,
-        hasUser: !!user
-      });
-      setWaitingForTokens(false);
-    }
-  }, [isAuthenticated, user, location, tokensLoading, balance]);
-
-  const handleCapture = (files: MediaFile[]) => {
-    setMediaFiles(files);
-    setStep('form');
-  };
-
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
-  };
-
-  const convertBase64ToFile = (base64: string, filename: string, mimeType: string): File => {
-    const byteCharacters = atob(base64.split(',')[1]);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new File([byteArray], filename, { type: mimeType });
-  };
-
-  const saveAsset = async (
+  const saveAsset = React.useCallback(async (
     files: MediaFile[], 
     formData: AssetFormData, 
     tokenCalculation: TokenCalculationResult
@@ -190,10 +120,17 @@ export const TagAsset: React.FC = () => {
       toast.error(error.message || 'Failed to save asset');
       return false;
     }
-  };
+  }, [user, balance, spendTokens]);
 
-  const handlePostSignupSave = async () => {
-    console.log('TagAsset - handlePostSignupSave called');
+  const handlePostSignupSave = React.useCallback(async () => {
+    console.log('TagAsset - handlePostSignupSave called, hasProcessedPendingAsset:', hasProcessedPendingAsset);
+    
+    // Prevent duplicate processing
+    if (hasProcessedPendingAsset) {
+      console.log('TagAsset - Already processed pending asset, skipping');
+      return;
+    }
+    
     try {
       const savedMediaData = sessionStorage.getItem('tagmything_pending_media_data');
       const savedFormData = sessionStorage.getItem('tagmything_pending_form_data');
@@ -205,57 +142,63 @@ export const TagAsset: React.FC = () => {
         hasTokenCalculation: !!savedTokenCalculation,
       });
 
-      if (savedMediaData && savedFormData && savedTokenCalculation) {
-        console.log('TagAsset - All required data found, proceeding with save');
-        setLoading(true);
-        
-        const mediaData: Array<{
-          base64: string;
-          type: 'photo' | 'video' | 'pdf';
-          filename: string;
-          mimeType: string;
-          duration?: number;
-        }> = JSON.parse(savedMediaData);
-        
-        const formData: AssetFormData = JSON.parse(savedFormData);
-        const tokenCalculation: TokenCalculationResult = JSON.parse(savedTokenCalculation);
-        
-        console.log('TagAsset - Parsed data:', { 
-          mediaCount: mediaData.length, 
-          formData, 
-          totalTokens: tokenCalculation.totalTokens,
-          currentBalance: balance
-        });
-        
-        // Convert base64 back to files
-        const files: MediaFile[] = [];
-        for (const media of mediaData) {
-          const file = convertBase64ToFile(media.base64, media.filename, media.mimeType);
-          files.push({
-            file,
-            type: media.type,
-            duration: media.duration,
-          });
-        }
-
-        console.log('TagAsset - Calling saveAsset with:', { files, formData, tokenCalculation });
-        const success = await saveAsset(files, formData, tokenCalculation);
-        console.log('TagAsset - saveAsset result:', success);
-        
-        if (success) {
-          // Clear stored data
-          console.log('TagAsset - Save successful, clearing sessionStorage');
-          sessionStorage.removeItem('tagmything_pending_media_data');
-          sessionStorage.removeItem('tagmything_pending_form_data');
-          sessionStorage.removeItem('tagmything_pending_token_calculation');
-          
-          toast.success('Asset saved successfully!');
-          navigate('/assets');
-        } else {
-          console.log('TagAsset - Save failed');
-        }
-      } else {
+      if (!savedMediaData || !savedFormData || !savedTokenCalculation) {
         console.log('TagAsset - Missing required data in sessionStorage');
+        setHasProcessedPendingAsset(true); // Mark as processed to prevent retries
+        return;
+      }
+
+      console.log('TagAsset - All required data found, proceeding with save');
+      setLoading(true);
+      
+      const mediaData: Array<{
+        base64: string;
+        type: 'photo' | 'video' | 'pdf';
+        filename: string;
+        mimeType: string;
+        duration?: number;
+      }> = JSON.parse(savedMediaData);
+      
+      const formData: AssetFormData = JSON.parse(savedFormData);
+      const tokenCalculation: TokenCalculationResult = JSON.parse(savedTokenCalculation);
+      
+      console.log('TagAsset - Parsed data:', { 
+        mediaCount: mediaData.length, 
+        formData, 
+        totalTokens: tokenCalculation.totalTokens,
+        currentBalance: balance
+      });
+      
+      // Convert base64 back to files
+      const files: MediaFile[] = [];
+      for (const media of mediaData) {
+        const file = convertBase64ToFile(media.base64, media.filename, media.mimeType);
+        files.push({
+          file,
+          type: media.type,
+          duration: media.duration,
+        });
+      }
+
+      console.log('TagAsset - Calling saveAsset with:', { files, formData, tokenCalculation });
+      const success = await saveAsset(files, formData, tokenCalculation);
+      console.log('TagAsset - saveAsset result:', success);
+      
+      if (success) {
+        // Clear stored data immediately after successful save
+        console.log('TagAsset - Save successful, clearing sessionStorage');
+        sessionStorage.removeItem('tagmything_pending_media_data');
+        sessionStorage.removeItem('tagmything_pending_form_data');
+        sessionStorage.removeItem('tagmything_pending_token_calculation');
+        
+        // Mark as processed to prevent duplicate saves
+        setHasProcessedPendingAsset(true);
+        
+        toast.success('Asset saved successfully!');
+        navigate('/assets');
+      } else {
+        console.log('TagAsset - Save failed, keeping data for potential retry');
+        // Don't clear sessionStorage on failure to allow retry
       }
     } catch (error) {
       console.error('TagAsset - Error in post-signup save:', error);
@@ -263,6 +206,80 @@ export const TagAsset: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  }, [user, balance, saveAsset, hasProcessedPendingAsset, navigate]);
+
+  // Check for post-signup asset saving
+  useEffect(() => {
+    console.log('TagAsset - useEffect triggered with:', {
+      isAuthenticated,
+      hasUser: !!user,
+      locationSearch: location.search,
+      tokensLoading,
+      balance,
+      waitingForTokens,
+      hasProcessedPendingAsset
+    });
+    
+    const urlParams = new URLSearchParams(location.search);
+    const fromTagging = urlParams.get('from') === 'tagging';
+    console.log('TagAsset - URL params check:', { fromTagging });
+    
+    if (fromTagging && isAuthenticated && user && !hasProcessedPendingAsset) {
+      console.log('TagAsset - Conditions met for post-signup save, checking token status');
+      
+      if (tokensLoading) {
+        console.log('TagAsset - Tokens still loading, waiting...');
+        setWaitingForTokens(true);
+        return;
+      }
+      
+      if (balance > 0) {
+        console.log('TagAsset - Tokens available, proceeding with save');
+        setWaitingForTokens(false);
+        handlePostSignupSave();
+      } else {
+        console.log('TagAsset - No tokens available after signup, this is unexpected');
+        toast.error('Token allocation failed. Please contact support.');
+        // Clear pending data and redirect
+        sessionStorage.removeItem('tagmything_pending_media_data');
+        sessionStorage.removeItem('tagmything_pending_form_data');
+        sessionStorage.removeItem('tagmything_pending_token_calculation');
+        setHasProcessedPendingAsset(true);
+        navigate('/dashboard');
+      }
+    } else {
+      console.log('TagAsset - Conditions not met for post-signup save:', {
+        fromTagging,
+        isAuthenticated,
+        hasUser: !!user,
+        hasProcessedPendingAsset
+      });
+      setWaitingForTokens(false);
+    }
+  }, [isAuthenticated, user, location, tokensLoading, balance, hasProcessedPendingAsset, handlePostSignupSave, navigate]);
+
+  const handleCapture = (files: MediaFile[]) => {
+    setMediaFiles(files);
+    setStep('form');
+  };
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const convertBase64ToFile = (base64: string, filename: string, mimeType: string): File => {
+    const byteCharacters = atob(base64.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new File([byteArray], filename, { type: mimeType });
   };
 
   const handleFormSubmit = async (formData: AssetFormData, tokenCalculation: TokenCalculationResult) => {

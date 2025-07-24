@@ -409,13 +409,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => removeMediaFile(index)}
-                    className="absolute top-2 right-2 bg-error-600 text-white p-1 rounded-full hover:bg-error-700 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-
                   {/* File Info */}
                   <div className="p-4">
                     <h3 className="font-medium text-gray-900 mb-2 truncate">
@@ -426,16 +419,27 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
                       {mediaFile.duration && (
                         <div>Duration: {formatDuration(mediaFile.duration)}</div>
                       )}
-                      
-                      {/* Preview overlay */}
-                      <div 
-                        className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer"
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex space-x-2 mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setSelectedMediaForPreview(mediaFile)}
+                        className="flex-1"
                       >
-                        <div className="bg-white bg-opacity-90 rounded-full p-2">
-                          <Eye className="h-5 w-5 text-gray-700" />
-                        </div>
-                      </div>
+                        <Eye className="h-4 w-4 mr-1" />
+                        Preview
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeMediaFile(index)}
+                        className="text-error-600 hover:text-error-700 hover:bg-error-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </Card>
