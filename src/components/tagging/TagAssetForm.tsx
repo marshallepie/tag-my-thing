@@ -146,13 +146,6 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                     <FileText className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
-                
-                {/* Preview overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
-                  <div className="bg-white bg-opacity-90 rounded-full p-2">
-                    <Eye className="h-5 w-5 text-gray-700" />
-                  </div>
-                </div>
               </div>
 
               {/* Media Type Badge */}
