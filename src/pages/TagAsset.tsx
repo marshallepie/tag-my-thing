@@ -6,12 +6,19 @@ import { TagAssetForm, AssetFormData } from '../components/tagging/TagAssetForm'
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
 import { supabase } from '../lib/supabase';
+import { type TokenCalculationResult } from '../lib/tokenCalculator';
 import toast from 'react-hot-toast';
+
+interface MediaFile {
+  file: File;
+  type: 'photo' | 'video' | 'pdf';
+  duration?: number;
+  preview?: string;
+}
 
 export const TagAsset: React.FC = () => {
   const [step, setStep] = useState<'capture' | 'form'>('capture');
-  const [capturedFile, setCapturedFile] = useState<File | null>(null);
-  const [mediaType, setMediaType] = useState<'photo' | 'video'>('photo');
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { spendTokens } = useTokens();
@@ -42,9 +49,8 @@ export const TagAsset: React.FC = () => {
     }
   }, [isAuthenticated, user, location]);
 
-  const handleCapture = (file: File, type: 'photo' | 'video') => {
-    setCapturedFile(file);
-    setMediaType(type);
+  const handleCapture = (files: MediaFile[]) => {
+    setMediaFiles(files);
     setStep('form');
   };
 
@@ -67,60 +73,78 @@ export const TagAsset: React.FC = () => {
     return new File([byteArray], filename, { type: mimeType });
   };
 
-  const saveAsset = async (file: File, type: 'photo' | 'video', formData: AssetFormData) => {
+  const saveAsset = async (
+    files: MediaFile[], 
+    formData: AssetFormData, 
+    tokenCalculation: TokenCalculationResult
+  ) => {
     console.log('TagAsset - saveAsset called with:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      mediaType: type,
+      fileCount: files.length,
       formData,
+      totalTokens: tokenCalculation.totalTokens,
       userId: user?.id
     });
     
     if (!user) return false;
 
     try {
-      // Calculate token cost
-      const mediaCost = type === 'photo' ? 3 : 5;
-      const tagCost = 2;
-      const totalCost = mediaCost + tagCost;
-      console.log('TagAsset - Token cost calculated:', { mediaCost, tagCost, totalCost });
-
       // Check and spend tokens
-      console.log('TagAsset - Attempting to spend tokens:', totalCost);
-      const success = await spendTokens(totalCost, 'tag_asset', `Tagged asset: ${formData.title}`);
+      console.log('TagAsset - Attempting to spend tokens:', tokenCalculation.totalTokens);
+      const success = await spendTokens(
+        tokenCalculation.totalTokens, 
+        'tag_asset', 
+        `Tagged asset: ${formData.title} (${files.length} media files)`
+      );
       console.log('TagAsset - spendTokens result:', success);
       if (!success) {
         console.log('TagAsset - Token spending failed');
         return false;
       }
 
-      // Upload media file
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      console.log('TagAsset - Uploading file:', fileName);
+      // Upload all media files and build media_items array
+      const mediaItems = [];
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('assets')
-        .upload(fileName, file);
+      for (let i = 0; i < files.length; i++) {
+        const mediaFile = files[i];
+        const calculatedItem = tokenCalculation.calculatedMediaItems[i];
+        
+        // Upload media file
+        const fileExt = mediaFile.file.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-${i}.${fileExt}`;
+        console.log('TagAsset - Uploading file:', fileName);
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('assets')
+          .upload(fileName, mediaFile.file);
 
-      console.log('TagAsset - Upload result:', { uploadData, uploadError });
-      if (uploadError) throw uploadError;
+        console.log('TagAsset - Upload result:', { uploadData, uploadError });
+        if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('assets')
-        .getPublicUrl(fileName);
-      console.log('TagAsset - Public URL:', publicUrl);
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('assets')
+          .getPublicUrl(fileName);
+        console.log('TagAsset - Public URL:', publicUrl);
 
-      // Create asset record
+        // Add to media_items array
+        mediaItems.push({
+          url: publicUrl,
+          type: mediaFile.type,
+          size: mediaFile.file.size,
+          duration: mediaFile.duration,
+          token_cost: calculatedItem.token_cost,
+        });
+      }
+
+      // Create asset record with media_items
       const assetData = {
         user_id: user.id,
         title: formData.title,
         description: formData.description,
         tags: formData.tags,
-        media_url: publicUrl,
-        media_type: type,
+        media_url: mediaItems[0]?.url || '', // Keep for backward compatibility
+        media_type: mediaItems[0]?.type === 'video' ? 'video' : 'photo', // Keep for backward compatibility
+        media_items: mediaItems, // New field with all media
         privacy: formData.privacy,
         estimated_value: formData.estimatedValue,
         location: formData.location,
@@ -146,45 +170,58 @@ export const TagAsset: React.FC = () => {
   const handlePostSignupSave = async () => {
     console.log('TagAsset - handlePostSignupSave called');
     try {
-      const savedMediaBase64 = sessionStorage.getItem('tagmything_pending_media');
-      const savedMediaType = sessionStorage.getItem('tagmything_pending_media_type') as 'photo' | 'video';
+      const savedMediaData = sessionStorage.getItem('tagmything_pending_media_data');
       const savedFormData = sessionStorage.getItem('tagmything_pending_form_data');
+      const savedTokenCalculation = sessionStorage.getItem('tagmything_pending_token_calculation');
 
       console.log('TagAsset - Retrieved from sessionStorage:', {
-        hasMedia: !!savedMediaBase64,
-        mediaType: savedMediaType,
+        hasMediaData: !!savedMediaData,
         hasFormData: !!savedFormData,
-        mediaLength: savedMediaBase64?.length || 0
+        hasTokenCalculation: !!savedTokenCalculation,
       });
 
-      if (savedMediaBase64 && savedMediaType && savedFormData) {
+      if (savedMediaData && savedFormData && savedTokenCalculation) {
         console.log('TagAsset - All required data found, proceeding with save');
         setLoading(true);
         
-        const formData: AssetFormData = JSON.parse(savedFormData);
-        console.log('TagAsset - Parsed form data:', formData);
+        const mediaData: Array<{
+          base64: string;
+          type: 'photo' | 'video' | 'pdf';
+          filename: string;
+          mimeType: string;
+          duration?: number;
+        }> = JSON.parse(savedMediaData);
         
-        const file = convertBase64ToFile(
-          savedMediaBase64, 
-          `asset.${savedMediaType === 'photo' ? 'jpg' : 'webm'}`,
-          savedMediaType === 'photo' ? 'image/jpeg' : 'video/webm'
-        );
-        console.log('TagAsset - Converted base64 to file:', {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type
+        const formData: AssetFormData = JSON.parse(savedFormData);
+        const tokenCalculation: TokenCalculationResult = JSON.parse(savedTokenCalculation);
+        
+        console.log('TagAsset - Parsed data:', { 
+          mediaCount: mediaData.length, 
+          formData, 
+          totalTokens: tokenCalculation.totalTokens 
         });
+        
+        // Convert base64 back to files
+        const files: MediaFile[] = [];
+        for (const media of mediaData) {
+          const file = convertBase64ToFile(media.base64, media.filename, media.mimeType);
+          files.push({
+            file,
+            type: media.type,
+            duration: media.duration,
+          });
+        }
 
-        console.log('TagAsset - Calling saveAsset with:', { file, savedMediaType, formData });
-        const success = await saveAsset(file, savedMediaType, formData);
+        console.log('TagAsset - Calling saveAsset with:', { files, formData, tokenCalculation });
+        const success = await saveAsset(files, formData, tokenCalculation);
         console.log('TagAsset - saveAsset result:', success);
         
         if (success) {
           // Clear stored data
           console.log('TagAsset - Save successful, clearing sessionStorage');
-          sessionStorage.removeItem('tagmything_pending_media');
-          sessionStorage.removeItem('tagmything_pending_media_type');
+          sessionStorage.removeItem('tagmything_pending_media_data');
           sessionStorage.removeItem('tagmything_pending_form_data');
+          sessionStorage.removeItem('tagmything_pending_token_calculation');
           
           toast.success('Asset saved successfully!');
           navigate('/assets');
@@ -202,10 +239,14 @@ export const TagAsset: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (formData: AssetFormData) => {
-    if (!capturedFile) return;
-
-    console.log('TagAsset - handleFormSubmit called with:', { formData, capturedFile, mediaType, isAuthenticated, user: !!user });
+  const handleFormSubmit = async (formData: AssetFormData, tokenCalculation: TokenCalculationResult) => {
+    console.log('TagAsset - handleFormSubmit called with:', { 
+      formData, 
+      tokenCalculation, 
+      mediaFileCount: mediaFiles.length,
+      isAuthenticated, 
+      user: !!user 
+    });
 
     setLoading(true);
 
@@ -213,24 +254,32 @@ export const TagAsset: React.FC = () => {
       if (!isAuthenticated || !user) {
         // User not authenticated - store data and redirect to signup
         console.log('TagAsset - User not authenticated, storing data for later');
-        const base64Media = await convertFileToBase64(capturedFile);
-        console.log('TagAsset - Converted file to base64, length:', base64Media.length);
+        
+        // Convert files to base64 for storage
+        const mediaData = [];
+        for (const mediaFile of mediaFiles) {
+          const base64 = await convertFileToBase64(mediaFile.file);
+          mediaData.push({
+            base64,
+            type: mediaFile.type,
+            filename: mediaFile.file.name,
+            mimeType: mediaFile.file.type,
+            duration: mediaFile.duration,
+          });
+        }
+        
+        console.log('TagAsset - Converted files to base64, storing in sessionStorage');
         
         // Store in sessionStorage
-        console.log('TagAsset - Storing in sessionStorage:', {
-          mediaType,
-          formDataKeys: Object.keys(formData),
-          base64Length: base64Media.length
-        });
-        sessionStorage.setItem('tagmything_pending_media', base64Media);
-        sessionStorage.setItem('tagmything_pending_media_type', mediaType);
+        sessionStorage.setItem('tagmything_pending_media_data', JSON.stringify(mediaData));
         sessionStorage.setItem('tagmything_pending_form_data', JSON.stringify(formData));
+        sessionStorage.setItem('tagmything_pending_token_calculation', JSON.stringify(tokenCalculation));
         
         // Verify storage
         console.log('TagAsset - Verification - stored items:', {
-          hasMedia: !!sessionStorage.getItem('tagmything_pending_media'),
-          hasMediaType: !!sessionStorage.getItem('tagmything_pending_media_type'),
-          hasFormData: !!sessionStorage.getItem('tagmything_pending_form_data')
+          hasMediaData: !!sessionStorage.getItem('tagmything_pending_media_data'),
+          hasFormData: !!sessionStorage.getItem('tagmything_pending_form_data'),
+          hasTokenCalculation: !!sessionStorage.getItem('tagmything_pending_token_calculation'),
         });
         
         toast.success('Asset captured! Please sign up to save it to your account.');
@@ -243,7 +292,7 @@ export const TagAsset: React.FC = () => {
 
       // User is authenticated - save directly
       console.log('TagAsset - User authenticated, saving directly');
-      const success = await saveAsset(capturedFile, mediaType, formData);
+      const success = await saveAsset(mediaFiles, formData, tokenCalculation);
       
       if (success) {
         toast.success('Asset tagged successfully!');
@@ -266,12 +315,11 @@ export const TagAsset: React.FC = () => {
     );
   }
 
-  if (step === 'form' && capturedFile) {
+  if (step === 'form' && mediaFiles.length > 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <TagAssetForm
-          mediaFile={capturedFile}
-          mediaType={mediaType}
+          mediaFiles={mediaFiles}
           onSubmit={handleFormSubmit}
           onCancel={() => navigate('/dashboard')}
           loading={loading}

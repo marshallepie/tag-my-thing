@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Lock, Globe, Users, Tag, DollarSign } from 'lucide-react';
+import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import { calculateTokens, formatFileSize, formatDuration, type TokenCalculationResult } from '../../lib/tokenCalculator';
+
+interface MediaFile {
+  file: File;
+  type: 'photo' | 'video' | 'pdf';
+  duration?: number;
+  preview?: string;
+}
 
 interface TagAssetFormProps {
-  mediaFile: File;
-  mediaType: 'photo' | 'video';
-  onSubmit: (formData: AssetFormData) => void;
+  mediaFiles: MediaFile[];
+  onSubmit: (formData: AssetFormData, calculationResult: TokenCalculationResult) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -24,8 +31,7 @@ export interface AssetFormData {
 }
 
 export const TagAssetForm: React.FC<TagAssetFormProps> = ({
-  mediaFile,
-  mediaType,
+  mediaFiles,
   onSubmit,
   onCancel,
   loading = false,
@@ -40,18 +46,39 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
     assignNOK: false,
   });
   const [tagInput, setTagInput] = useState('');
-  const [mediaPreview, setMediaPreview] = useState<string>('');
+  const [tokenCalculation, setTokenCalculation] = useState<TokenCalculationResult | null>(null);
+  const [calculationLoading, setCalculationLoading] = useState(true);
 
-  React.useEffect(() => {
-    // Create preview URL
-    const url = URL.createObjectURL(mediaFile);
-    setMediaPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [mediaFile]);
+  // Calculate tokens when component mounts or media files change
+  useEffect(() => {
+    const calculateTokenCost = async () => {
+      setCalculationLoading(true);
+      try {
+        const mediaItems = mediaFiles.map(file => ({
+          file: file.file,
+          type: file.type,
+          duration: file.duration,
+        }));
+        
+        const result = await calculateTokens(mediaItems);
+        setTokenCalculation(result);
+      } catch (error) {
+        console.error('Error calculating tokens:', error);
+      } finally {
+        setCalculationLoading(false);
+      }
+    };
+
+    if (mediaFiles.length > 0) {
+      calculateTokenCost();
+    }
+  }, [mediaFiles]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (tokenCalculation) {
+      onSubmit(formData, tokenCalculation);
+    }
   };
 
   const handleChange = (field: keyof AssetFormData, value: any) => {
@@ -76,32 +103,186 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
     }
   };
 
+  const getMediaIcon = (type: string) => {
+    switch (type) {
+      case 'photo': return <Image className="h-4 w-4" />;
+      case 'video': return <Film className="h-4 w-4" />;
+      case 'pdf': return <FileText className="h-4 w-4" />;
+      default: return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  const hasErrors = tokenCalculation?.errors.length > 0;
+  const hasWarnings = tokenCalculation?.warnings.length > 0;
+
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6">
-      {/* Media Preview */}
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      {/* Media Preview Grid */}
       <Card>
-        <div className="text-center">
-          {mediaType === 'photo' ? (
-            <img
-              src={mediaPreview}
-              alt="Asset preview"
-              className="w-full max-h-64 object-cover rounded-lg"
-            />
-          ) : (
-            <video
-              src={mediaPreview}
-              controls
-              className="w-full max-h-64 object-cover rounded-lg"
-            />
-          )}
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Media Preview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mediaFiles.map((mediaFile, index) => (
+            <div key={index} className="relative">
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                {mediaFile.type === 'photo' ? (
+                  <img
+                    src={mediaFile.preview}
+                    alt={`Media ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : mediaFile.type === 'video' ? (
+                  <video
+                    src={mediaFile.preview}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                    <FileText className="h-16 w-16 text-gray-400" />
+                  </div>
+                )}
+              </div>
+
+              {/* Media Type Badge */}
+              <div className="absolute top-2 left-2">
+                <div className="bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-xs flex items-center">
+                  {getMediaIcon(mediaFile.type)}
+                  <span className="ml-1 capitalize">{mediaFile.type}</span>
+                </div>
+              </div>
+
+              {/* File Info */}
+              <div className="mt-2 text-sm text-gray-600">
+                <div className="font-medium truncate">{mediaFile.file.name}</div>
+                <div className="flex items-center justify-between">
+                  <span>{formatFileSize(mediaFile.file.size)}</span>
+                  {mediaFile.duration && (
+                    <span>{formatDuration(mediaFile.duration)}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
 
-      {/* Form */}
+      {/* Token Calculation */}
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Coins className="h-5 w-5 mr-2 text-warning-600" />
+            Token Cost Calculation
+          </h3>
+          {calculationLoading && (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+          )}
+        </div>
+
+        {tokenCalculation && (
+          <div className="space-y-4">
+            {/* Errors */}
+            {hasErrors && (
+              <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-error-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-error-900 mb-2">Upload Errors</h4>
+                    <ul className="space-y-1">
+                      {tokenCalculation.errors.map((error, index) => (
+                        <li key={index} className="text-sm text-error-700">• {error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Warnings */}
+            {hasWarnings && (
+              <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-warning-900 mb-2">Warnings</h4>
+                    <ul className="space-y-1">
+                      {tokenCalculation.warnings.map((warning, index) => (
+                        <li key={index} className="text-sm text-warning-700">• {warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Token Breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Photos */}
+              {tokenCalculation.breakdown.photos.count > 0 && (
+                <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Image className="h-5 w-5 text-primary-600" />
+                    <span className="font-medium text-primary-900">Photos</span>
+                  </div>
+                  <div className="text-sm text-primary-700">
+                    <div>{tokenCalculation.breakdown.photos.count} files</div>
+                    <div className="font-semibold">{tokenCalculation.breakdown.photos.cost} TMT</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Videos */}
+              {tokenCalculation.breakdown.videos.count > 0 && (
+                <div className="bg-secondary-50 border border-secondary-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Film className="h-5 w-5 text-secondary-600" />
+                    <span className="font-medium text-secondary-900">Videos</span>
+                  </div>
+                  <div className="text-sm text-secondary-700">
+                    <div>{tokenCalculation.breakdown.videos.count} files</div>
+                    <div className="font-semibold">{tokenCalculation.breakdown.videos.cost} TMT</div>
+                  </div>
+                </div>
+              )}
+
+              {/* PDFs */}
+              {tokenCalculation.breakdown.pdfs.count > 0 && (
+                <div className="bg-accent-50 border border-accent-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="h-5 w-5 text-accent-600" />
+                    <span className="font-medium text-accent-900">Documents</span>
+                  </div>
+                  <div className="text-sm text-accent-700">
+                    <div>{tokenCalculation.breakdown.pdfs.count} files</div>
+                    <div className="font-semibold">{tokenCalculation.breakdown.pdfs.cost} TMT</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Total Cost */}
+            <div className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-semibold mb-1">Total Token Cost</h4>
+                  <p className="text-primary-100 text-sm">
+                    {tokenCalculation.calculatedMediaItems.length} media files
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold">{tokenCalculation.totalTokens} TMT</div>
+                  <div className="text-primary-100 text-sm">Required to save</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Asset Details Form */}
       <Card>
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Tag Your Asset
+            Asset Details
           </h2>
 
           <Input
@@ -252,23 +433,6 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
             </button>
           </div>
 
-          {/* Token Cost */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-primary-50 border border-primary-200 rounded-lg p-4"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-primary-700 font-medium">Token Cost:</span>
-              <span className="text-primary-800 font-bold">
-                {mediaType === 'photo' ? '5 TMT' : '7 TMT'}
-              </span>
-            </div>
-            <p className="text-sm text-primary-600 mt-1">
-              2 TMT for tagging + {mediaType === 'photo' ? '3 TMT' : '5 TMT'} for media upload
-            </p>
-          </motion.div>
-
           {/* Submit Buttons */}
           <div className="flex space-x-3 pt-4">
             <Button
@@ -282,9 +446,10 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
             <Button
               type="submit"
               loading={loading}
+              disabled={hasErrors || calculationLoading || !tokenCalculation}
               className="flex-1"
             >
-              Save Asset
+              {hasErrors ? 'Fix Errors to Continue' : 'Save Asset'}
             </Button>
           </div>
         </form>
