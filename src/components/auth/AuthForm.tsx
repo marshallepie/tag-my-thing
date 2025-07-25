@@ -250,15 +250,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
   return (
     <Card className="w-full max-w-md mx-auto">
       <div className="text-center mb-6">
-        {initialRole === 'influencer' && (
-          <div className="flex items-center justify-center space-x-2 mb-3">
-            <Crown className="h-6 w-6 text-yellow-600" />
-            <span className="text-sm font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full">
-              Influencer Signup
-            </span>
-          </div>
-        )}
-        
         <h2 className="text-2xl font-bold text-gray-900">
           {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h2>
@@ -337,7 +328,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
           className="w-full"
           loading={loading}
         >
-          {mode === 'signin' ? 'Sign In' : `Create ${initialRole === 'influencer' ? 'Influencer ' : ''}Account`}
+          {mode === 'signin' ? 'Sign In' : 'Create Account'}
         </Button>
       </form>
 
