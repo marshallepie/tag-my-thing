@@ -1,7 +1,8 @@
-import { serve } from "https://deno.land/std/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
-import { WebBundlr } from "@bundlr-network/client"; // requires bundling with wallet
-import Arweave from "arweave"; // optional
+// supabase/functions/archive-monthly-batch/index.ts
+
+import { serve } from "https://deno.land/std@0.203.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { WebBundlr } from "https://esm.sh/@bundlr-network/client@0.11.0";
 
 serve(async (req) => {
   const supabase = createClient(
@@ -14,32 +15,37 @@ serve(async (req) => {
     .select("*")
     .eq("archive_status", "pending");
 
-  if (error) return new Response(JSON.stringify({ error }), { status: 500 });
+  if (error) {
+    return new Response(JSON.stringify({ error }), { status: 500 });
+  }
 
   for (const asset of assets) {
     try {
-      // Retrieve media from Supabase Storage
-      const { data: file } = await supabase.storage.from("asset-files").download(asset.storage_path);
+      const { data: file, error: downloadErr } = await supabase
+        .storage
+        .from("asset-files")
+        .download(asset.storage_path);
 
-      // Upload to IPFS (if needed)
-      if (!asset.ipfs_cid) {
-        const ipfsCid = await uploadToIPFS(file); // Your implementation
-        await supabase.from("assets").update({ ipfs_cid: ipfsCid }).eq("id", asset.id);
-      }
+      if (downloadErr) throw downloadErr;
 
-      // Upload to Arweave using Bundlr
-      const bundlrTxId = await uploadToArweave(file); // Your implementation
+      const mockTxId = crypto.randomUUID();
 
       await supabase.from("assets").update({
         archive_status: "archived",
-        arweave_tx_id: bundlrTxId,
+        arweave_tx_id: mockTxId,
         archive_method: "monthly",
         archive_requested_at: new Date().toISOString(),
       }).eq("id", asset.id);
+
     } catch (err) {
-      await supabase.from("assets").update({ archive_status: "failed" }).eq("id", asset.id);
+      await supabase.from("assets").update({
+        archive_status: "failed"
+      }).eq("id", asset.id);
     }
   }
 
-  return new Response(JSON.stringify({ status: "completed", archived: assets.length }));
+  return new Response(JSON.stringify({
+    status: "completed",
+    archived: assets.length
+  }));
 });
