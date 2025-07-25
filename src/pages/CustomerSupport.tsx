@@ -56,7 +56,7 @@ export const CustomerSupport: React.FC = () => {
     {
 
       question: 'How do TMT tokens work?',
-      answer: 'TMT tokens are used to tag assets. You get 50 free tokens on signup, and can purchase more. Photos cost 5 TMT, videos cost 7 TMT.',
+      answer: 'TMT tokens are used to tag assets. You get 100 free tokens on signup, and can purchase more. Photos cost 25 TMT, videos cost 60 TMT.',
       icon: <FileText className="h-5 w-5 text-accent-600" />
     },
     {
