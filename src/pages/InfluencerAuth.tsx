@@ -117,18 +117,6 @@ export const InfluencerAuth: React.FC = () => {
             >
               <div className="flex items-center justify-center space-x-2 mb-4">
                 <Crown className="h-12 w-12 text-yellow-600" />              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Join as an
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-primary-600">
-                  Influencer
-                </span>
-              </h1>
-              
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Unlock exclusive benefits, earn more tokens, and build your referral empire 
-                with TagMyThing's Influencer Program.
-              </p>
-
             </motion.div>
           </div>
 
