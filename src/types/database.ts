@@ -67,6 +67,11 @@ export interface Database {
           blockchain_hash: string | null;
           blockchain_network: string | null;
           blockchain_status: 'pending' | 'published' | 'failed' | null;
+          ipfs_cid: string | null;
+          arweave_tx_id: string | null;
+          archive_status: 'pending' | 'archived' | 'instant_requested' | 'failed';
+          archive_requested_at: string | null;
+          archive_method: string | null;
           created_at: string;
           updated_at: string;
           media_items: Array<{
@@ -90,6 +95,11 @@ export interface Database {
           blockchain_hash?: string | null;
           blockchain_network?: string | null;
           blockchain_status?: 'pending' | 'published' | 'failed' | null;
+          ipfs_cid?: string | null;
+          arweave_tx_id?: string | null;
+          archive_status?: 'pending' | 'archived' | 'instant_requested' | 'failed';
+          archive_requested_at?: string | null;
+          archive_method?: string | null;
           media_items?: Array<{ url: string; type: 'photo' | 'video' | 'pdf'; size?: number; duration?: number; token_cost: number; }> | null;
         };
         Update: {
@@ -102,6 +112,11 @@ export interface Database {
           blockchain_hash?: string | null;
           blockchain_network?: string | null;
           blockchain_status?: 'pending' | 'published' | 'failed' | null;
+          ipfs_cid?: string | null;
+          arweave_tx_id?: string | null;
+          archive_status?: 'pending' | 'archived' | 'instant_requested' | 'failed';
+          archive_requested_at?: string | null;
+          archive_method?: string | null;
           media_items?: Array<{ url: string; type: 'photo' | 'video' | 'pdf'; size?: number; duration?: number; token_cost: number; }> | null;
         };
       };

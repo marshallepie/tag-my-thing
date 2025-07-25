@@ -118,8 +118,161 @@ export const Assets: React.FC = () => {
   const handleDeleteAsset = async () => {
     if (!selectedAsset) return;
 
+    // Check if asset is archived
+    if (selectedAsset.archive_status === 'archived') {
+      toast.error('Cannot delete archived asset. It has been permanently stored on Arweave.');
+      return;
+    }
+
     setDeleteLoading(true);
     try {
+      // Calculate refund amount if asset is not archived
+      let refundAmount = 0;
+      if (selectedAsset.media_items && Array.isArray(selectedAsset.media_items)) {
+        refundAmount = selectedAsset.media_items.reduce((sum, item) => sum + (item.token_cost || 0), 0);
+      } else {
+        // Fallback for legacy assets without media_items
+        refundAmount = selectedAsset.media_type === 'video' ? 7 : 5;
+      }
+
+      // Call refund function if there are tokens to refund
+      if (refundAmount > 0) {
+        const { data: refundResult, error: refundError } = await supabase
+          .rpc('refund_tokens_on_delete', {
+            asset_id: selectedAsset.id
+          });
+
+        if (refundError) {
+          console.error('Error refunding tokens:', refundError);
+          toast.error('Failed to process token refund');
+          return;
+        }
+
+        if (refundResult?.success) {
+          toast.success(`Asset deleted and ${refundAmount} TMT tokens refunded!`);
+        }
+      } else {
+        // If no refund needed, proceed with normal deletion
+        // Delete from storage
+        const fileName = selectedAsset.media_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage
+            .from('assets')
+            .remove([`${user?.id}/${fileName}`]);
+        }
+
+        // Delete from database
+        const { error } = await supabase
+          .from('assets')
+          .delete()
+          .eq('id', selectedAsset.id);
+
+        if (error) throw error;
+        toast.success('Asset deleted successfully');
+      }
+
+      // Update UI
+      setAssets(prev => prev.filter(asset => asset.id !== selectedAsset.id));
+      setShowDeleteModal(false);
+      setSelectedAsset(null);
+    } catch (err: any) {
+      console.error('Error deleting asset:', err);
+      toast.error('Failed to delete asset');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleArchiveNow = async (asset: Asset) => {
+    if (balance < 300) {
+      toast.error('Insufficient tokens. You need 300 TMT to archive an asset.');
+      return;
+    }
+
+    if (asset.archive_status === 'archived') {
+      toast.info('Asset is already archived on Arweave.');
+      return;
+    }
+
+    setArchiveLoading(asset.id);
+    try {
+      const { data: result, error } = await supabase
+        .rpc('archive_tag_now', {
+          asset_id: asset.id
+        });
+
+      if (error) throw error;
+
+      if (result?.success) {
+        toast.success(
+          <div>
+            <p>Asset archived successfully!</p>
+            <a 
+              href={`https://arweave.net/${result.arweave_tx_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 underline"
+            >
+              View on Arweave
+            </a>
+          </div>
+        );
+        
+        // Refresh assets to show updated status
+        fetchAssets();
+      } else {
+        toast.error(result?.error || 'Failed to archive asset');
+      }
+    } catch (err: any) {
+      console.error('Error archiving asset:', err);
+      toast.error('Failed to archive asset');
+    } finally {
+      setArchiveLoading(null);
+    }
+  };
+
+  const getArchiveStatusIcon = (status: string) => {
+    switch (status) {
+      case 'archived':
+        return <CheckCircle2 className="h-3 w-3 text-success-600" />;
+      case 'instant_requested':
+        return <Clock className="h-3 w-3 text-warning-600" />;
+      case 'failed':
+        return <AlertTriangle className="h-3 w-3 text-error-600" />;
+      default:
+        return <Clock className="h-3 w-3 text-gray-400" />;
+    }
+  };
+
+  const getArchiveStatusColor = (status: string) => {
+    switch (status) {
+      case 'archived':
+        return 'bg-success-100 text-success-800';
+      case 'instant_requested':
+        return 'bg-warning-100 text-warning-800';
+      case 'failed':
+        return 'bg-error-100 text-error-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatArchiveStatus = (status: string) => {
+    switch (status) {
+      case 'archived':
+        return 'Archived';
+      case 'instant_requested':
+        return 'Processing';
+      case 'failed':
+        return 'Failed';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const handleDeleteAssetOld = async () => {
+    if (!selectedAsset) return;
+
       // Delete from storage
       const fileName = selectedAsset.media_url.split('/').pop();
       if (fileName) {
@@ -200,6 +353,14 @@ export const Assets: React.FC = () => {
               {asset.privacy}
             </div>
           </div>
+
+          {/* Archive Status Badge */}
+          <div className="absolute bottom-2 right-2">
+            <div className={`px-2 py-1 rounded-full text-xs flex items-center ${getArchiveStatusColor(asset.archive_status)}`}>
+              {getArchiveStatusIcon(asset.archive_status)}
+              <span className="ml-1">{formatArchiveStatus(asset.archive_status)}</span>
+            </div>
+          </div>
         </div>
 
         <div className="p-4">
@@ -252,13 +413,44 @@ export const Assets: React.FC = () => {
             )}
           </div>
 
+          {/* Arweave Link */}
+          {asset.arweave_tx_id && (
+            <div className="mb-3">
+              <a
+                href={`https://arweave.net/${asset.arweave_tx_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-xs text-primary-600 hover:text-primary-700"
+              >
+                <Archive className="h-3 w-3 mr-1" />
+                View on Arweave
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </a>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex space-x-2">
+            {/* Archive Now Button */}
+            {(asset.archive_status === 'pending' || asset.archive_status === 'failed') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleArchiveNow(asset)}
+                disabled={balance < 300 || archiveLoading === asset.id}
+                className="flex-1 text-warning-600 hover:text-warning-700 hover:bg-warning-50"
+                loading={archiveLoading === asset.id}
+              >
+                <Archive className="h-4 w-4 mr-1" />
+                Archive (300 TMT)
+              </Button>
+            )}
+            
             <Button
               variant="outline"
               size="sm"
               onClick={() => setSelectedAsset(asset)}
-              className="flex-1"
+              className={asset.archive_status === 'pending' || asset.archive_status === 'failed' ? 'flex-1' : 'flex-1'}
             >
               <Eye className="h-4 w-4 mr-1" />
               View
@@ -270,6 +462,7 @@ export const Assets: React.FC = () => {
                 setSelectedAsset(asset);
                 setShowDeleteModal(true);
               }}
+              disabled={asset.archive_status === 'archived'}
               className="text-error-600 hover:text-error-700 hover:bg-error-50"
             >
               <Trash2 className="h-4 w-4" />
@@ -336,11 +529,30 @@ export const Assets: React.FC = () => {
                     <Calendar className="h-3 w-3 mr-1" />
                     {format(new Date(asset.created_at), 'MMM d, yyyy')}
                   </span>
+                  <span className="flex items-center">
+                    {getArchiveStatusIcon(asset.archive_status)}
+                    <span className="ml-1">{formatArchiveStatus(asset.archive_status)}</span>
+                  </span>
                 </div>
               </div>
 
               {/* Actions */}
               <div className="flex space-x-2 ml-4">
+                {/* Archive Now Button */}
+                {(asset.archive_status === 'pending' || asset.archive_status === 'failed') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleArchiveNow(asset)}
+                    disabled={balance < 300 || archiveLoading === asset.id}
+                    loading={archiveLoading === asset.id}
+                    className="text-warning-600 hover:text-warning-700 hover:bg-warning-50"
+                  >
+                    <Archive className="h-4 w-4 mr-1" />
+                    Archive
+                  </Button>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -356,6 +568,7 @@ export const Assets: React.FC = () => {
                     setSelectedAsset(asset);
                     setShowDeleteModal(true);
                   }}
+                  disabled={asset.archive_status === 'archived'}
                   className="text-error-600 hover:text-error-700 hover:bg-error-50"
                 >
                   <Trash2 className="h-4 w-4" />
