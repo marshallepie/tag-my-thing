@@ -260,14 +260,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
         )}
         
         <h2 className="text-2xl font-bold text-gray-900">
-          {mode === 'signin' ? 'Welcome back' : `Create your ${initialRole === 'influencer' ? 'influencer ' : ''}account`}
+          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h2>
         <p className="text-gray-600 mt-1">
           {mode === 'signin' 
             ? 'Sign in to continue tagging your assets' 
-            : initialRole === 'influencer'
-              ? 'Join as an influencer and start earning more tokens'
-              : 'Start tagging and securing your assets today'
+            : 'Start tagging and securing your assets today'
           }
         </p>
         

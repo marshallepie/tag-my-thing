@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Crown, Star, Users, TrendingUp, Gift, CheckCircle } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { AuthForm } from '../components/auth/AuthForm';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
@@ -70,37 +70,6 @@ export const InfluencerAuth: React.FC = () => {
     }
   };
 
-  const influencerBenefits = [
-    {
-      icon: <Crown className="h-6 w-6 text-yellow-600" />,
-      title: 'Exclusive Influencer Status',
-      description: 'Get special recognition and access to influencer-only features'
-    },
-    {
-      icon: <Users className="h-6 w-6 text-primary-600" />,
-      title: 'Multi-Level Referrals',
-      description: 'Earn tokens from referrals up to 5 levels deep'
-    },
-    {
-      icon: <TrendingUp className="h-6 w-6 text-success-600" />,
-      title: 'Higher Rewards',
-      description: 'Earn more tokens per referral than regular users'
-    },
-    {
-      icon: <Gift className="h-6 w-6 text-accent-600" />,
-      title: 'Bonus Tokens',
-      description: 'Get 100 TMT tokens instead of the standard 50 on signup'
-    }
-  ];
-
-  const rewardStructure = [
-    { referral_level: 1, tokens: 50, description: 'Direct referrals' },
-    { referral_level: 2, tokens: 30, description: 'Second level' },
-    { referral_level: 3, tokens: 20, description: 'Third level' },
-    { referral_level: 4, tokens: 10, description: 'Fourth level' },
-    { referral_level: 5, tokens: 5, description: 'Fifth level' }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-primary-50">
       {/* Navigation */}
@@ -147,10 +116,7 @@ export const InfluencerAuth: React.FC = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="flex items-center justify-center space-x-2 mb-4">
-                <Crown className="h-12 w-12 text-yellow-600" />
-                <Star className="h-8 w-8 text-yellow-500" />
-              </div>
-              
+                <Crown className="h-12 w-12 text-yellow-600" />              </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
                 Join as an
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-primary-600">
@@ -163,20 +129,6 @@ export const InfluencerAuth: React.FC = () => {
                 with TagMyThing's Influencer Program.
               </p>
 
-              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 mb-8">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-success-600" />
-                  <span>100 TMT Welcome Bonus</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-success-600" />
-                  <span>5-Level Referral System</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-success-600" />
-                  <span>Exclusive Features</span>
-                </div>
-              </div>
             </motion.div>
           </div>
 
@@ -204,81 +156,6 @@ export const InfluencerAuth: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Benefits Section */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="order-1 lg:order-2 space-y-8"
-            >
-              {/* Influencer Benefits */}
-              <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Influencer Benefits</h2>
-                <div className="space-y-6">
-                  {influencerBenefits.map((benefit, index) => (
-                    <motion.div
-                      key={benefit.title}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + index * 0.1 }}
-                      className="flex items-start space-x-4"
-                    >
-                      <div className="flex-shrink-0 p-2 bg-gray-50 rounded-lg">
-                        {benefit.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">{benefit.title}</h3>
-                        <p className="text-gray-600 text-sm">{benefit.description}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Reward Structure */}
-              <div className="bg-gradient-to-br from-primary-50 to-yellow-50 rounded-2xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Referral Rewards</h2>
-                <div className="space-y-4">
-                  {rewardStructure.map((reward, index) => (
-                    <motion.div
-                      key={reward.referral_level}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.8 + index * 0.1 }}
-                      className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                          reward.referral_level === 1 ? 'bg-primary-100 text-primary-700' :
-                          reward.referral_level === 2 ? 'bg-secondary-100 text-secondary-700' :
-                          reward.referral_level === 3 ? 'bg-accent-100 text-accent-700' :
-                          reward.referral_level === 4 ? 'bg-warning-100 text-warning-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          {reward.referral_level}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">Level {reward.referral_level}</div>
-                          <div className="text-sm text-gray-600">{reward.description}</div>
-                        </div>
-                      </div>
-                      <div className="text-lg font-bold text-primary-600">
-                        {reward.tokens} TMT
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                
-                <div className="mt-6 p-4 bg-success-50 border border-success-200 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <Gift className="h-5 w-5 text-success-600" />
-                    <span className="font-semibold text-success-800">
-                      Total potential: {rewardStructure.reduce((sum, r) => sum + r.tokens, 0)} TMT per referral chain
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </div>
 
@@ -286,76 +163,6 @@ export const InfluencerAuth: React.FC = () => {
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-200 rounded-full opacity-20 blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-200 rounded-full opacity-20 blur-3xl" />
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why Choose Influencer Status?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get access to exclusive features designed specifically for content creators and influencers
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="text-center p-6 bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl"
-            >
-              <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Referral Dashboard</h3>
-              <p className="text-gray-600">
-                Advanced analytics and tracking for all your referrals with detailed performance metrics
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl"
-            >
-              <div className="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Crown className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Priority Support</h3>
-              <p className="text-gray-600">
-                Get dedicated support and early access to new features as a verified influencer
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="text-center p-6 bg-gradient-to-br from-success-50 to-success-100 rounded-2xl"
-            >
-              <div className="w-16 h-16 bg-success-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Higher Earnings</h3>
-              <p className="text-gray-600">
-                Earn significantly more tokens through our multi-level referral system
-              </p>
-            </motion.div>
-          </div>
         </div>
       </section>
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { HelpCircle, Mail, Phone, MessageCircle, Clock, FileText, User, Trash2, Download, ExternalLink } from 'lucide-react';
+import { HelpCircle, Mail, Phone, MessageCircle, Clock, FileText, User, Trash2, Download, ExternalLink, Coins, Package, Users, TrendingUp, Gift, Award, Crown, Camera, DollarSign } from 'lucide-react';
+import { useReferrals } from '../hooks/useReferrals';
+import { TOKEN_PACKAGES } from '../lib/constants';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -50,6 +52,8 @@ export const CustomerSupport: React.FC = () => {
       icon: <Download className="h-5 w-5 text-secondary-600" />
     },
     {
+
+  const { referralSettings } = useReferrals();
       question: 'How do TMT tokens work?',
       answer: 'TMT tokens are used to tag assets. You get 50 free tokens on signup, and can purchase more. Photos cost 5 TMT, videos cost 7 TMT.',
       icon: <FileText className="h-5 w-5 text-accent-600" />
@@ -221,6 +225,204 @@ export const CustomerSupport: React.FC = () => {
                     <p className="font-medium mb-1">Business Hours</p>
                     <p>Monday - Friday: 9:00 AM - 6:00 PM GMT</p>
                     <p>Weekend: Limited support via email</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Our Tokenomics Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.3 }}
+            className="mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              Our Tokenomics
+            </h2>
+            <Card>
+              <div className="flex items-start space-x-3">
+                <Coins className="h-6 w-6 text-primary-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Understanding TMT Tokens
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    TMT tokens are the digital currency of the TagMyThing platform, used to power all interactions and services.
+                    They ensure the secure and verifiable tagging of your assets.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">How to Earn Tokens</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Free signup bonus (50 TMT for regular, 100 TMT for influencers)</li>
+                        <li>Referral rewards (up to 5 levels deep)</li>
+                        <li>Daily check-ins (coming soon)</li>
+                        <li>Special promotions and events</li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">How to Spend Tokens</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Tagging photos (5 TMT per photo)</li>
+                        <li>Tagging videos (7 TMT per video)</li>
+                        <li>Blockchain publishing (additional cost)</li>
+                        <li>Advanced features (coming soon)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Our Price List Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+            className="mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              Our Price List
+            </h2>
+            <Card>
+              <div className="flex items-start space-x-3">
+                <DollarSign className="h-6 w-6 text-success-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    TMT Token Packages
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Purchase TMT token packages to power your asset tagging and unlock premium features.
+                    All prices are in GBP, with approximate conversions for XAF and NGN.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {TOKEN_PACKAGES.map((pkg, index) => (
+                      <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 className="font-semibold text-gray-900 mb-2">{pkg.name}</h4>
+                        <p className="text-2xl font-bold text-primary-600 mb-2">
+                          £{pkg.price_gbp.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-3">
+                          {pkg.token_amount} TMT Tokens
+                        </p>
+                        <ul className="text-xs text-gray-500 space-y-1">
+                          <li>≈ {pkg.price_xaf.toLocaleString()} XAF</li>
+                          <li>≈ {pkg.price_ngn.toLocaleString()} NGN</li>
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Our Referral System Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
+            className="mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              Our Referral System
+            </h2>
+            <Card>
+              <div className="flex items-start space-x-3">
+                <Users className="h-6 w-6 text-accent-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Earn Tokens by Referring Friends
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Our referral program allows all users to earn TMT tokens by inviting new members to the platform.
+                    Influencers receive higher bonuses and multi-level rewards.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">Influencer Benefits</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li className="flex items-center"><Crown className="h-4 w-4 text-yellow-600 mr-2" />Exclusive Influencer Status</li>
+                        <li className="flex items-center"><Users className="h-4 w-4 text-primary-600 mr-2" />Multi-Level Referrals (up to 5 levels deep)</li>
+                        <li className="flex items-center"><TrendingUp className="h-4 w-4 text-success-600 mr-2" />Higher Rewards</li>
+                        <li className="flex items-center"><Gift className="h-4 w-4 text-accent-600 mr-2" />Bonus Tokens (100 TMT on signup)</li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">Referral Reward Structure</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        {referralSettings.map((reward, index) => (
+                          <li key={index} className="flex items-center">
+                            <Award className="h-4 w-4 text-blue-500 mr-2" />
+                            Level {reward.referral_level}: {reward.token_reward} TMT
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Total potential: {referralSettings.reduce((sum, r) => sum + r.token_reward, 0)} TMT per referral chain
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    You can find your unique referral link in your dashboard under the "Referrals" section.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* About Us Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.6 }}
+            className="mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+              About TagMyThing
+            </h2>
+            <Card>
+              <div className="flex items-start space-x-3">
+                <HelpCircle className="h-6 w-6 text-secondary-600 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Your Digital Truth-Keeping and Asset Memory
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    TagMyThing is a digital asset tagging system that lets users document ownership of any item—physical or digital—in a secure, timestamped, and verifiable way.
+                    It's a place to record your intentions and ensure your belongings and their meaning outlive you.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">Key Features</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li className="flex items-center"><Camera className="h-4 w-4 text-primary-600 mr-2" />Direct photo/video capture</li>
+                        <li className="flex items-center"><Package className="h-4 w-4 text-secondary-600 mr-2" />Asset tagging by name, type, value, and location</li>
+                        <li className="flex items-center"><Coins className="h-4 w-4 text-warning-600 mr-2" />Token economy for platform interactions</li>
+                        <li className="flex items-center"><TrendingUp className="h-4 w-4 text-success-600 mr-2" />Optional blockchain storage for proof of existence</li>
+                        <li className="flex items-center"><Users className="h-4 w-4 text-accent-600 mr-2" />Next-of-kin handover instructions</li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-2">Target Use Cases</h4>
+                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Lost & found recovery</li>
+                        <li>Proof of ownership</li>
+                        <li>Legacy planning</li>
+                        <li>Secret safekeeping</li>
+                        <li>Emotional or legal testimony</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-4 bg-primary-50 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 mb-2">Future Vision</h4>
+                    <p className="text-sm text-gray-700">
+                      TagMyThing aims to become the go-to app for digital truth-keeping and asset memory.
+                      A place where your belongings—and your intentions—outlive you.
+                    </p>
                   </div>
                 </div>
               </div>
