@@ -843,8 +843,51 @@ export const Assets: React.FC = () => {
         >
           {selectedAsset && (
             <div className="space-y-4">
+              {selectedAsset.archive_status === 'archived' ? (
+                <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <AlertTriangle className="h-5 w-5 text-error-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <div className="text-sm text-error-700">
+                      <p className="font-medium mb-1">Cannot Delete Archived Asset</p>
+                      <p>This asset has been permanently archived on Arweave and cannot be deleted.</p>
+                      {selectedAsset.arweave_tx_id && (
+                        <a
+                          href={`https://arweave.net/${selectedAsset.arweave_tx_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-600 underline inline-flex items-center mt-2"
+                        >
+                          View on Arweave
+                          <ExternalLink className="h-3 w-3 ml-1" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-gray-600">
+                    Are you sure you want to delete "{selectedAsset.title}"? 
+                    {selectedAsset.archive_status === 'pending' || selectedAsset.archive_status === 'failed' ? (
+                      <span className="text-success-600 font-medium"> Your tokens will be refunded.</span>
+                    ) : null}
+                  </p>
+                  
+                  {(selectedAsset.archive_status === 'pending' || selectedAsset.archive_status === 'failed') && (
+                    <div className="bg-success-50 border border-success-200 rounded-lg p-3">
+                      <div className="flex items-center">
+                        <CheckCircle2 className="h-4 w-4 text-success-600 mr-2" />
+                        <span className="text-sm text-success-700">
+                          Token refund will be processed automatically
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              
               <p className="text-gray-600">
-                Are you sure you want to delete "{selectedAsset.title}"? This action cannot be undone.
+                {selectedAsset.archive_status === 'archived' ? null : 'This action cannot be undone.'}
               </p>
               <div className="flex space-x-3">
                 <Button
@@ -855,16 +898,18 @@ export const Assets: React.FC = () => {
                   }}
                   className="flex-1"
                 >
-                  Cancel
+                  {selectedAsset.archive_status === 'archived' ? 'Close' : 'Cancel'}
                 </Button>
-                <Button
-                  variant="danger"
-                  onClick={handleDeleteAsset}
-                  loading={deleteLoading}
-                  className="flex-1"
-                >
-                  Delete Asset
-                </Button>
+                {selectedAsset.archive_status !== 'archived' && (
+                  <Button
+                    variant="danger"
+                    onClick={handleDeleteAsset}
+                    loading={deleteLoading}
+                    className="flex-1"
+                  >
+                    Delete Asset
+                  </Button>
+                )}
               </div>
             </div>
           )}

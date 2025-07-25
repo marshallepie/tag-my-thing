@@ -683,6 +683,182 @@ export const AdminInfluencerDashboard: React.FC = () => {
             </div>
           )}
         </Modal>
+
+        {/* Arweave Archiving Management */}
+        <Card className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <Archive className="h-6 w-6 mr-2 text-secondary-600" />
+                Arweave Archiving Management
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Manage permanent archiving of user assets to Arweave
+              </p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                onClick={fetchAssetsForArchiving}
+                size="sm"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button
+                onClick={handleRetryFailed}
+                loading={retryLoading}
+                variant="outline"
+                size="sm"
+                className="text-error-600 hover:text-error-700"
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Retry Failed
+              </Button>
+              <Button
+                onClick={handleArchiveSelected}
+                loading={archiveLoading}
+                disabled={selectedAssets.length === 0}
+                size="sm"
+              >
+                <Archive className="h-4 w-4 mr-2" />
+                Archive Selected ({selectedAssets.length})
+              </Button>
+            </div>
+          </div>
+
+          {/* Archive Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-gray-600 mr-2" />
+                <div>
+                  <div className="text-sm text-gray-600">Pending</div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    {assetsForArchiving.filter(a => a.archive_status === 'pending').length}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-error-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <AlertTriangle className="h-5 w-5 text-error-600 mr-2" />
+                <div>
+                  <div className="text-sm text-error-600">Failed</div>
+                  <div className="text-lg font-semibold text-error-900">
+                    {assetsForArchiving.filter(a => a.archive_status === 'failed').length}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-warning-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-warning-600 mr-2" />
+                <div>
+                  <div className="text-sm text-warning-600">Processing</div>
+                  <div className="text-lg font-semibold text-warning-900">
+                    {assetsForArchiving.filter(a => a.archive_status === 'instant_requested').length}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-primary-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <Archive className="h-5 w-5 text-primary-600 mr-2" />
+                <div>
+                  <div className="text-sm text-primary-600">Total</div>
+                  <div className="text-lg font-semibold text-primary-900">
+                    {assetsForArchiving.length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Assets Table */}
+          {assetsForArchiving.length === 0 ? (
+            <div className="text-center py-8">
+              <Archive className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Assets Pending Archive</h3>
+              <p className="text-gray-600">All assets have been successfully archived or are not eligible for archiving.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectedAssets.length === assetsForArchiving.length && assetsForArchiving.length > 0}
+                        onChange={toggleSelectAll}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Asset
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Attempt
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {assetsForArchiving.map((asset) => (
+                    <tr key={asset.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedAssets.includes(asset.id)}
+                          onChange={() => toggleAssetSelection(asset.id)}
+                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {asset.title}
+                          </div>
+                          <div className="text-sm text-gray-500 capitalize">
+                            {asset.media_type}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{asset.user_email}</div>
+                        <div className="text-sm text-gray-500">{asset.user_id.slice(0, 8)}...</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getArchiveStatusColor(asset.archive_status)}`}>
+                          {getArchiveStatusIcon(asset.archive_status)}
+                          <span className="ml-1 capitalize">{asset.archive_status.replace('_', ' ')}</span>
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {format(new Date(asset.created_at), 'MMM d, yyyy')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {asset.archive_requested_at 
+                          ? format(new Date(asset.archive_requested_at), 'MMM d, yyyy')
+                          : 'Never'
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
       </div>
     </Layout>
   );
