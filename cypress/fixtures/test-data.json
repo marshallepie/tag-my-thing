@@ -1,0 +1,65 @@
+{
+  "users": {
+    "referrer": {
+      "email": "referrer@example.com",
+      "password": "password123",
+      "fullName": "Test Referrer",
+      "role": "user"
+    },
+    "businessUser": {
+      "email": "business@example.com",
+      "password": "password123",
+      "fullName": "Business Owner",
+      "isBusinessUser": true
+    },
+    "regularUser": {
+      "email": "regular@example.com",
+      "password": "password123",
+      "fullName": "Regular User",
+      "isBusinessUser": false
+    },
+    "adminInfluencer": {
+      "email": "admin@tagmything.com",
+      "password": "password123",
+      "fullName": "Admin Influencer",
+      "role": "admin_influencer"
+    }
+  },
+  "assets": {
+    "pendingArchive": {
+      "id": "asset-pending-1",
+      "title": "Pending Arweave Asset",
+      "description": "This asset is waiting to be archived.",
+      "tags": ["test", "pending"],
+      "media_url": "https://example.com/test.jpg",
+      "media_type": "photo",
+      "privacy": "private",
+      "archive_status": "pending"
+    },
+    "archived": {
+      "id": "asset-archived-1",
+      "title": "Archived Asset",
+      "description": "This asset has been archived.",
+      "tags": ["test", "archived"],
+      "media_url": "https://example.com/test.jpg",
+      "media_type": "photo",
+      "privacy": "private",
+      "archive_status": "archived",
+      "arweave_tx_id": "mock-arweave-tx-id-12345"
+    }
+  },
+  "products": {
+    "testProduct": {
+      "product_name": "Test Product",
+      "serial_number": "SN-TEST-12345",
+      "description": "A test product for verification"
+    }
+  },
+  "referralSettings": [
+    { "referral_level": 1, "token_reward": 50 },
+    { "referral_level": 2, "token_reward": 30 },
+    { "referral_level": 3, "token_reward": 20 },
+    { "referral_level": 4, "token_reward": 10 },
+    { "referral_level": 5, "token_reward": 5 }
+  ]
+}
