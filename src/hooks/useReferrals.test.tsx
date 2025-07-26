@@ -48,7 +48,7 @@ jest.mock('react-hot-toast', () => ({
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: any) => React.createElement('div', props, children),
   },
 }));
 

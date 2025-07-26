@@ -8,7 +8,7 @@ import { useReferrals } from '../hooks/useReferrals';
 
 // Mock the Layout component to simplify testing
 jest.mock('../components/layout/Layout', () => ({
-  Layout: ({ children }: { children: React.ReactNode }) => <div data-testid="layout">{children}</div>,
+  Layout: ({ children }: { children: React.ReactNode }) => React.createElement('div', { 'data-testid': 'layout' }, children),
 }));
 
 // Mock useAuth hook
@@ -31,7 +31,7 @@ jest.mock('react-hot-toast', () => ({
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: any) => React.createElement('div', props, children),
   },
 }));
 
@@ -104,8 +104,6 @@ describe('InfluencerReferrals', () => {
       forceRefresh: jest.fn(),
       generateReferralCode: jest.fn().mockResolvedValue('testrefcode'),
       processReferralSignup: jest.fn(),
-      generateReferralCode: jest.fn().mockResolvedValue('testrefcode'),
-      processReferralSignup: jest.fn(),
     });
   });
 
@@ -114,18 +112,14 @@ describe('InfluencerReferrals', () => {
       user: null,
       profile: null,
       isAuthenticated: false,
-      user: null,
-      profile: null,
-      isAuthenticated: false,
       loading: true,
-      initialized: false,
       initialized: false,
     });
 
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -135,28 +129,26 @@ describe('InfluencerReferrals', () => {
     mockUseAuth.mockReturnValue({
       user: null,
       profile: null,
-      profile: null,
       isAuthenticated: false,
-      loading: false,
-      initialized: true,
       loading: false,
       initialized: true,
     });
 
     const { container } = render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     // The component should render a Navigate component, which doesn't render visible content
     expect(container.firstChild).toBeNull();
+  });
 
   it('displays referral stats and link generation section', async () => {
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     await waitFor(() => {
@@ -182,27 +174,23 @@ describe('InfluencerReferrals', () => {
       getReferralUrlForLandingPage: mockGetReferralUrlForLandingPage,
     });
 
-    const mockGetReferralUrlForLandingPage = jest.fn();
-    mockGetReferralUrlForLandingPage
-      .mockResolvedValueOnce('http://localhost/influencer-signup?ref=testrefcode')
-      .mockResolvedValueOnce('http://localhost/general-tagging?ref=testrefcode')
-      .mockResolvedValueOnce('http://localhost/business-tagging?ref=testrefcode');
-
-    mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
-      getReferralUrlForLandingPage: mockGetReferralUrlForLandingPage,
-    });
-
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
+    await waitFor(() => {
       expect(screen.getByDisplayValue(/http:\/\/localhost\/influencer-signup\?ref=testrefcode/)).toBeInTheDocument();
     });
+
+    // Simulate changing the landing page selection
+    const selectElement = screen.getByRole('combobox');
+    fireEvent.change(selectElement, { target: { value: '/general-tagging' } });
+
+    await waitFor(() => {
       expect(mockGetReferralUrlForLandingPage).toHaveBeenCalledWith('/general-tagging');
-    
+    });
   });
 
   it('copies referral URL to clipboard', async () => {
@@ -215,9 +203,9 @@ describe('InfluencerReferrals', () => {
     });
 
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     await waitFor(() => {
@@ -235,9 +223,9 @@ describe('InfluencerReferrals', () => {
 
   it('displays referred users list', async () => {
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     await waitFor(() => {
@@ -256,9 +244,9 @@ describe('InfluencerReferrals', () => {
     });
 
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     expect(screen.getByText('Error Loading Data')).toBeInTheDocument();
@@ -284,54 +272,9 @@ describe('InfluencerReferrals', () => {
     });
 
     render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
-    );
-
-    expect(screen.getByText('No referrals yet')).toBeInTheDocument();
-    expect(screen.getByText('Start sharing your referral link to earn tokens!')).toBeInTheDocument();
-  });
-
-  it('handles error state', () => {
-    mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
-      loading: false,
-      error: 'Failed to load referral data',
-    });
-
-    render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
-    );
-
-    expect(screen.getByText('Error Loading Data')).toBeInTheDocument();
-    expect(screen.getByText('Failed to load referral data')).toBeInTheDocument();
-  });
-
-  it('shows empty state when no referrals exist', () => {
-    mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
-      stats: {
-        totalReferred: 0,
-        totalEarned: 0,
-        pendingRewards: 0,
-        levelBreakdown: [
-          { referral_level: 1, count: 0, earned: 0 },
-          { referral_level: 2, count: 0, earned: 0 },
-          { referral_level: 3, count: 0, earned: 0 },
-          { referral_level: 4, count: 0, earned: 0 },
-          { referral_level: 5, count: 0, earned: 0 },
-        ],
-      },
-      referredUsers: [],
-    });
-
-    render(
-      <Router>
-        <InfluencerReferrals />
-      </Router>
+      React.createElement(Router, null,
+        React.createElement(InfluencerReferrals)
+      )
     );
 
     expect(screen.getByText('No referrals yet')).toBeInTheDocument();
