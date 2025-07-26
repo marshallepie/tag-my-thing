@@ -194,6 +194,27 @@ We welcome contributions! Please follow these steps:
 
 ---
 
+## 🔗 Referral System
+
+TagMyThing features a comprehensive referral system available to all users:
+
+- **Multi-Level Rewards** - Earn tokens up to 5 levels deep
+- **Landing Page Selection** - Choose from 5 different landing pages for your referral links
+- **Universal Access** - All users can generate and share referral codes
+- **Flexible Targeting** - Direct referrals to specific use cases (General, NFT, MyWill, Business)
+- **Automatic Processing** - Rewards are processed automatically upon successful referrals
+
+### Referral Reward Structure
+- Level 1: 50 TMT
+- Level 2: 30 TMT
+- Level 3: 20 TMT
+- Level 4: 10 TMT
+- Level 5: 5 TMT
+
+**Total potential per referral chain: 115 TMT**
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
