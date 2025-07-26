@@ -56,7 +56,7 @@ export const CustomerSupport: React.FC = () => {
     {
 
       question: 'How do TMT tokens work?',
-      answer: 'TMT tokens are used to tag assets. You get 100 free tokens on signup, and can purchase more. Photos cost 25 TMT, videos cost 60 TMT.',
+      answer: 'TMT tokens are used to tag assets. Regular users get 50 free tokens on signup, influencers get 100 tokens. Photos cost 5 TMT, videos cost 7 TMT.',
       icon: <FileText className="h-5 w-5 text-accent-600" />
     },
     {
@@ -176,7 +176,7 @@ export const CustomerSupport: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.7 + index * 0.1 }}
                 >
-                  <Card className="h-full">
+                      <li>Free signup bonus (50 TMT for regular users, 100 TMT for influencers)</li>
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0 mt-1">
                         {faq.icon}
@@ -187,7 +187,7 @@ export const CustomerSupport: React.FC = () => {
                         </h3>
                         <p className="text-gray-700 leading-relaxed">
                           {faq.answer}
-                        </p>
+                      <li>Arweave archiving (300 TMT for permanent storage)</li>
                       </div>
                     </div>
                   </Card>
@@ -398,17 +398,17 @@ export const CustomerSupport: React.FC = () => {
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 mb-2">Key Features</h4>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                  Our referral program allows ALL users to earn TMT tokens by inviting new members to the platform.
+                  Choose from 5 different landing pages to target specific audiences and use cases.
                         <li className="flex items-center"><Camera className="h-4 w-4 text-primary-600 mr-2" />Direct photo/video capture</li>
                         <li className="flex items-center"><Package className="h-4 w-4 text-secondary-600 mr-2" />Asset tagging by name, type, value, and location</li>
                         <li className="flex items-center"><Coins className="h-4 w-4 text-warning-600 mr-2" />Token economy for platform interactions</li>
-                        <li className="flex items-center"><TrendingUp className="h-4 w-4 text-success-600 mr-2" />Optional blockchain storage for proof of existence</li>
+                    <h4 className="font-semibold text-gray-900 mb-2">Referral Benefits</h4>
                         <li className="flex items-center"><Users className="h-4 w-4 text-accent-600 mr-2" />Next-of-kin handover instructions</li>
-                      </ul>
+                      <li className="flex items-center"><Users className="h-4 w-4 text-primary-600 mr-2" />Available to All Users</li>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 mb-2">Target Use Cases</h4>
+                      <li className="flex items-center"><TrendingUp className="h-4 w-4 text-success-600 mr-2" />Choose Landing Page Destination</li>
+                      <li className="flex items-center"><Gift className="h-4 w-4 text-accent-600 mr-2" />Target Specific Use Cases</li>
                       <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
                         <li>Lost & found recovery</li>
                         <li>Proof of ownership</li>
@@ -425,6 +425,16 @@ export const CustomerSupport: React.FC = () => {
                       A place where your belongings—and your intentions—outlive you.
                     </p>
                   </div>
+                </div>
+                <div className="bg-primary-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Landing Page Options</h4>
+                  <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                    <li>Influencer Signup (Recommended) - Best rewards for new users</li>
+                    <li>General Ownership Tagging - Document and verify ownership</li>
+                    <li>Digital Assets & NFT Tagging - Protect creative works and NFTs</li>
+                    <li>MyWill & Legacy Tagging - Secure your digital legacy</li>
+                    <li>Business & Inventory Tagging - Product authentication for businesses</li>
+                  </ul>
                 </div>
               </div>
             </Card>
