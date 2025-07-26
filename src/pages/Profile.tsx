@@ -57,7 +57,7 @@ export const Profile: React.FC = () => {
     full_name: '',
     email: '',
     location: '',
-    language: 'en'
+    language: 'en',
     is_business_user: false
   });
   const [passwordData, setPasswordData] = useState<PasswordFormData>({
