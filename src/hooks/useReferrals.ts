@@ -332,6 +332,24 @@ export const useReferrals = () => {
     }
   };
 
+  const getReferralUrlForLandingPage = async (landingPagePath?: string) => {
+    console.log('getReferralUrlForLandingPage - Starting with path:', landingPagePath);
+    try {
+      const code = await generateReferralCode();
+      console.log('getReferralUrlForLandingPage - Got code:', code);
+      if (!code) return null;
+
+      // Use provided landing page path or default to influencer signup
+      const basePath = landingPagePath || '/influencer-signup';
+      const url = `${window.location.origin}${basePath}?ref=${code}`;
+      console.log('getReferralUrlForLandingPage - Generated URL:', url);
+      return url;
+    } catch (error) {
+      console.error('getReferralUrlForLandingPage - Error:', error);
+      return null;
+    }
+  };
+
   const processReferralSignup = async (referralCode: string, newUserId: string) => {
     console.log('processReferralSignup - Starting with code:', referralCode, 'newUserId:', newUserId);
     
@@ -525,6 +543,7 @@ export const useReferrals = () => {
     error,
     generateReferralCode,
     getReferralUrl,
+    getReferralUrlForLandingPage,
     processReferralSignup,
     refreshData: fetchReferralData,
     forceRefresh: () => {

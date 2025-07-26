@@ -1,7 +1,7 @@
 # Referral System Update - All Users Can Refer
 
 ## Overview
-As of January 10, 2025, TagMyThing has updated its referral system to allow all users to create and share referral codes, not just influencers.
+As of January 10, 2025, TagMyThing has updated its referral system to allow all users to create and share referral codes, not just influencers. Additionally, users can now choose from multiple landing page destinations for their referral links.
 
 ## Key Changes
 
@@ -10,10 +10,16 @@ As of January 10, 2025, TagMyThing has updated its referral system to allow all 
 - **No Role Restrictions**: Removed the requirement to be an "influencer" to access referrals
 - **Automatic Code Generation**: All existing users without referral codes will automatically get one
 
-### 2. Referral Link Destination
-- **All referral links now point to**: `/influencer-signup?ref={code}`
-- **Reasoning**: Encourages referred users to sign up as influencers for better rewards
-- **Fallback**: Users can still choose standard signup from the influencer page
+### 2. Multiple Landing Page Options
+- **Landing Page Selection**: Users can now choose from 5 different landing page destinations for their referral links
+- **Available Options**:
+  - Influencer Signup (Recommended) - `/influencer-signup?ref={code}`
+  - General Ownership Tagging - `/general-tagging?ref={code}`
+  - Digital Assets & NFT Tagging - `/nft-tagging?ref={code}`
+  - MyWill & Legacy Tagging - `/mywill-tagging?ref={code}`
+  - Business & Inventory Tagging - `/business-tagging?ref={code}`
+- **Default**: Influencer signup remains the recommended option for best rewards
+- **Flexibility**: Users can target specific use cases when sharing referral links
 
 ### 3. Token Rewards Structure (Unchanged)
 The 5-level referral structure remains exactly as specified:
@@ -62,23 +68,33 @@ The 5-level referral structure remains exactly as specified:
 
 ### For New Users
 - Get referral code on signup
-- Can start referring immediately after account creation
-- All referral links encourage influencer signups
+- Can choose landing page destination for their referral links
+- Access referrals through navigation or dashboard
 
 ### For Referred Users
-- Land on influencer signup page (better rewards)
-- Can choose standard signup if preferred
-- Referrer gets tokens regardless of signup type chosen
+- Land on the specific page chosen by the referrer
+- Can start referring immediately after account creation
+- Referrer gets tokens regardless of which landing page was used
+
+### For Referrers
+- Can customize their referral strategy by choosing appropriate landing pages
+- Target specific audiences with relevant use case pages
+- Maintain full reward potential regardless of landing page choice
 
 ## Benefits
 
 1. **Increased Viral Growth**: All users become potential referrers
-2. **Simplified System**: No role-based restrictions to manage
-3. **Better Conversion**: All referrals point to higher-value influencer signup
+2. **Targeted Marketing**: Users can share links to specific use cases
+3. **Better Conversion**: Relevant landing pages improve signup rates
 4. **User Empowerment**: Everyone can earn tokens through referrals
-5. **Reduced Complexity**: Single referral system for all users
+5. **Flexible Strategy**: Referrers can adapt their approach to different audiences
 
 ## Technical Implementation
+
+### Frontend Changes
+- Added dropdown selection for landing page destinations in referral interface
+- Updated `useReferrals` hook to support multiple landing page URLs
+- Enhanced UI to show landing page descriptions and benefits
 
 ### Database Functions
 - `generate_referral_code()`: Works for all users
@@ -93,6 +109,11 @@ The 5-level referral structure remains exactly as specified:
 ### Performance
 - Indexed referral code lookups
 - Efficient code generation algorithm
+- Client-side URL generation for instant feedback
+
+### Referral Tracking
+- All landing pages include referral code capture logic
+- Seamless transition to signup flow maintains referral attribution
 - Optimized for scale
 
 ## Monitoring
@@ -100,6 +121,8 @@ The 5-level referral structure remains exactly as specified:
 ### Key Metrics to Track
 - Referral code generation rate
 - Referral link click-through rate
+- Landing page preference distribution
+- Conversion rates by landing page type
 - Conversion from referral to signup
 - Token rewards distributed
 - User engagement with referral features
@@ -107,6 +130,7 @@ The 5-level referral structure remains exactly as specified:
 ### Success Indicators
 - Increased user acquisition through referrals
 - Higher percentage of users with active referral codes
+- Improved conversion rates through targeted landing pages
 - More diverse referrer base (not just influencers)
 - Improved viral coefficient
 
@@ -115,14 +139,16 @@ The 5-level referral structure remains exactly as specified:
 ### Common Questions
 - "How do I get a referral code?" → Automatic for all users
 - "Can I refer friends?" → Yes, all users can refer
-- "Where do my referral links go?" → Influencer signup page
+- "Where do my referral links go?" → You can choose from 5 different landing pages
+- "Which landing page should I choose?" → Influencer signup for best rewards, or specific use case pages for targeted audiences
 - "When do I get tokens?" → When referred users sign up
 
 ### Documentation Updates
 - Updated help articles about referral system
 - Clarified that all users can refer
+- Added guidance on choosing appropriate landing pages
 - Explained why links go to influencer signup
 
 ---
 
-**Result**: A more inclusive, growth-focused referral system that empowers all users to become advocates for TagMyThing while maintaining the proven 5-level reward structure.
+**Result**: A more inclusive, flexible, and growth-focused referral system that empowers all users to become targeted advocates for TagMyThing while maintaining the proven 5-level reward structure and enabling strategic marketing through multiple landing page options.

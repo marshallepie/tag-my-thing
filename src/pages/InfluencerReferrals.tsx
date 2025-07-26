@@ -37,6 +37,7 @@ export const InfluencerReferrals: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
+  const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/influencer-signup');
   const { 
     stats, 
     referredUsers, 
@@ -44,10 +45,40 @@ export const InfluencerReferrals: React.FC = () => {
     loading: dataLoading,
     error: dataError,
     getReferralUrl,
+    getReferralUrlForLandingPage,
     refreshData,
     forceRefresh
   } = useReferrals();
   const { user, profile, isAuthenticated, loading: authLoading } = useAuth();
+
+  // Define landing page options for the dropdown
+  const landingPageOptions = [
+    {
+      value: '/influencer-signup',
+      label: 'Influencer Signup (Recommended)',
+      description: 'Best rewards for new users'
+    },
+    {
+      value: '/general-tagging',
+      label: 'General Ownership Tagging',
+      description: 'Document and verify ownership'
+    },
+    {
+      value: '/nft-tagging',
+      label: 'Digital Assets & NFT Tagging',
+      description: 'Protect creative works and NFTs'
+    },
+    {
+      value: '/mywill-tagging',
+      label: 'MyWill & Legacy Tagging',
+      description: 'Secure your digital legacy'
+    },
+    {
+      value: '/business-tagging',
+      label: 'Business & Inventory Tagging',
+      description: 'Product authentication for businesses'
+    }
+  ];
 
   // Set up real-time subscription for referral updates
   useEffect(() => {
@@ -104,7 +135,7 @@ export const InfluencerReferrals: React.FC = () => {
     setUrlLoading(true);
     try {
       console.log('loadReferralUrl - Starting');
-      const url = await getReferralUrl();
+      const url = await getReferralUrlForLandingPage(selectedLandingPage);
       console.log('loadReferralUrl - Got URL:', url);
       if (url) {
         setReferralUrl(url);
@@ -133,11 +164,20 @@ export const InfluencerReferrals: React.FC = () => {
   useEffect(() => {
     if (profile?.referral_code && !referralUrl && !urlLoading) {
       console.log('InfluencerReferrals - Profile has referral code, generating URL');
-      const url = `${window.location.origin}/auth?ref=${profile.referral_code}`;
+      const url = `${window.location.origin}${selectedLandingPage}?ref=${profile.referral_code}`;
       setReferralUrl(url);
       setUrlLoaded(true);
     }
-  }, [profile?.referral_code, referralUrl, urlLoading]);
+  }, [profile?.referral_code, referralUrl, urlLoading, selectedLandingPage]);
+
+  // Effect to regenerate URL when landing page selection changes
+  useEffect(() => {
+    if (profile?.referral_code && selectedLandingPage) {
+      console.log('InfluencerReferrals - Landing page changed, regenerating URL');
+      const url = `${window.location.origin}${selectedLandingPage}?ref=${profile.referral_code}`;
+      setReferralUrl(url);
+    }
+  }, [selectedLandingPage, profile?.referral_code]);
 
   // Show loading while auth is being determined
   if (authLoading) {
@@ -333,6 +373,26 @@ export const InfluencerReferrals: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Landing Page Destination
+                  </label>
+                  <select
+                    value={selectedLandingPage}
+                    onChange={(e) => setSelectedLandingPage(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {landingPageOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {landingPageOptions.find(opt => opt.value === selectedLandingPage)?.description}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Referral URL
                   </label>
                   <div className="flex space-x-2">
@@ -382,7 +442,8 @@ export const InfluencerReferrals: React.FC = () => {
                     <div className="text-sm text-primary-700">
                       <p className="font-medium mb-1">How it works:</p>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>Share your unique referral link</li>
+                        <li>Choose your preferred landing page from the dropdown</li>
+                        <li>Share your customized referral link</li>
                         <li>New users sign up using your link</li>
                         <li>Earn tokens for each successful referral</li>
                         <li>Get rewards up to 5 levels deep!</li>
