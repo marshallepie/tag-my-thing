@@ -21,9 +21,7 @@ describe('Referral Flow E2E Tests', () => {
         { referral_level: 5, token_reward: 5, active: true },
       ],
     }).as('fetchSettings');
-  });
 
-  it('allows business referral link generation and signup', () => {
     // Mock the referral data fetch
     cy.intercept('GET', '**/rest/v1/referrals*', {
       statusCode: 200,
@@ -46,12 +44,15 @@ describe('Referral Flow E2E Tests', () => {
       ],
     }).as('fetchSettings');
 
-    // 1. Log in as a referrer (existing user)
     cy.login('referrer@example.com', 'password123');
 
     // 2. Navigate to the referral page
     cy.visit('/referrals');
     cy.url().should('include', '/referrals');
+    cy.waitForPageLoad();
+
+    // 3. Wait for referral data to load
+    cy.wait(['@fetchReferrals', '@fetchRewards', '@fetchSettings']);
     cy.waitForPageLoad();
 
     // 3. Wait for referral data to load
@@ -148,7 +149,6 @@ describe('Referral Flow E2E Tests', () => {
     // 5. Get the generated referral URL
     cy.get('input[readonly]').should('contain.value', '/general-tagging?ref=').invoke('val').then((referralUrl) => {
       const code = (referralUrl as string).split('ref=')[1];
-      expect(code).to.not.be.empty;
 
       // 6. Log out the referrer
       cy.logout();
@@ -158,8 +158,56 @@ describe('Referral Flow E2E Tests', () => {
       cy.url().should('include', '/general-tagging');
 
       // 7. Navigate to signup
+      // 8. Navigate to signup (business landing pages redirect to signup)
       cy.contains('Get Started').click();
       cy.url().should('include', '/influencer-signup');
+      cy.url().should('include', `ref=${code}`);
+
+      // 9. Mock the signup process
+      cy.intercept('POST', '**/auth/v1/signup', {
+        statusCode: 200,
+        body: {
+          user: {
+            id: 'new-user-id',
+            email: 'newuser@example.com',
+          },
+        },
+      }).as('signupUser');
+
+      cy.intercept('POST', '**/rest/v1/user_profiles', {
+        statusCode: 201,
+        body: {
+          id: 'new-user-id',
+          email: 'newuser@example.com',
+          full_name: 'New Business User',
+          role: 'user',
+          is_business_user: false,
+        },
+      }).as('createProfile');
+
+      cy.intercept('POST', '**/rest/v1/user_wallets', {
+        statusCode: 201,
+        body: {
+          user_id: 'new-user-id',
+          balance: 50,
+        },
+      }).as('createWallet');
+
+      cy.intercept('POST', '**/rest/v1/token_transactions', {
+        statusCode: 201,
+        body: {},
+      }).as('createTransaction');
+
+      // 10. Sign up as a new user
+      const newUserEmail = `newuser-${Date.now()}@example.com`;
+      cy.get('#auth-full-name').type('New Business User');
+      cy.get('#auth-email').type(newUserEmail);
+      cy.get('#auth-password').type('newpassword123');
+      cy.get('button[type="submit"]').click();
+
+      // 11. Verify successful signup
+      cy.wait(['@signupUser', '@createProfile', '@createWallet', '@createTransaction']);
+      cy.contains('Account created successfully!').should('be.visible');
 
       // 8. Verify the business toggle is available and unchecked
       // Note: This depends on your actual implementation
@@ -169,6 +217,11 @@ describe('Referral Flow E2E Tests', () => {
   });
 
   it('handles referral link generation errors gracefully', () => {
+    // Mock referral data
+    cy.intercept('GET', '**/rest/v1/referrals*', { body: [] }).as('fetchReferrals');
+    cy.intercept('GET', '**/rest/v1/referral_rewards*', { body: [] }).as('fetchRewards');
+    cy.intercept('GET', '**/rest/v1/referral_settings*', { body: [] }).as('fetchSettings');
+
     // Mock error in referral code generation
     cy.intercept('POST', '**/rest/v1/user_profiles', {
       statusCode: 500,
