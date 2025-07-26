@@ -484,7 +484,8 @@ export const Profile: React.FC = () => {
                             full_name: profile.full_name || '',
                             email: profile.email || '',
                             location: profile.location || '',
-                            language: profile.language || 'en'
+                            language: profile.language || 'en',
+                            is_business_user: profile.is_business_user || false
                           });
                         }
                       }}
