@@ -57,6 +57,7 @@ export const Header: React.FC = () => {
     navigation.push({ name: 'Admin', href: '/admin' });
   } else if (isModerator) {
     navigation.push({ name: 'Moderator', href: '/moderator' });
+  }
 
 
   // Add Public Assets link for everyone
