@@ -25,6 +25,9 @@ import { GeneralTaggingLanding } from './pages/GeneralTaggingLanding';
 import { NFTTaggingLanding } from './pages/NFTTaggingLanding';
 import { MyWillTaggingLanding } from './pages/MyWillTaggingLanding';
 import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
+import { BusinessDashboard } from './pages/BusinessDashboard';
+import { ProductVerificationPage } from './pages/ProductVerificationPage';
+import { PublicAssetsPage } from './pages/PublicAssetsPage';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -105,6 +108,22 @@ const AdminInfluencerRoute: React.FC<{ children: React.ReactNode }> = ({ childre
     return <Navigate to="/unauthorized" replace />;
   }
 
+  return <>{children}</>;
+};
+
+const BusinessUserRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { loading, initialized, isAuthenticated } = useAuth();
+
+  if (!initialized || loading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // The BusinessDashboard component itself will handle the 'is_business_user' check
+  // and display a message if the user is not a business user.
   return <>{children}</>;
 };
 
@@ -281,6 +300,22 @@ function App() {
                 </SafeRoute>
               } 
             />
+            <Route 
+              path="/verify/:serialNumber" 
+              element={
+                <SafeRoute>
+                  <ProductVerificationPage />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/public-assets" 
+              element={
+                <SafeRoute>
+                  <PublicAssetsPage />
+                </SafeRoute>
+              } 
+            />
 
             {/* Protected Routes */}
             <Route
@@ -375,6 +410,18 @@ function App() {
                   <AdminInfluencerRoute>
                     <AdminInfluencerDashboard />
                   </AdminInfluencerRoute>
+                </SafeRoute>
+              }
+            />
+
+            {/* Business Dashboard Route */}
+            <Route
+              path="/business-dashboard"
+              element={
+                <SafeRoute>
+                  <BusinessUserRoute>
+                    <BusinessDashboard />
+                  </BusinessUserRoute>
                 </SafeRoute>
               }
             />

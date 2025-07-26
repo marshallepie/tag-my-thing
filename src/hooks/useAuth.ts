@@ -219,5 +219,6 @@ export const useAuth = () => {
     isModerator: profile?.role === 'moderator' || profile?.role === 'admin',
     isInfluencer: profile?.role === 'influencer',
     isAdminInfluencer: profile?.role === 'admin_influencer',
+    isBusinessUser: profile?.is_business_user || false,
   };
 };

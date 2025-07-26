@@ -43,6 +43,7 @@ interface ProfileFormData {
   email: string;
   location: string;
   language: string;
+  is_business_user: boolean;
 }
 
 interface PasswordFormData {
@@ -57,6 +58,7 @@ export const Profile: React.FC = () => {
     email: '',
     location: '',
     language: 'en'
+    is_business_user: false
   });
   const [passwordData, setPasswordData] = useState<PasswordFormData>({
     currentPassword: '',
@@ -74,6 +76,7 @@ export const Profile: React.FC = () => {
   
   const { user, profile, signOut } = useAuth();
   const { balance, transactions } = useTokens();
+  const { balance, transactions } = useTokens();
 
   useEffect(() => {
     if (profile) {
@@ -81,7 +84,8 @@ export const Profile: React.FC = () => {
         full_name: profile.full_name || '',
         email: profile.email || '',
         location: profile.location || '',
-        language: profile.language || 'en'
+        language: profile.language || 'en',
+        is_business_user: profile.is_business_user || false
       });
     }
   }, [profile]);
@@ -97,7 +101,8 @@ export const Profile: React.FC = () => {
         .update({
           full_name: profileData.full_name,
           location: profileData.location,
-          language: profileData.language
+          language: profileData.language,
+          is_business_user: profileData.is_business_user
         })
         .eq('id', user.id);
 

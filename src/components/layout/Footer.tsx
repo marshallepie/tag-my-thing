@@ -40,6 +40,12 @@ export const Footer: React.FC = () => {
         { name: 'Blog', href: '#', internal: true },
         { name: 'Careers', href: '#', internal: true },
       ]
+    },
+    {
+      title: 'Explore',
+      links: [
+        { name: 'Public Assets', href: '/public-assets', internal: true },
+      ]
     }
   ];
 

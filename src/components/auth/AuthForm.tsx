@@ -75,6 +75,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
                 full_name: formData.fullName,
                 role: initialRole,
                 subscription_plan: 'freemium', // Only freemium plan available
+                is_business_user: false, // Default to false
               });
             
             profileError = error;

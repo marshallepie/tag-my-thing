@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, Camera, Wallet, Settings, LogOut, User, Shield, Megaphone } from 'lucide-react';
+import { Building, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTokens } from '../../hooks/useTokens';
 import { Button } from '../ui/Button';
@@ -9,6 +10,7 @@ import { Button } from '../ui/Button';
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, profile, signOut, isAuthenticated, isAdmin, isModerator, isAdminInfluencer } = useAuth();
+  const { isBusinessUser } = useAuth();
   const { balance } = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,14 +46,21 @@ export const Header: React.FC = () => {
     navigation.push({ name: 'Referrals', href: '/referrals' });
   }
 
+  // Add Business Dashboard link for business users
+  if (isBusinessUser) {
+    navigation.push({ name: 'Business', href: '/business-dashboard' });
+  }
+
   if (isAdminInfluencer) {
     navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
   } else if (isAdmin) {
     navigation.push({ name: 'Admin', href: '/admin' });
   } else if (isModerator) {
     navigation.push({ name: 'Moderator', href: '/moderator' });
-  }
 
+
+  // Add Public Assets link for everyone
+  navigation.push({ name: 'Public Assets', href: '/public-assets' });
   const isActive = (path: string) => location.pathname === path;
 
   return (
