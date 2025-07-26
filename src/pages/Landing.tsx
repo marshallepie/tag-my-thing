@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Shield, Smartphone, Globe, ArrowRight, CheckCircle, Megaphone } from 'lucide-react';
+import { Camera, Shield, Smartphone, Globe, ArrowRight, CheckCircle, Megaphone, Package, Palette, Heart, Building } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Footer } from '../components/layout/Footer';
@@ -56,6 +56,33 @@ export const Landing: React.FC = () => {
     'Token-based economy with rewards',
     'Multi-currency payment support',
     '24/7 customer support',
+  ];
+
+  const useCases = [
+    {
+      icon: <Package className="h-8 w-8 text-primary-600" />,
+      title: 'General Ownership',
+      description: 'Document and verify ownership of any valuable possession',
+      link: '/general-tagging'
+    },
+    {
+      icon: <Palette className="h-8 w-8 text-purple-600" />,
+      title: 'Digital Assets & NFTs',
+      description: 'Protect your creative works and digital collectibles',
+      link: '/nft-tagging'
+    },
+    {
+      icon: <Heart className="h-8 w-8 text-amber-600" />,
+      title: 'MyWill & Legacy',
+      description: 'Preserve your intentions and secure your digital legacy',
+      link: '/mywill-tagging'
+    },
+    {
+      icon: <Building className="h-8 w-8 text-blue-600" />,
+      title: 'Business & Inventory',
+      description: 'Two-factor product authentication for businesses',
+      link: '/business-tagging'
+    },
   ];
 
   return (
@@ -237,8 +264,55 @@ export const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Use Cases Section */}
       <section className="py-16 lg:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Choose Your Use Case
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Discover how TagMyThing can be tailored to your specific needs
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {useCases.map((useCase, index) => (
+              <motion.div
+                key={useCase.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card hover className="text-center h-full cursor-pointer" onClick={() => handleNavigation(useCase.link)}>
+                  <div className="flex justify-center mb-4">
+                    {useCase.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {useCase.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {useCase.description}
+                  </p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Learn More
+                  </Button>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div

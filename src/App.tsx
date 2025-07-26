@@ -21,6 +21,10 @@ import { CustomerSupport } from './pages/CustomerSupport';
 import { GDPRCompliance } from './pages/GDPRCompliance';
 import { CookiePolicy } from './pages/CookiePolicy';
 import { DataProcessingAgreement } from './pages/DataProcessingAgreement';
+import { GeneralTaggingLanding } from './pages/GeneralTaggingLanding';
+import { NFTTaggingLanding } from './pages/NFTTaggingLanding';
+import { MyWillTaggingLanding } from './pages/MyWillTaggingLanding';
+import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -240,6 +244,40 @@ function App() {
               element={
                 <SafeRoute>
                   <DataProcessingAgreement />
+                </SafeRoute>
+              } 
+            />
+
+            {/* Specialized Landing Pages */}
+            <Route 
+              path="/general-tagging" 
+              element={
+                <SafeRoute>
+                  <GeneralTaggingLanding />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/nft-tagging" 
+              element={
+                <SafeRoute>
+                  <NFTTaggingLanding />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/mywill-tagging" 
+              element={
+                <SafeRoute>
+                  <MyWillTaggingLanding />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/business-tagging" 
+              element={
+                <SafeRoute>
+                  <BusinessTaggingLanding />
                 </SafeRoute>
               } 
             />

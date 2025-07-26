@@ -56,8 +56,9 @@ export const useReferrals = () => {
       return;
     }
 
-    if (profile?.role !== 'influencer') {
-      console.log('useReferrals - User is not an influencer, role:', profile?.role);
+    // Allow all authenticated users to access referrals now
+    if (!profile) {
+      console.log('useReferrals - No profile available yet');
       setLoading(false);
       return;
     }
@@ -205,13 +206,14 @@ export const useReferrals = () => {
       return;
     }
 
-    if (profile?.role !== 'influencer') {
-      console.log('useReferrals - User is not an influencer');
+    // Allow all authenticated users to access referrals now
+    if (!profile) {
+      console.log('useReferrals - No profile available yet');
       setLoading(false);
       return;
     }
 
-    console.log('useReferrals - useEffect triggered, profile role:', profile?.role);
+    console.log('useReferrals - useEffect triggered for user:', user.id);
 
     // Fetch settings first (lighter operation)
     fetchReferralSettings();
@@ -226,7 +228,7 @@ export const useReferrals = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, user, profile?.role, fetchReferralData, fetchReferralSettings]);
+  }, [isAuthenticated, user, profile, fetchReferralData, fetchReferralSettings]);
 
   const generateReferralCode = async () => {
     // Add comprehensive safety checks
@@ -236,7 +238,7 @@ export const useReferrals = () => {
     }
 
     // All users can now generate referral codes
-    console.log('generateReferralCode - Starting for user role:', profile.role);
+    console.log('generateReferralCode - Starting for user:', user.id);
 
     console.log('generateReferralCode - Starting with profile:', profile);
 

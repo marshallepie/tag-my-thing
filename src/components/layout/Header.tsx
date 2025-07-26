@@ -39,7 +39,6 @@ export const Header: React.FC = () => {
     { name: 'NOK', href: '/nok' },
   ];
 
-  // Add influencer-specific navigation
   // All users can access referrals now
   if (profile) {
     navigation.push({ name: 'Referrals', href: '/referrals' });

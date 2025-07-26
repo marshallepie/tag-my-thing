@@ -7,6 +7,15 @@ export const Footer: React.FC = () => {
 
   const footerLinks = [
     {
+      title: 'Use Cases',
+      links: [
+        { name: 'General Ownership', href: '/general-tagging', internal: true },
+        { name: 'Digital Assets & NFTs', href: '/nft-tagging', internal: true },
+        { name: 'MyWill & Legacy', href: '/mywill-tagging', internal: true },
+        { name: 'Business & Inventory', href: '/business-tagging', internal: true },
+      ]
+    },
+    {
       title: 'Legal',
       links: [
         { name: 'Privacy Policy', href: '/privacy-policy', internal: true },
@@ -39,7 +48,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
-          <div className="lg:col-span-1">
+          <div>
             <div className="flex items-center space-x-3 mb-4">
               <img 
                 src="/tagmaithing.png" 

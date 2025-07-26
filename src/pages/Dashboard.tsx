@@ -28,8 +28,8 @@ export const Dashboard: React.FC = () => {
       color: 'bg-secondary-600',
     },
     {
-      title: 'Refer Friends',
-      description: 'Earn tokens through referrals',
+      title: 'Referral Program',
+      description: 'Earn tokens by referring friends',
       icon: <Users className="h-8 w-8" />,
       link: '/referrals',
       color: 'bg-accent-600',
