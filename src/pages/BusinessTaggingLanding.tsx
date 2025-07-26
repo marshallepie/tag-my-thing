@@ -25,26 +25,26 @@ export const BusinessTaggingLanding: React.FC = () => {
   const steps = [
     {
       number: '1',
-      title: 'Generate Cryptographic Key Pair',
-      description: 'For each product you manufacture, generate a cryptographic key pair consisting of one primary key and multiple secondary keys.',
+      title: 'Assign Unique Serial & QR Code',
+      description: 'Each product gets a unique serial number and an automatically generated QR code that links to its TagMyThing record.',
       icon: <QrCode className="h-8 w-8 text-primary-600" />
     },
     {
       number: '2',
-      title: 'Distribute Secondary Keys',
-      description: 'Distribute all your products with the secondary keys attached via QR codes or other secure methods.',
+      title: 'Attach QR Code to Product',
+      description: 'Apply the QR code to your product via sticker, engraving, or integration into packaging for easy customer access.',
       icon: <Key className="h-8 w-8 text-secondary-600" />
     },
     {
       number: '3',
-      title: 'Tag Product with Primary Key',
-      description: 'Tag the product on TagMyThing and display the primary key, creating a secure reference point for verification.',
+      title: 'Customer Scans QR Code',
+      description: 'Customers use any QR code scanner to instantly access the product\'s TagMyThing verification page.',
       icon: <Shield className="h-8 w-8 text-success-600" />
     },
     {
       number: '4',
-      title: 'Automated Verification',
-      description: 'Customers scan the product code, cryptographic keys are compared programmatically, and results are returned as authentic or unconfirmed.',
+      title: 'View Authenticity & Scan History',
+      description: 'Customers see product details and scan history. Unusual patterns or locations help identify potential counterfeits.',
       icon: <Lock className="h-8 w-8 text-accent-600" />
     },
   ];
@@ -100,11 +100,10 @@ export const BusinessTaggingLanding: React.FC = () => {
                 <span className="block text-primary-600">Tagging</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Elevate Your Business Security with TagMyThing: Two-Factor Product Authentication
+                TagMyThing for Businesses: Simple, Secure Product Authentication with QR Codes
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
-                In an era where counterfeiting is a growing concern, TagMyThing offers businesses a revolutionary solution for product verification. 
-                By leveraging a cryptographic key pair authentication model, businesses can ensure each product is uniquely identified and authenticated.
+                TagMyThing offers a lightweight product verification system built for businesses. Each product is assigned a unique serial number and an automatically generated QR code. When customers scan the code, they can instantly verify the product's authenticity and view its scan history. This helps identify counterfeits through unusual scan patterns or locations, giving customers confidence and protecting your brand—all without complex cryptographic systems.
               </p>
             </motion.div>
 
@@ -201,20 +200,19 @@ export const BusinessTaggingLanding: React.FC = () => {
                 Why Choose TagMyThing?
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Here's how it works: for each product you manufacture you generate a cryptographic key pair of two numbers. 
-                A primary key and multiple secondary keys. You then distribute all your products with the secondary keys attached. 
-                You tag the Product and display the primary key on TagMyThing. Customers can then verify the item is legit by 
-                scanning the code on the item. The verification process happens in the background. Cryptographic keys are compared 
-                programmatically. The result is returned as authentic or unconfirmed to the user. The user can then make an informed decision.
+                Our simple yet effective system assigns each product a unique serial number and QR code. When customers scan the code, 
+                they instantly see the product's verification page with its complete scan history. Unusual scan patterns—like multiple 
+                scans from different countries or suspicious frequency—help identify potential counterfeits. This transparency builds 
+                customer confidence while protecting your brand reputation.
               </p>
               
               <div className="space-y-4">
                 {[
-                  'Cryptographic security makes counterfeiting virtually impossible',
-                  'Automated verification process with instant results',
-                  'Clear authentic/unconfirmed status for customer confidence',
-                  'Scalable key generation for any production volume',
-                  'Builds unshakeable brand trust and credibility'
+                  'Simple QR code system requires no complex setup',
+                  'Instant verification with complete scan history',
+                  'Unusual patterns help identify potential counterfeits',
+                  'Scalable for any production volume',
+                  'Builds customer trust through transparency'
                 ].map((benefit, index) => (
                   <motion.div
                     key={benefit}
@@ -240,9 +238,9 @@ export const BusinessTaggingLanding: React.FC = () => {
             >
               <div className="bg-gradient-to-br from-primary-600 to-secondary-600 rounded-2xl p-8 text-white">
                 <Building className="h-16 w-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">Cryptographically Secure</h3>
+                <h3 className="text-2xl font-bold mb-4">Simple & Transparent</h3>
                 <p className="text-primary-100 mb-6">
-                  Our cryptographic key pair system provides military-grade security that scales with your business, from small batches to mass production.
+                  Our lightweight QR code system provides effective protection through transparency and scan history tracking, scaling effortlessly with your business growth.
                 </p>
                 <Button 
                   variant="secondary" 
@@ -250,7 +248,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                   className="w-full"
                   onClick={() => handleNavigation('/tag')}
                 >
-                  Start Cryptographic Protection
+                  Start Simple Product Authentication
                 </Button>
               </div>
             </motion.div>
@@ -268,10 +266,10 @@ export const BusinessTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Secure Your Business Today
+              Protect Your Products Today
             </h2>
             <p className="text-xl text-primary-100 mb-8">
-              Join forward-thinking businesses that trust TagMyThing's cryptographic authentication to protect their products and brand reputation.
+              Join forward-thinking businesses that trust TagMyThing's simple QR code authentication to protect their products and build customer confidence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -281,7 +279,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                 onClick={() => handleNavigation('/tag')}
               >
                 <Shield className="h-5 w-5 mr-2" />
-                Start Cryptographic Authentication
+                Start Product Authentication
               </Button>
               <Button 
                 variant="outline" 
