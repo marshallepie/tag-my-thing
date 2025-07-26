@@ -14,6 +14,7 @@ export interface Database {
           location: string | null;
           language: string | null;
           referral_code: string | null;
+          is_business_user: boolean;
         };
         Insert: {
           id: string;
@@ -25,6 +26,7 @@ export interface Database {
           location?: string | null;
           language?: string | null;
           referral_code?: string | null;
+          is_business_user?: boolean;
         };
         Update: {
           full_name?: string | null;
@@ -34,6 +36,7 @@ export interface Database {
           location?: string | null;
           language?: string | null;
           referral_code?: string | null;
+          is_business_user?: boolean;
         };
       };
       user_wallets: {
@@ -348,9 +351,101 @@ export interface Database {
           metadata?: Record<string, any> | null;
         };
       };
+      products: {
+        Row: {
+          id: string;
+          product_name: string;
+          serial_number: string;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+          business_user_id: string;
+        };
+        Insert: {
+          product_name: string;
+          serial_number: string;
+          description?: string | null;
+          business_user_id: string;
+        };
+        Update: {
+          product_name?: string;
+          serial_number?: string;
+          description?: string | null;
+          business_user_id?: string;
+        };
+      };
+      scan_events: {
+        Row: {
+          id: string;
+          serial_number: string;
+          scanned_at: string;
+          ip_address: string | null;
+          location: string | null;
+          device_info: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          serial_number: string;
+          ip_address?: string | null;
+          location?: string | null;
+          device_info?: string | null;
+          user_id?: string | null;
+        };
+        Update: Record<string, never>; // Immutable
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      register_product: {
+        Args: {
+          p_product_name: string;
+          p_serial_number: string;
+          p_description?: string;
+        };
+        Returns: {
+          success: boolean;
+          error?: string;
+          product_id?: string;
+        };
+      };
+      verify_product_scan: {
+        Args: {
+          p_serial_number: string;
+          p_ip_address: string;
+          p_location?: string;
+          p_device_info?: string;
+        };
+        Returns: {
+          authentic: boolean;
+          message: string;
+          scan_count?: number;
+          scan_history?: any[];
+          flagged_for_review?: boolean;
+        };
+      };
+      get_product_scan_history: {
+        Args: {
+          p_serial_number: string;
+        };
+        Returns: {
+          success: boolean;
+          error?: string;
+          scan_history?: any[];
+        };
+      };
+      get_business_products: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          product_name: string;
+          serial_number: string;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+          business_user_id: string;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
   };
 }
