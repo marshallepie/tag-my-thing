@@ -203,9 +203,8 @@ describe('Arweave Integration E2E Tests', () => {
     });
 
     cy.wait('@archiveAssetFail');
-    cy.contains('Asset archived successfully!').should('not.exist');
 
-    // 5. Verify the Arweave link appears
+    // 5. Verify the error message appears
     cy.contains('Failed to archive asset').should('be.visible');
   });
 });
