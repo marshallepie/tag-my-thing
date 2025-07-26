@@ -76,7 +76,6 @@ export const Profile: React.FC = () => {
   
   const { user, profile, signOut } = useAuth();
   const { balance, transactions } = useTokens();
-  const { balance, transactions } = useTokens();
 
   useEffect(() => {
     if (profile) {
