@@ -25,26 +25,26 @@ export const BusinessTaggingLanding: React.FC = () => {
   const steps = [
     {
       number: '1',
-      title: 'Assign Unique QR Code',
-      description: 'Each product you manufacture is assigned a unique QR code containing a secondary key.',
+      title: 'Generate Cryptographic Key Pair',
+      description: 'For each product you manufacture, generate a cryptographic key pair consisting of one primary key and multiple secondary keys.',
       icon: <QrCode className="h-8 w-8 text-primary-600" />
     },
     {
       number: '2',
-      title: 'Secure Primary Key Storage',
-      description: 'The primary key is stored securely, either in an NFT or another digital format.',
+      title: 'Distribute Secondary Keys',
+      description: 'Distribute all your products with the secondary keys attached via QR codes or other secure methods.',
       icon: <Key className="h-8 w-8 text-secondary-600" />
     },
     {
       number: '3',
-      title: 'Customer Verification',
-      description: 'When a customer scans the product\'s QR code, they can instantly verify authenticity by matching keys.',
+      title: 'Tag Product with Primary Key',
+      description: 'Tag the product on TagMyThing and display the primary key, creating a secure reference point for verification.',
       icon: <Shield className="h-8 w-8 text-success-600" />
     },
     {
       number: '4',
-      title: 'Counterfeit Protection',
-      description: 'This makes it virtually impossible for counterfeiters to replicate your products, as each pairing is unique and secure.',
+      title: 'Automated Verification',
+      description: 'Customers scan the product code, cryptographic keys are compared programmatically, and results are returned as authentic or unconfirmed.',
       icon: <Lock className="h-8 w-8 text-accent-600" />
     },
   ];
@@ -104,7 +104,7 @@ export const BusinessTaggingLanding: React.FC = () => {
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
                 In an era where counterfeiting is a growing concern, TagMyThing offers businesses a revolutionary solution for product verification. 
-                By leveraging a two-factor authentication model, businesses can ensure each product is uniquely identified and authenticated.
+                By leveraging a cryptographic key pair authentication model, businesses can ensure each product is uniquely identified and authenticated.
               </p>
             </motion.div>
 
@@ -201,17 +201,20 @@ export const BusinessTaggingLanding: React.FC = () => {
                 Why Choose TagMyThing?
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                This innovative approach not only protects your brand but also builds customer trust by providing a reliable, 
-                easy-to-use verification method. With TagMyThing, you're not just offering a product; you're offering peace of mind.
+                Here's how it works: for each product you manufacture you generate a cryptographic key pair of two numbers. 
+                A primary key and multiple secondary keys. You then distribute all your products with the secondary keys attached. 
+                You tag the Product and display the primary key on TagMyThing. Customers can then verify the item is legit by 
+                scanning the code on the item. The verification process happens in the background. Cryptographic keys are compared 
+                programmatically. The result is returned as authentic or unconfirmed to the user. The user can then make an informed decision.
               </p>
               
               <div className="space-y-4">
                 {[
-                  'Virtually impossible to counterfeit',
-                  'Easy customer verification process',
-                  'Builds brand trust and credibility',
-                  'Protects your business reputation',
-                  'Scalable for any product volume'
+                  'Cryptographic security makes counterfeiting virtually impossible',
+                  'Automated verification process with instant results',
+                  'Clear authentic/unconfirmed status for customer confidence',
+                  'Scalable key generation for any production volume',
+                  'Builds unshakeable brand trust and credibility'
                 ].map((benefit, index) => (
                   <motion.div
                     key={benefit}
@@ -237,9 +240,9 @@ export const BusinessTaggingLanding: React.FC = () => {
             >
               <div className="bg-gradient-to-br from-primary-600 to-secondary-600 rounded-2xl p-8 text-white">
                 <Building className="h-16 w-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">Enterprise Ready</h3>
+                <h3 className="text-2xl font-bold mb-4">Cryptographically Secure</h3>
                 <p className="text-primary-100 mb-6">
-                  Our two-factor authentication system scales with your business, from small batches to mass production.
+                  Our cryptographic key pair system provides military-grade security that scales with your business, from small batches to mass production.
                 </p>
                 <Button 
                   variant="secondary" 
@@ -247,7 +250,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                   className="w-full"
                   onClick={() => handleNavigation('/tag')}
                 >
-                  Start Protecting Your Brand
+                  Start Cryptographic Protection
                 </Button>
               </div>
             </motion.div>
@@ -268,7 +271,7 @@ export const BusinessTaggingLanding: React.FC = () => {
               Secure Your Business Today
             </h2>
             <p className="text-xl text-primary-100 mb-8">
-              Join forward-thinking businesses that trust TagMyThing to protect their products and brand reputation.
+              Join forward-thinking businesses that trust TagMyThing's cryptographic authentication to protect their products and brand reputation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -278,7 +281,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                 onClick={() => handleNavigation('/tag')}
               >
                 <Shield className="h-5 w-5 mr-2" />
-                Start Product Authentication
+                Start Cryptographic Authentication
               </Button>
               <Button 
                 variant="outline" 
