@@ -1,6 +1,15 @@
 describe('Arweave Integration E2E Tests', () => {
+  it('successfully archives a pending asset to Arweave', () => {
     // Mock user profile and wallet
     cy.clearAppData();
+
+    cy.intercept('GET', '**/rest/v1/user_profiles*', {
+      statusCode: 200,
+      body: [
+        {
+          id: 'test-user-id',
+          email: 'arweaveuser@example.com',
+          full_name: 'Arweave Test User',
           role: 'user',
         },
       ],
@@ -180,19 +189,23 @@ describe('Arweave Integration E2E Tests', () => {
 
     // Mock user with sufficient tokens
     cy.intercept('POST', '**/rpc/archive_tag_now', {
-      body: [{ id: 'test-user-id', email: 'arweaveuser@example.com' }],
-    }).as('fetchProfile');
-
-    cy.intercept('GET', '**/rest/v1/user_wallets*', {
-      body: [{ user_id: 'test-user-id', balance: 500 }],
-    }).as('fetchWallet');
+      statusCode: 500,
+      body: { error: 'Arweave service unavailable' },
+    }).as('archiveAssetFail');
 
     cy.login('arweaveuser@example.com', 'password123');
+    cy.visit('/assets');
 
     cy.wait(['@fetchProfile', '@fetchWallet', '@fetchAssets']);
     // 4. Verify the toast message and the RPC call
     cy.contains('Failed Archive Asset').parents('[data-testid="asset-card"]').within(() => {
-    cy.contains('Asset archived successfully!').should('be.visible');
+      cy.get('button').contains('Archive').click();
+    });
+
+    cy.wait('@archiveAssetFail');
+    cy.contains('Asset archived successfully!').should('not.exist');
 
     // 5. Verify the Arweave link appears
     cy.contains('Failed to archive asset').should('be.visible');
+  });
+});
