@@ -128,7 +128,12 @@ export const InfluencerAuth: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="order-2 lg:order-1"
             >
-              <AuthForm mode={mode} onSuccess={handleSuccess} initialRole="influencer" />
+              <AuthForm 
+                mode={mode} 
+                onSuccess={handleSuccess} 
+                initialRole="influencer"
+                defaultIsBusinessUser={businessParam}
+              />
               
               <div className="text-center mt-6">
                 <p className="text-gray-600">

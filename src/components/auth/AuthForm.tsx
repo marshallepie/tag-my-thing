@@ -12,9 +12,10 @@ interface AuthFormProps {
   mode: 'signin' | 'signup';
   onSuccess: () => void;
   initialRole?: 'user' | 'influencer';
+  defaultIsBusinessUser?: boolean;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole = 'user' }) => {
+export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole = 'user', defaultIsBusinessUser = false }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,6 +24,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [isBusinessUserSignup, setIsBusinessUserSignup] = useState(defaultIsBusinessUser);
   const { processReferralSignup, refreshData } = useReferrals();
 
   useEffect(() => {
@@ -340,7 +342,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
           className="mt-4 p-3 bg-primary-50 rounded-lg"
         >
           <p className="text-sm text-primary-700 text-center">
-            🎉 Get {initialRole === 'influencer' ? '100' : '50'} TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!
+            🎉 Get {initialRole === 'influencer' ? '100' : '50'} TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!{isBusinessUserSignup ? ' Plus access to business features!' : ''}
           </p>
         </motion.div>
       )}
