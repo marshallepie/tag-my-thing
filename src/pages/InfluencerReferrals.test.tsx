@@ -53,10 +53,6 @@ describe('InfluencerReferrals', () => {
     // Silence console output during tests
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    // Assign mocks inside beforeEach to ensure they are fresh for each test
-    mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-    mockUseReferrals = useReferrals as jest.MockedFunction<typeof useReferrals>;
     
     // Default mock for authenticated user
     mockUseAuth.mockReturnValue({

@@ -140,7 +140,13 @@ describe('useReferrals', () => {
         return { select: mockSelectChain };
       }
       // For other tables, return a fulfilled promise to avoid cascading errors
-      return { select: jest.fn().mockReturnThis().eq: jest.fn().mockReturnThis().single: jest.fn().mockResolvedValue({ data: [], error: null }) };
+      return {
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({ data: [], error: null })
+          })
+        })
+      };
     });
 
     // Ensure the mock for getSession is also set up to avoid issues
