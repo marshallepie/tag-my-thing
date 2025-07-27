@@ -429,7 +429,7 @@ export const Wallet: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {TOKEN_PACKAGES.map((pkg, index) => (
+                {TOKEN_PACKAGES.filter(pkg => pkg.id !== 'pro_business' && pkg.id !== 'enterprise').map((pkg, index) => (
                   <motion.div
                     key={pkg.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -465,6 +465,50 @@ export const Wallet: React.FC = () => {
                     </Button>
                   </motion.div>
                 ))}
+              </div>
+
+              {/* Subscription Plans Section */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Business Subscriptions</h3>
+                <div className="space-y-4">
+                  {TOKEN_PACKAGES.filter(pkg => pkg.id === 'pro_business' || pkg.id === 'enterprise').map((pkg, index) => (
+                    <motion.div
+                      key={pkg.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors bg-gradient-to-r from-primary-50 to-secondary-50"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
+                        <span className="text-lg font-bold text-primary-600">
+                          £{pkg.price_gbp.toFixed(2)}/month
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Monthly Tokens:</span>
+                          <span className="font-medium">{pkg.token_amount} TMT</span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          <div>≈ {pkg.price_xaf.toLocaleString()} XAF/month</div>
+                          <div>≈ {pkg.price_ngn.toLocaleString()} NGN/month</div>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => handlePurchase(pkg.id)}
+                        className="w-full"
+                        size="sm"
+                        disabled={processingPayment}
+                        variant={pkg.id === 'pro_business' ? 'primary' : 'secondary'}
+                      >
+                        {processingPayment ? 'Processing...' : 'Subscribe Now'}
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
 
               {/* Payment Methods */}
