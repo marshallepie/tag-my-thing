@@ -3,6 +3,8 @@
 ## Overview
 As of January 10, 2025, TagMyThing has updated its referral system to allow all users to create and share referral codes, not just influencers. Additionally, users can now choose from multiple landing page destinations for their referral links.
 
+**Important Note**: While all users can generate and share referral codes after signup, their initial signup path (regular via `/auth`, influencer via `/influencer-signup`, or business via `/business-auth`) determines their base user type, initial token bonus, and available features.
+
 ## Key Changes
 
 ### 1. Universal Referral Access
@@ -17,9 +19,8 @@ As of January 10, 2025, TagMyThing has updated its referral system to allow all 
   - General Ownership Tagging - `/general-tagging?ref={code}`
   - Digital Assets & NFT Tagging - `/nft-tagging?ref={code}`
   - MyWill & Legacy Tagging - `/mywill-tagging?ref={code}`
-  - Business & Inventory Tagging - `/business-tagging?ref={code}`
+  - Business & Inventory Tagging - `/business-tagging?ref={code}` (leads to `/business-auth`)
 - **Default**: Influencer signup remains the recommended option for best rewards
-- **Flexibility**: Users can target specific use cases when sharing referral links
 
 ### 3. Token Rewards Structure (Unchanged)
 The 5-level referral structure remains exactly as specified:
@@ -72,14 +73,14 @@ The 5-level referral structure remains exactly as specified:
 - Access referrals through navigation or dashboard
 
 ### For Referred Users
-- Land on the specific page chosen by the referrer
-- Can start referring immediately after account creation
-- Referrer gets tokens regardless of which landing page was used
+- **Regular Signup** (`/auth`): Standard users with 50 TMT tokens, can generate referral codes after signup
+- **Influencer Signup** (`/influencer-signup`): Enhanced users with 100 TMT tokens and immediate referral capabilities
+- **Business Signup** (`/business-auth`): Business users with 50 TMT tokens plus product verification features
+- **Referred Users**: Land on the specific page chosen by the referrer, get appropriate signup bonuses
+- **All users**: Can start referring immediately after account creation
+- **Referrers**: Get tokens regardless of which landing page was used
 
 ### For Referrers
-- Can customize their referral strategy by choosing appropriate landing pages
-- Target specific audiences with relevant use case pages
-- Maintain full reward potential regardless of landing page choice
 
 ## Benefits
 

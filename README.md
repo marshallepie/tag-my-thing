@@ -20,6 +20,9 @@ This is not just a place to leave your *last* will—it's a place to record your
 - Asset tagging by name, type, value, and location
 - Searchable personal archive
 - Next-of-kin handover instructions (optional)
+- Product authenticity verification for businesses
+- QR code generation and scan tracking
+- Multi-tier subscription plans for business users
 
 ---
 
@@ -114,6 +117,14 @@ src/
 5. **Open your browser**
    Navigate to `http://localhost:5173`
 
+### Signup Paths
+
+TagMyThing offers different signup paths for different user types:
+
+- **Regular Users**: Visit `/auth` for standard signup (50 TMT tokens)
+- **Influencers**: Visit `/influencer-signup` for enhanced features (100 TMT tokens + referral system)
+- **Business Users**: Visit `/business-auth` for business features (50 TMT tokens + product verification tools)
+- **Referred Users**: Any signup with `?ref=code` automatically gets enhanced benefits
 ---
 
 ## 📱 Core Functionality
@@ -126,17 +137,19 @@ src/
 5. **Share** - Control privacy and next-of-kin access
 
 ### Token Economy
-- **50 TMT** - Free signup bonus
+- **50 TMT** - Free signup bonus for regular users
+- **100 TMT** - Free signup bonus for influencers
 - **5 TMT** - Cost per photo tag
 - **7 TMT** - Cost per video tag
-- **Additional tokens** - Available for purchase
+- **Additional tokens** - Available for purchase or monthly allocations with business plans
 
 ### User Roles
 - **User** - Standard account with asset tagging
 - **NOK** - Next-of-kin with limited asset access
 - **Moderator** - Content moderation capabilities
 - **Admin** - Full platform administration
-- **Influencer** - Enhanced referral capabilities
+- **Influencer** - Enhanced referral capabilities, higher signup bonus (100 TMT)
+- **Business User** - Access to product verification, QR code generation, and scan history tracking
 
 ---
 
