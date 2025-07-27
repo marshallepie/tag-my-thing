@@ -13,7 +13,7 @@ export const Auth: React.FC = () => {
   // Check if there's a referral code in the URL to determine initial mode
   const urlParams = new URLSearchParams(location.search);
   const hasReferralCode = urlParams.has('ref');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin'); // Always default to signin
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
   if (!initialized || loading) {
     return (
@@ -27,8 +27,8 @@ export const Auth: React.FC = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Redirect new users to influencer signup
-  if (mode === 'signup' || hasReferralCode) {
+  // Only redirect to influencer signup if there's a referral code
+  if (hasReferralCode) {
     const redirectUrl = hasReferralCode 
       ? `/influencer-signup?ref=${urlParams.get('ref')}`
       : '/influencer-signup';
@@ -54,16 +54,57 @@ export const Auth: React.FC = () => {
           <AuthForm mode={mode} onSuccess={handleSuccess} />
           
           <div className="text-center mt-6">
-            <p className="text-gray-600">
-              Don't have an account?
-            </p>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/influencer-signup')}
-              className="mt-2"
-            >
-              Join TagMyThing
-            </Button>
+            {mode === 'signin' ? (
+              <>
+                <p className="text-gray-600">
+                  Don't have an account?
+                </p>
+                <Button
+                  variant="ghost"
+                  onClick={() => setMode('signup')}
+                  className="mt-2"
+                >
+                  Create Account
+                </Button>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-500 mb-2">
+                    Want to earn tokens by referring friends?
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/influencer-signup')}
+                  >
+                    Join as Influencer
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600">
+                  Already have an account?
+                </p>
+                <Button
+                  variant="ghost"
+                  onClick={() => setMode('signin')}
+                  className="mt-2"
+                >
+                  Sign In
+                </Button>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-500 mb-2">
+                    Want to earn tokens by referring friends?
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/influencer-signup')}
+                  >
+                    Join as Influencer
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </motion.div>
       </div>
