@@ -46,16 +46,13 @@ jest.mock('framer-motion', () => ({
 }));
 
 describe('InfluencerReferrals', () => {
-  let mockUseAuth: jest.MockedFunction<typeof useAuth>;
-  let mockUseReferrals: jest.MockedFunction<typeof useReferrals>;
-
   beforeEach(() => {
     // Silence console output during tests
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
     
     // Default mock for authenticated user
-    mockUseAuth.mockReturnValue({
+    (useAuth as jest.Mock).mockReturnValue({
       user: { id: 'user123', email: 'test@example.com' },
       profile: { 
         id: 'user123', 
@@ -70,7 +67,7 @@ describe('InfluencerReferrals', () => {
     });
 
     // Default mock for referral data
-    mockUseReferrals.mockReturnValue({
+    (useReferrals as jest.Mock).mockReturnValue({
       stats: {
         totalReferred: 5,
         totalEarned: 250,
@@ -122,7 +119,7 @@ describe('InfluencerReferrals', () => {
   });
 
   it('renders loading state initially', () => {
-    mockUseAuth.mockReturnValue({
+    (useAuth as jest.Mock).mockReturnValue({
       user: null,
       profile: null,
       isAuthenticated: false,
@@ -140,7 +137,7 @@ describe('InfluencerReferrals', () => {
   });
 
   it('redirects if not authenticated', () => {
-    mockUseAuth.mockReturnValue({
+    (useAuth as jest.Mock).mockReturnValue({
       user: null,
       profile: null,
       isAuthenticated: false,
@@ -176,7 +173,7 @@ describe('InfluencerReferrals', () => {
   it('updates referral URL when landing page selection changes', async () => {
     const mockGetReferralUrlForLandingPage = jest.fn((path) => Promise.resolve(`http://localhost${path}?ref=testrefcode`));
 
-    mockUseReferrals.mockReturnValue({
+    (useReferrals as jest.Mock).mockReturnValue({
       stats: {
         totalReferred: 5,
         totalEarned: 250,
@@ -271,7 +268,7 @@ describe('InfluencerReferrals', () => {
   });
 
   it('handles error state', async () => {
-    mockUseReferrals.mockReturnValue({
+    (useReferrals as jest.Mock).mockReturnValue({
       stats: {
         totalReferred: 0,
         totalEarned: 0,
@@ -315,7 +312,7 @@ describe('InfluencerReferrals', () => {
   });
 
   it('shows empty state when no referrals exist', async () => {
-    mockUseReferrals.mockReturnValue({
+    (useReferrals as jest.Mock).mockReturnValue({
       stats: {
         totalReferred: 0,
         totalEarned: 0,
