@@ -93,5 +93,6 @@ jest.mock('./src/lib/supabase', () => ({
         subscribe: jest.fn(),
       })),
     })),
+    button: ({ children, ...props }: any) => React.createElement('button', props, children),
   },
 }));

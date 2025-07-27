@@ -182,8 +182,34 @@ describe('InfluencerReferrals', () => {
       .mockResolvedValueOnce('http://localhost/general-tagging?ref=testrefcode');
 
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals().mockReturnValue(),
+      stats: {
+        totalReferred: 5,
+        totalEarned: 250,
+        pendingRewards: 0,
+        levelBreakdown: [
+          { referral_level: 1, count: 3, earned: 150 },
+          { referral_level: 2, count: 2, earned: 100 },
+          { referral_level: 3, count: 0, earned: 0 },
+          { referral_level: 4, count: 0, earned: 0 },
+          { referral_level: 5, count: 0, earned: 0 },
+        ],
+      },
+      referredUsers: [],
+      referralSettings: [
+        { referral_level: 1, token_reward: 50 },
+        { referral_level: 2, token_reward: 30 },
+        { referral_level: 3, token_reward: 20 },
+        { referral_level: 4, token_reward: 10 },
+        { referral_level: 5, token_reward: 5 },
+      ],
+      loading: false,
+      error: null,
+      getReferralUrl: jest.fn().mockResolvedValue('http://localhost/influencer-signup?ref=testrefcode'),
       getReferralUrlForLandingPage: mockGetReferralUrlForLandingPage,
+      refreshData: jest.fn(),
+      forceRefresh: jest.fn(),
+      generateReferralCode: jest.fn().mockResolvedValue('testrefcode'),
+      processReferralSignup: jest.fn(),
     });
 
     render(
@@ -250,9 +276,28 @@ describe('InfluencerReferrals', () => {
 
   it('handles error state', () => {
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals().mockReturnValue(),
+      stats: {
+        totalReferred: 0,
+        totalEarned: 0,
+        pendingRewards: 0,
+        levelBreakdown: [
+          { referral_level: 1, count: 0, earned: 0 },
+          { referral_level: 2, count: 0, earned: 0 },
+          { referral_level: 3, count: 0, earned: 0 },
+          { referral_level: 4, count: 0, earned: 0 },
+          { referral_level: 5, count: 0, earned: 0 },
+        ],
+      },
+      referredUsers: [],
+      referralSettings: [],
       loading: false,
       error: 'Failed to load referral data',
+      getReferralUrl: jest.fn().mockResolvedValue(null),
+      getReferralUrlForLandingPage: jest.fn().mockResolvedValue(null),
+      refreshData: jest.fn(),
+      forceRefresh: jest.fn(),
+      generateReferralCode: jest.fn().mockResolvedValue(null),
+      processReferralSignup: jest.fn(),
     });
 
     render(
@@ -267,7 +312,6 @@ describe('InfluencerReferrals', () => {
 
   it('shows empty state when no referrals exist', () => {
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals().mockReturnValue(),
       stats: {
         totalReferred: 0,
         totalEarned: 0,
@@ -281,6 +325,21 @@ describe('InfluencerReferrals', () => {
         ],
       },
       referredUsers: [],
+      referralSettings: [
+        { referral_level: 1, token_reward: 50 },
+        { referral_level: 2, token_reward: 30 },
+        { referral_level: 3, token_reward: 20 },
+        { referral_level: 4, token_reward: 10 },
+        { referral_level: 5, token_reward: 5 },
+      ],
+      loading: false,
+      error: null,
+      getReferralUrl: jest.fn().mockResolvedValue('http://localhost/influencer-signup?ref=testrefcode'),
+      getReferralUrlForLandingPage: jest.fn().mockResolvedValue('http://localhost/influencer-signup?ref=testrefcode'),
+      refreshData: jest.fn(),
+      forceRefresh: jest.fn(),
+      generateReferralCode: jest.fn().mockResolvedValue('testrefcode'),
+      processReferralSignup: jest.fn(),
     });
 
     render(

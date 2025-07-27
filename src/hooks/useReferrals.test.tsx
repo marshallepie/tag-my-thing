@@ -129,14 +129,15 @@ describe('useReferrals', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    // Mock supabase to return an error
+    // Mock supabase to simulate network error
+    const mockSelect = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        order: jest.fn().mockRejectedValue(new Error('Simulated network error'))
+      })
+    });
+    
     (supabase.from as jest.Mock).mockReturnValue({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      maybeSingle: jest.fn().mockRejectedValue(new Error('Simulated network error')),
-      single: jest.fn().mockRejectedValue(new Error('Simulated network error')),
-      order: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockRejectedValue(new Error('Simulated network error')),
+      select: mockSelect
     });
 
     const { result } = renderHook(() => useReferrals());
@@ -145,6 +146,6 @@ describe('useReferrals', () => {
       await result.current.forceRefresh();
     });
 
-    expect(result.current.error).toBe('Failed to fetch referrals');
+    expect(result.current.error).toBe('Failed to load referral data');
   });
 });
