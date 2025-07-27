@@ -174,6 +174,8 @@ describe('InfluencerReferrals', () => {
       expect(screen.getByText('Total Referred')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument(); // Total Referred value
     });
+  }
+  )
 
   it('updates referral URL when landing page selection changes', async () => {
     const mockGetReferralUrlForLandingPage = jest.fn((path) => Promise.resolve(`http://localhost${path}?ref=testrefcode`));
