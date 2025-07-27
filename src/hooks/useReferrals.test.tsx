@@ -175,6 +175,6 @@ describe('useReferrals', () => {
       await result.current.forceRefresh();
     });
 
-    expect(result.current.error).toBe('Failed to load referral data');
+    expect(result.current.error).toBe('Failed to fetch referrals');
   });
 });
