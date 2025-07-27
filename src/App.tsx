@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Landing } from './pages/Landing';
+import { ScrollToTop } from './components/layout/ScrollToTop';
 import { Launch } from './pages/Launch';
 import { Auth } from './pages/Auth';
 import { InfluencerAuth } from './pages/InfluencerAuth';
@@ -174,6 +175,7 @@ const SafeRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <div className="App">
         <React.Suspense fallback={<LoadingScreen />}>
           <Routes>
