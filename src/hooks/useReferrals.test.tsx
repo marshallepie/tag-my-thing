@@ -83,7 +83,9 @@ describe('useReferrals', () => {
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
       order: jest.fn().mockReturnThis(),
       limit: jest.fn().mockResolvedValue({ data: [], error: null }),
-      update: jest.fn().mockResolvedValue({ data: [{ referral_code: 'newtestcode' }], error: null }),
+      update: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: [{ referral_code: 'newtestcode' }], error: null })
+      }),
     });
     
     (supabase.rpc as jest.Mock).mockResolvedValue({ data: null, error: null });

@@ -163,14 +163,12 @@ describe('InfluencerReferrals', () => {
   });
 
   it('updates referral URL when landing page selection changes', async () => {
-    const mockGetReferralUrlForLandingPage = jest.fn();
-    mockGetReferralUrlForLandingPage
+    const mockGetReferralUrlForLandingPage = jest.fn()
       .mockResolvedValueOnce('http://localhost/influencer-signup?ref=testrefcode')
-      .mockResolvedValueOnce('http://localhost/general-tagging?ref=testrefcode')
-      .mockResolvedValueOnce('http://localhost/business-tagging?ref=testrefcode');
+      .mockResolvedValueOnce('http://localhost/general-tagging?ref=testrefcode');
 
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
+      ...mockUseReferrals().mockReturnValue(),
       getReferralUrlForLandingPage: mockGetReferralUrlForLandingPage,
     });
 
@@ -238,7 +236,7 @@ describe('InfluencerReferrals', () => {
 
   it('handles error state', () => {
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
+      ...mockUseReferrals().mockReturnValue(),
       loading: false,
       error: 'Failed to load referral data',
     });
@@ -255,7 +253,7 @@ describe('InfluencerReferrals', () => {
 
   it('shows empty state when no referrals exist', () => {
     mockUseReferrals.mockReturnValue({
-      ...mockUseReferrals(),
+      ...mockUseReferrals().mockReturnValue(),
       stats: {
         totalReferred: 0,
         totalEarned: 0,
