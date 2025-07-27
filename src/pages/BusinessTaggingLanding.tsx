@@ -116,7 +116,7 @@ export const BusinessTaggingLanding: React.FC = () => {
               <Button 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/tag')}
+                onClick={() => handleNavigation('/business-auth')}
               >
                 <Camera className="h-5 w-5 mr-2" />
                 Start Protecting Products
@@ -125,7 +125,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/business-auth')}
               >
                 Get Started Free
                 <ArrowRight className="h-5 w-5 ml-2" />
@@ -276,7 +276,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                 variant="secondary" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup?business=true')}
+                onClick={() => handleNavigation('/business-auth')}
               >
                 <Shield className="h-5 w-5 mr-2" />
                 Start Product Authentication
@@ -285,7 +285,7 @@ export const BusinessTaggingLanding: React.FC = () => {
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
-                onClick={() => handleNavigation('/influencer-signup?business=true')}
+                onClick={() => handleNavigation('/business-auth')}
               >
                 Create Business Account
               </Button>

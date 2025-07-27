@@ -248,7 +248,7 @@ export const Wallet: React.FC = () => {
   ];
 
   // Add referral program for all users
-  if (profile) {
+  if (profile && (profile.role === 'influencer' || profile.role === 'admin_influencer')) {
     quickActions.unshift({
       title: 'Referral Program',
       description: 'Earn tokens by referring friends',
@@ -528,25 +528,27 @@ export const Wallet: React.FC = () => {
             </Card>
 
             {/* Quick Actions */}
-            <Card className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                {quickActions.map((action, index) => (
-                  <Button 
-                    key={index}
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={action.action}
-                  >
-                    {action.icon}
-                    <div className="ml-2 text-left">
-                      <div className="font-medium">{action.title}</div>
-                      <div className="text-xs text-gray-600">{action.description}</div>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </Card>
+            {(profile?.role === 'influencer' || profile?.role === 'admin_influencer') && (
+              <Card className="mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  {quickActions.map((action, index) => (
+                    <Button 
+                      key={index}
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={action.action}
+                    >
+                      {action.icon}
+                      <div className="ml-2 text-left">
+                        <div className="font-medium">{action.title}</div>
+                        <div className="text-xs text-gray-600">{action.description}</div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

@@ -29,6 +29,7 @@ import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
 import { BusinessDashboard } from './pages/BusinessDashboard';
 import { ProductVerificationPage } from './pages/ProductVerificationPage';
 import { PublicAssetsPage } from './pages/PublicAssetsPage';
+import { BusinessAuth } from './pages/BusinessAuth';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -299,6 +300,14 @@ function App() {
               element={
                 <SafeRoute>
                   <BusinessTaggingLanding />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/business-auth" 
+              element={
+                <SafeRoute>
+                  <BusinessAuth />
                 </SafeRoute>
               } 
             />

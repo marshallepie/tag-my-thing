@@ -183,7 +183,7 @@ export const Landing: React.FC = () => {
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/auth')}
               >
                   Get Started Free
                   <ArrowRight className="h-5 w-5 ml-2" />
@@ -396,7 +396,7 @@ export const Landing: React.FC = () => {
                 variant="secondary" 
                 size="lg" 
                 className="w-full sm:w-auto"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/tag')}
               >
                   <Camera className="h-5 w-5 mr-2" />
                   Tag Your First Asset
@@ -405,7 +405,7 @@ export const Landing: React.FC = () => {
                 variant="outline" 
                 size="lg" 
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
-                onClick={() => handleNavigation('/influencer-signup')}
+                onClick={() => handleNavigation('/auth')}
               >
                   Create Account
               </Button>

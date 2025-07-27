@@ -75,7 +75,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
                 id: auth.user.id,
                 email: formData.email,
                 full_name: formData.fullName,
-                role: initialRole,
+                role: isBusinessUserSignup ? 'user' : initialRole,
                 subscription_plan: 'freemium', // Only freemium plan available
                 is_business_user: isBusinessUserSignup,
               });
