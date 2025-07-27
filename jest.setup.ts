@@ -59,3 +59,14 @@ Object.defineProperty(global, 'crypto', {
   },
   writable: true,
 });
+
+// Mock import.meta for Vite environment variables
+Object.defineProperty(global, 'import.meta', {
+  value: {
+    env: {
+      VITE_SUPABASE_URL: 'http://mock-supabase-url.com',
+      VITE_SUPABASE_ANON_KEY: 'mock-anon-key',
+    },
+  },
+  writable: true,
+});
