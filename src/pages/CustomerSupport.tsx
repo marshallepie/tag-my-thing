@@ -295,25 +295,52 @@ export const CustomerSupport: React.FC = () => {
                     TMT Token Packages
                   </h3>
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    Purchase TMT token packages to power your asset tagging and unlock premium features.
+                    Purchase TMT token packages for one-time use or subscribe to business plans for monthly token allocations.
                     All prices are in GBP, with approximate conversions for XAF and NGN.
                   </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {TOKEN_PACKAGES.map((pkg, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-2">{pkg.name}</h4>
-                        <p className="text-2xl font-bold text-primary-600 mb-2">
-                          £{pkg.price_gbp.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-600 mb-3">
-                          {pkg.token_amount} TMT Tokens
-                        </p>
-                        <ul className="text-xs text-gray-500 space-y-1">
-                          <li>≈ {pkg.price_xaf.toLocaleString()} XAF</li>
-                          <li>≈ {pkg.price_ngn.toLocaleString()} NGN</li>
-                        </ul>
-                      </div>
-                    ))}
+                  
+                  {/* One-time Token Packages */}
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-3">One-time Token Packages</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {TOKEN_PACKAGES.filter(pkg => pkg.id !== 'pro_business' && pkg.id !== 'enterprise').map((pkg, index) => (
+                        <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          <h4 className="font-semibold text-gray-900 mb-2">{pkg.name}</h4>
+                          <p className="text-2xl font-bold text-primary-600 mb-2">
+                            £{pkg.price_gbp.toFixed(2)}
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3">
+                            {pkg.token_amount} TMT Tokens
+                          </p>
+                          <ul className="text-xs text-gray-500 space-y-1">
+                            <li>≈ {pkg.price_xaf.toLocaleString()} XAF</li>
+                            <li>≈ {pkg.price_ngn.toLocaleString()} NGN</li>
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Business Subscription Plans */}
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Business Subscription Plans</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {TOKEN_PACKAGES.filter(pkg => pkg.id === 'pro_business' || pkg.id === 'enterprise').map((pkg, index) => (
+                        <div key={index} className="bg-gradient-to-r from-primary-50 to-secondary-50 p-4 rounded-lg border border-primary-200">
+                          <h4 className="font-semibold text-gray-900 mb-2">{pkg.name}</h4>
+                          <p className="text-2xl font-bold text-primary-600 mb-2">
+                            £{pkg.price_gbp.toFixed(2)}/month
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3">
+                            {pkg.token_amount} TMT Tokens/month
+                          </p>
+                          <ul className="text-xs text-gray-500 space-y-1">
+                            <li>≈ {pkg.price_xaf.toLocaleString()} XAF/month</li>
+                            <li>≈ {pkg.price_ngn.toLocaleString()} NGN/month</li>
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
