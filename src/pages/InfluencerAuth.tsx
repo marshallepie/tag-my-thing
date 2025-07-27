@@ -16,6 +16,7 @@ export const InfluencerAuth: React.FC = () => {
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
   const fromParam = urlParams.get('from');
+  const businessParam = urlParams.get('business') === 'true';
 
   // Navigation handler
   const handleNavigation = (path: string) => {
