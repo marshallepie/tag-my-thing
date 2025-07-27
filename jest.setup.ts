@@ -60,13 +60,38 @@ Object.defineProperty(global, 'crypto', {
   writable: true,
 });
 
-// Mock import.meta for Vite environment variables
-Object.defineProperty(global, 'import.meta', {
-  value: {
-    env: {
-      VITE_SUPABASE_URL: 'http://mock-supabase-url.com',
-      VITE_SUPABASE_ANON_KEY: 'mock-anon-key',
+// Silence console output during tests
+jest.spyOn(console, 'log').mockImplementation(() => {});
+jest.spyOn(console, 'error').mockImplementation(() => {});
+
+// Mock the entire supabase module to avoid import.meta issues
+jest.mock('./src/lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getUser: jest.fn(),
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({ subscription: { unsubscribe: jest.fn() } })),
     },
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          maybeSingle: jest.fn(),
+          single: jest.fn(),
+          order: jest.fn(() => ({
+            limit: jest.fn(),
+          })),
+        })),
+      })),
+      insert: jest.fn(),
+      update: jest.fn(() => ({
+        eq: jest.fn(),
+      })),
+    })),
+    rpc: jest.fn(),
+    channel: jest.fn(() => ({
+      on: jest.fn(() => ({
+        subscribe: jest.fn(),
+      })),
+    })),
   },
-  writable: true,
-});
+}));
