@@ -6,6 +6,16 @@ import { InfluencerReferrals } from './InfluencerReferrals';
 import { useAuth } from '../hooks/useAuth';
 import { useReferrals } from '../hooks/useReferrals';
 
+// Mock import.meta.env for Jest
+(global as any).import = {
+  meta: {
+    env: {
+      VITE_SUPABASE_URL: 'http://localhost',
+      VITE_SUPABASE_ANON_KEY: 'test-key'
+    }
+  }
+};
+
 // Mock the Layout component to simplify testing
 jest.mock('../components/layout/Layout', () => ({
   Layout: ({ children }: { children: React.ReactNode }) => React.createElement('div', { 'data-testid': 'layout' }, children),
@@ -40,6 +50,10 @@ describe('InfluencerReferrals', () => {
   const mockUseReferrals = useReferrals as jest.Mock;
 
   beforeEach(() => {
+    // Silence console output during tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    
     // Default mock for authenticated user
     mockUseAuth.mockReturnValue({
       user: { id: 'user123', email: 'test@example.com' },

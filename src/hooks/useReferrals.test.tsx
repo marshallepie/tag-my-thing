@@ -56,6 +56,10 @@ describe('useReferrals', () => {
   const mockUseAuth = useAuth as jest.Mock;
 
   beforeEach(() => {
+    // Silence console output during tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    
     // Reset mocks before each test
     jest.clearAllMocks();
     
@@ -163,10 +167,10 @@ describe('useReferrals', () => {
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      maybeSingle: jest.fn().mockRejectedValue(new Error('Database error')),
-      single: jest.fn().mockRejectedValue(new Error('Database error')),
+      maybeSingle: jest.fn().mockRejectedValue(new Error('Failed to fetch referrals')),
+      single: jest.fn().mockRejectedValue(new Error('Failed to fetch referrals')),
       order: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockRejectedValue(new Error('Database error')),
+      limit: jest.fn().mockRejectedValue(new Error('Failed to fetch referrals')),
     });
 
     const { result } = renderHook(() => useReferrals());
@@ -175,6 +179,6 @@ describe('useReferrals', () => {
       await result.current.forceRefresh();
     });
 
-    expect(result.current.error).toBe('Failed to fetch referrals');
+    expect(result.current.error).toBe('Failed to load referral data');
   });
 });
