@@ -129,15 +129,23 @@ describe('useReferrals', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    // Mock supabase to simulate network error
-    const mockSelect = jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        order: jest.fn().mockRejectedValue(new Error('Simulated network error'))
-      })
+    // Mock the select method to return a chainable object that eventually rejects
+    const mockLimitChain = jest.fn().mockRejectedValue(new Error('Simulated network error'));
+    const mockOrderChain = jest.fn().mockReturnValue({ limit: mockLimitChain });
+    const mockEqChain = jest.fn().mockReturnValue({ order: mockOrderChain });
+    const mockSelectChain = jest.fn().mockReturnValue({ eq: mockEqChain });
+
+    (supabase.from as jest.Mock).mockImplementation((tableName: string) => {
+      if (tableName === 'referrals') {
+        return { select: mockSelectChain };
+      }
+      // For other tables, return a fulfilled promise to avoid cascading errors
+      return { select: jest.fn().mockReturnThis().eq: jest.fn().mockReturnThis().single: jest.fn().mockResolvedValue({ data: [], error: null }) };
     });
-    
-    (supabase.from as jest.Mock).mockReturnValue({
-      select: mockSelect
+
+    // Ensure the mock for getSession is also set up to avoid issues
+    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+      data: { session: { user: { id: 'test-user-id' } } }, error: null
     });
 
     const { result } = renderHook(() => useReferrals());
@@ -146,6 +154,6 @@ describe('useReferrals', () => {
       await result.current.forceRefresh();
     });
 
-    expect(result.current.error).toBe('Failed to load referral data');
+    expect(result.current.error).toBe('Simulated network error');
   });
 });

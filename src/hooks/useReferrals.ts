@@ -86,18 +86,19 @@ export const useReferrals = () => {
       // Handle referrals result
       let referrals: any[] = [];
       if (referralsResult.status === 'fulfilled') {
-        const { data, error } = referralsResult.value;
-        if (error) {
-          console.error('Referrals error:', error);
-          throw error;
+        const { data, error: fetchError } = referralsResult.value;
+        if (fetchError) {
+          console.error('Referrals fetch error:', fetchError);
+          setError(fetchError.message || 'Failed to fetch referrals data');
+          return;
         }
         referrals = data || [];
       } else {
         console.error('Referrals promise rejected:', referralsResult.reason);
-        throw new Error('Failed to fetch referrals');
+        setError(referralsResult.reason?.message || 'Failed to fetch referrals');
+        return;
       }
 
-      // Handle rewards result
       let rewards: any[] = [];
       if (rewardsResult.status === 'fulfilled') {
         const { data, error } = rewardsResult.value;
@@ -107,8 +108,9 @@ export const useReferrals = () => {
         }
         rewards = data || [];
       } else {
-        console.error('Rewards promise rejected:', rewardsResult.reason);
-        throw new Error('Failed to fetch rewards');
+        console.error('Rewards promise rejected:', rewardsResult.reason); // Log the actual rejection reason
+        setError(rewardsResult.reason?.message || 'Failed to fetch rewards');
+        return;
       }
 
       console.log('useReferrals - Data fetched successfully:', {

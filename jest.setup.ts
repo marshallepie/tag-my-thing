@@ -1,3 +1,4 @@
+import React from 'react';
 import '@testing-library/jest-dom';
 
 // Mock IntersectionObserver
@@ -59,6 +60,17 @@ Object.defineProperty(global, 'crypto', {
   },
   writable: true,
 });
+
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }: any) => React.createElement('div', props, children),
+    button: ({ children, ...props }: any) => React.createElement('button', props, children),
+    span: ({ children, ...props }: any) => React.createElement('span', props, children),
+    // Add other motion components as needed
+  },
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
+}));
 
 // Silence console output during tests
 jest.spyOn(console, 'log').mockImplementation(() => {});

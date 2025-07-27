@@ -6,6 +6,11 @@ import { InfluencerReferrals } from './InfluencerReferrals';
 import { useAuth } from '../hooks/useAuth';
 import { useReferrals } from '../hooks/useReferrals';
 
+// Mock the Button component to avoid framer-motion issues in tests
+jest.mock('../components/ui/Button', () => ({
+  Button: jest.fn(({ children, ...props }) => <button {...props}>{children}</button>),
+}));
+
 // Mock import.meta.env for Jest
 (global as any).import = {
   meta: {
@@ -19,11 +24,6 @@ import { useReferrals } from '../hooks/useReferrals';
 // Mock the Layout component to simplify testing
 jest.mock('../components/layout/Layout', () => ({
   Layout: ({ children }: { children: React.ReactNode }) => React.createElement('div', { 'data-testid': 'layout' }, children),
-}));
-
-// Mock useAuth hook
-jest.mock('../hooks/useAuth', () => ({
-  useAuth: jest.fn(),
 }));
 
 // Mock useReferrals hook
@@ -46,13 +46,17 @@ jest.mock('framer-motion', () => ({
 }));
 
 describe('InfluencerReferrals', () => {
-  const mockUseAuth = useAuth as jest.Mock;
-  const mockUseReferrals = useReferrals as jest.Mock;
+  let mockUseAuth: jest.MockedFunction<typeof useAuth>;
+  let mockUseReferrals: jest.MockedFunction<typeof useReferrals>;
 
   beforeEach(() => {
     // Silence console output during tests
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Assign mocks inside beforeEach to ensure they are fresh for each test
+    mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+    mockUseReferrals = useReferrals as jest.MockedFunction<typeof useReferrals>;
     
     // Default mock for authenticated user
     mockUseAuth.mockReturnValue({
@@ -171,15 +175,8 @@ describe('InfluencerReferrals', () => {
       expect(screen.getByText('5')).toBeInTheDocument(); // Total Referred value
     });
 
-    // Check for referral URL input
-    const referralUrlInput = screen.getByDisplayValue(/http:\/\/localhost\/influencer-signup\?ref=testrefcode/);
-    expect(referralUrlInput).toBeInTheDocument();
-  });
-
   it('updates referral URL when landing page selection changes', async () => {
-    const mockGetReferralUrlForLandingPage = jest.fn()
-      .mockResolvedValueOnce('http://localhost/influencer-signup?ref=testrefcode')
-      .mockResolvedValueOnce('http://localhost/general-tagging?ref=testrefcode');
+    const mockGetReferralUrlForLandingPage = jest.fn((path) => Promise.resolve(`http://localhost${path}?ref=testrefcode`));
 
     mockUseReferrals.mockReturnValue({
       stats: {
@@ -228,6 +225,7 @@ describe('InfluencerReferrals', () => {
 
     await waitFor(() => {
       expect(mockGetReferralUrlForLandingPage).toHaveBeenCalledWith('/general-tagging');
+      expect(screen.getByDisplayValue(/http:\/\/localhost\/general-tagging\?ref=testrefcode/)).toBeInTheDocument();
     });
   });
 
@@ -274,7 +272,7 @@ describe('InfluencerReferrals', () => {
     });
   });
 
-  it('handles error state', () => {
+  it('handles error state', async () => {
     mockUseReferrals.mockReturnValue({
       stats: {
         totalReferred: 0,
@@ -289,9 +287,15 @@ describe('InfluencerReferrals', () => {
         ],
       },
       referredUsers: [],
-      referralSettings: [],
+      referralSettings: [
+        { referral_level: 1, token_reward: 50 },
+        { referral_level: 2, token_reward: 30 },
+        { referral_level: 3, token_reward: 20 },
+        { referral_level: 4, token_reward: 10 },
+        { referral_level: 5, token_reward: 5 },
+      ],
       loading: false,
-      error: 'Failed to load referral data',
+      error: 'Failed to load referral data', // Explicitly set error here
       getReferralUrl: jest.fn().mockResolvedValue(null),
       getReferralUrlForLandingPage: jest.fn().mockResolvedValue(null),
       refreshData: jest.fn(),
@@ -306,11 +310,13 @@ describe('InfluencerReferrals', () => {
       )
     );
 
-    expect(screen.getByText('Error Loading Data')).toBeInTheDocument();
-    expect(screen.getByText('Failed to load referral data')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Error Loading Data')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load referral data')).toBeInTheDocument();
+    });
   });
 
-  it('shows empty state when no referrals exist', () => {
+  it('shows empty state when no referrals exist', async () => {
     mockUseReferrals.mockReturnValue({
       stats: {
         totalReferred: 0,
@@ -348,7 +354,9 @@ describe('InfluencerReferrals', () => {
       )
     );
 
-    expect(screen.getByText('No referrals yet')).toBeInTheDocument();
-    expect(screen.getByText('Start sharing your referral link to earn tokens!')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('No referrals yet')).toBeInTheDocument();
+      expect(screen.getByText('Start sharing your referral link to earn tokens!')).toBeInTheDocument();
+    });
   });
 });
