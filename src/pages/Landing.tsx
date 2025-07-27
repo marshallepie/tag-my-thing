@@ -302,6 +302,10 @@ export const Landing: React.FC = () => {
                     {useCase.description}
                   </p>
                   <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => {
+                    console.log('Learn More button clicked for:', useCase.title, 'Link:', useCase.link);
+                    handleNavigation(useCase.link);
+                  }}>
                     Learn More
                   </Button>
                 </Card>
