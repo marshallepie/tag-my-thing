@@ -1,14 +1,14 @@
 // Currency conversion rates (fixed rates for display purposes)
 export const CURRENCY_RATES = {
-  XAF_RATE: 750, // 1 GBP = 750 XAF (approximate)
+  XAF_RATE: 750,  // 1 GBP = 750 XAF (approximate)
   NGN_RATE: 1500, // 1 GBP = 1500 NGN (approximate)
 } as const;
 
-// Token packages for the new Stripe Payment Link flow
+// Token and Subscription packages
 export const TOKEN_PACKAGES = [
   {
     id: 'starter',
-    name: 'Starter Pack',
+    name: 'starter',
     token_amount: 100,
     price_gbp: 1.00,
     price_xaf: Math.round(1.00 * CURRENCY_RATES.XAF_RATE),
@@ -17,7 +17,7 @@ export const TOKEN_PACKAGES = [
   },
   {
     id: 'power',
-    name: 'Power Pack', 
+    name: 'power',
     token_amount: 500,
     price_gbp: 4.50,
     price_xaf: Math.round(4.50 * CURRENCY_RATES.XAF_RATE),
@@ -26,11 +26,29 @@ export const TOKEN_PACKAGES = [
   },
   {
     id: 'mega',
-    name: 'Mega Pack',
+    name: 'mega',
     token_amount: 5000,
     price_gbp: 39.99,
     price_xaf: Math.round(39.99 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(39.99 * CURRENCY_RATES.NGN_RATE),
     stripe_payment_link: 'https://buy.stripe.com/6oU5kE6pR6de2273ZHak002'
   },
-] as const;
+  {
+    id: 'pro_business',
+    name: 'Pro Business Subscription',
+    token_amount: 1000, // Monthly token allocation
+    price_gbp: 8.00,
+    price_xaf: Math.round(8.00 * CURRENCY_RATES.XAF_RATE),
+    price_ngn: Math.round(8.00 * CURRENCY_RATES.NGN_RATE),
+    stripe_payment_link: 'https://buy.stripe.com/8x228seWn1WYeOTgMtak004'
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise Subscription',
+    token_amount: 10000, // Monthly token allocation
+    price_gbp: 40.00,
+    price_xaf: Math.round(40.00 * CURRENCY_RATES.XAF_RATE),
+    price_ngn: Math.round(40.00 * CURRENCY_RATES.NGN_RATE),
+    stripe_payment_link: 'https://buy.stripe.com/7sYeVedSj8lm22753Lak003'
+  },
+] as const; 
