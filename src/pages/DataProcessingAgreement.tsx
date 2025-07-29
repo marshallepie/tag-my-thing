@@ -68,14 +68,12 @@ export const DataProcessingAgreement: React.FC = () => {
       id: 'controller-obligations',
       title: '6. Controller Obligations',
       icon: <Scale className="h-6 w-6 text-primary-600" />,
-      content: `The Customer ensures that they have all necessary consents and legal bases to process personal data using Tag My Thing.`
       content: `The Customer ensures that they have all necessary consents and legal bases to process personal data using Tag <span className="text-primary-600">My</span> Thing.`
     },
     {
       id: 'processor-obligations',
       title: '7. Processor Obligations',
       icon: <Shield className="h-6 w-6 text-primary-600" />,
-      content: `Tag My Thing shall:`,
       content: `Tag <span className="text-primary-600">My</span> Thing shall:`,
       list: [
         'Process data only on documented instructions',
@@ -89,21 +87,18 @@ export const DataProcessingAgreement: React.FC = () => {
       id: 'security-measures',
       title: '8. Security Measures',
       icon: <Lock className="h-6 w-6 text-primary-600" />,
-      content: `Tag My Thing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
       content: `Tag <span className="text-primary-600">My</span> Thing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
     },
     {
       id: 'data-transfers',
       title: '9. Data Transfers',
       icon: <Globe className="h-6 w-6 text-primary-600" />,
-      content: `If personal data is transferred outside the EEA, Tag My Thing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
       content: `If personal data is transferred outside the EEA, Tag <span className="text-primary-600">My</span> Thing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
     },
     {
       id: 'termination',
       title: '10. Termination',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
-      content: `Upon termination, Tag My Thing will delete or return personal data unless otherwise required by law.`
       content: `Upon termination, Tag <span className="text-primary-600">My</span> Thing will delete or return personal data unless otherwise required by law.`
     }
   ];
