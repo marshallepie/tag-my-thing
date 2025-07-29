@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Mail, MapPin, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -105,6 +106,234 @@ export const Footer: React.FC = () => {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* TagMyThing DAO Section */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">TagMyThing DAO</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Vision */}
+                <div>
+                  <h3 className="text-lg font-semibold text-primary-400 mb-3">Vision</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    TagMyThing is evolving into a community-driven ecosystem where users not only tag and secure their assets but also help guide the growth and governance of the platform. The DAO ensures transparency, fairness, and shared ownership in the project's future.
+                  </p>
+                </div>
+
+                {/* Core Principles */}
+                <div>
+                  <h3 className="text-lg font-semibold text-primary-400 mb-3">Core Principles</h3>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Transparency:</strong> All decisions, token flows, and governance actions are public and verifiable.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Community Empowerment:</strong> Token holders shape the future by voting on proposals and priorities.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Fair Distribution:</strong> Tokens reflect both participation and contribution, ensuring everyone has a stake.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Sustainability:</strong> Resources are allocated with long-term project health in mind.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Token Utility */}
+                <div>
+                  <h3 className="text-lg font-semibold text-primary-400 mb-3">Token Utility</h3>
+                  <p className="text-gray-300 text-sm mb-3">The TMT token is at the heart of the DAO. It powers:</p>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Voting Rights:</strong> Each token represents a vote in governance decisions.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Access to Features:</strong> Unlocking premium tools, tagging capacity, and integrations.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Incentives:</strong> Rewards for referrals, contributions, and community involvement.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                {/* Governance Structure */}
+                <div>
+                  <h3 className="text-lg font-semibold text-accent-400 mb-3">Governance Structure</h3>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-accent-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Token Holders:</strong> The community members who vote on proposals.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-accent-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Delegates:</strong> Trusted individuals who can represent groups of token holders.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-accent-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Core Contributors:</strong> Developers and maintainers actively building TagMyThing.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-accent-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Governance Council:</strong> A rotating group of elected members overseeing proposal quality and execution.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-accent-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Facilitators/Admins:</strong> Operational roles that ensure proposals, votes, and funds are processed correctly.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Proposal Process */}
+                <div>
+                  <h3 className="text-lg font-semibold text-success-400 mb-3">Proposal Process</h3>
+                  <div className="space-y-3 text-gray-300 text-sm">
+                    <div className="flex items-start">
+                      <div className="w-6 h-6 bg-success-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">1</div>
+                      <div>
+                        <strong className="text-white">Idea Submission:</strong> Any token holder can submit a proposal.
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="w-6 h-6 bg-success-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">2</div>
+                      <div>
+                        <strong className="text-white">Discussion:</strong> Community feedback is gathered in an open forum.
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="w-6 h-6 bg-success-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">3</div>
+                      <div>
+                        <strong className="text-white">Voting:</strong> Token-weighted voting determines whether the proposal passes.
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="w-6 h-6 bg-success-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">4</div>
+                      <div>
+                        <strong className="text-white">Execution:</strong> If approved, smart contracts or contributors implement the decision.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                {/* Treasury Management */}
+                <div>
+                  <h3 className="text-lg font-semibold text-warning-400 mb-3">Treasury Management</h3>
+                  <p className="text-gray-300 text-sm mb-3">
+                    Funds generated from token sales, subscriptions, or partnerships are pooled into a DAO treasury. These funds can be allocated for:
+                  </p>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-warning-400 rounded-full mr-3 flex-shrink-0" />
+                      Development grants
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-warning-400 rounded-full mr-3 flex-shrink-0" />
+                      Marketing campaigns
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-warning-400 rounded-full mr-3 flex-shrink-0" />
+                      Community rewards
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-warning-400 rounded-full mr-3 flex-shrink-0" />
+                      Security and audits
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Business & Community Alignment */}
+                <div>
+                  <h3 className="text-lg font-semibold text-secondary-400 mb-3">Business & Community Alignment</h3>
+                  <ul className="space-y-2 text-gray-300 text-sm">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Business Users:</strong> Gain verification, bulk tagging, and API access through subscriptions.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Influencers:</strong> Earn rewards via multi-level referral programs.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-secondary-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                      <div>
+                        <strong className="text-white">Everyday Users:</strong> Tag personal or legacy items, ensuring permanence and trust.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Call to Action */}
+              <div className="mt-8 text-center">
+                <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">Join the TagMyThing DAO</h3>
+                  <p className="text-primary-100 mb-4">
+                    Be part of the future of digital asset management and governance
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link
+                      to="/auth"
+                      className="inline-flex items-center px-6 py-3 bg-white text-primary-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                    <Link
+                      to="/support"
+                      className="inline-flex items-center px-6 py-3 border border-white text-white font-medium rounded-lg hover:bg-white hover:text-primary-600 transition-colors"
+                    >
+                      Learn More
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Bottom Section */}
