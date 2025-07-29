@@ -17,12 +17,14 @@ export const TermsOfService: React.FC = () => {
       title: '1. Acceptance',
       icon: <Scale className="h-6 w-6 text-primary-600" />,
       content: `By using Tag My Thing, you agree to these Terms of Service and our Privacy Policy.`
+      content: `By using Tag <span className="text-primary-600">My</span> Thing, you agree to these Terms of Service and our Privacy Policy.`
     },
     {
       id: 'service-description',
       title: '2. Service Description',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
       content: `Tag My Thing enables you to create, store, and share digital tags and related content.`
+      content: `Tag <span className="text-primary-600">My</span> Thing enables you to create, store, and share digital tags and related content.`
     },
     {
       id: 'user-accounts',
@@ -50,6 +52,7 @@ export const TermsOfService: React.FC = () => {
       title: '5. Intellectual Property',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
       content: `All content and software are owned by Tag My Thing or licensed to us. You retain ownership of content you upload but grant us a license to use it as necessary to operate the service.`
+      content: `All content and software are owned by Tag <span className="text-primary-600">My</span> Thing or licensed to us. You retain ownership of content you upload but grant us a license to use it as necessary to operate the service.`
     },
     {
       id: 'termination',
@@ -68,6 +71,7 @@ export const TermsOfService: React.FC = () => {
       title: '8. Liability',
       icon: <Gavel className="h-6 w-6 text-primary-600" />,
       content: `To the fullest extent permitted by law, Tag My Thing shall not be liable for indirect or consequential damages.`
+      content: `To the fullest extent permitted by law, Tag <span className="text-primary-600">My</span> Thing shall not be liable for indirect or consequential damages.`
     },
     {
       id: 'governing-law',

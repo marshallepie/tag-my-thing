@@ -49,6 +49,7 @@ export const DataProcessingAgreement: React.FC = () => {
       title: '5. Sub-Processors',
       icon: <Building className="h-6 w-6 text-primary-600" />,
       content: `The Customer authorizes Tag My Thing to use the following sub-processors:`,
+      content: `The Customer authorizes Tag <span className="text-primary-600">My</span> Thing to use the following sub-processors:`,
       subProcessors: [
         {
           name: 'Supabase',
@@ -68,12 +69,14 @@ export const DataProcessingAgreement: React.FC = () => {
       title: '6. Controller Obligations',
       icon: <Scale className="h-6 w-6 text-primary-600" />,
       content: `The Customer ensures that they have all necessary consents and legal bases to process personal data using Tag My Thing.`
+      content: `The Customer ensures that they have all necessary consents and legal bases to process personal data using Tag <span className="text-primary-600">My</span> Thing.`
     },
     {
       id: 'processor-obligations',
       title: '7. Processor Obligations',
       icon: <Shield className="h-6 w-6 text-primary-600" />,
       content: `Tag My Thing shall:`,
+      content: `Tag <span className="text-primary-600">My</span> Thing shall:`,
       list: [
         'Process data only on documented instructions',
         'Ensure confidentiality and security measures',
@@ -87,18 +90,21 @@ export const DataProcessingAgreement: React.FC = () => {
       title: '8. Security Measures',
       icon: <Lock className="h-6 w-6 text-primary-600" />,
       content: `Tag My Thing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
+      content: `Tag <span className="text-primary-600">My</span> Thing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
     },
     {
       id: 'data-transfers',
       title: '9. Data Transfers',
       icon: <Globe className="h-6 w-6 text-primary-600" />,
       content: `If personal data is transferred outside the EEA, Tag My Thing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
+      content: `If personal data is transferred outside the EEA, Tag <span className="text-primary-600">My</span> Thing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
     },
     {
       id: 'termination',
       title: '10. Termination',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
       content: `Upon termination, Tag My Thing will delete or return personal data unless otherwise required by law.`
+      content: `Upon termination, Tag <span className="text-primary-600">My</span> Thing will delete or return personal data unless otherwise required by law.`
     }
   ];
 
@@ -143,9 +149,9 @@ export const DataProcessingAgreement: React.FC = () => {
                   Data Processing Agreement (DPA)
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  This Data Processing Agreement is entered into between Tag My Thing (Processor) 
+                  This Data Processing Agreement is entered into between Tag <span className="text-primary-600">My</span> Thing (Processor)
                   and You (the Customer/Controller) and governs the processing of personal data 
-                  in connection with the services provided by Tag My Thing.
+                  in connection with the services provided by Tag <span className="text-primary-600">My</span> Thing.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -157,7 +163,7 @@ export const DataProcessingAgreement: React.FC = () => {
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <Shield className="h-8 w-8 text-secondary-600 mx-auto mb-2" />
                     <h3 className="font-semibold text-gray-900 mb-1">Processor</h3>
-                    <p className="text-gray-700 text-sm">Tag My Thing</p>
+                    <p className="text-gray-700 text-sm">Tag <span className="text-primary-600">My</span> Thing</p>
                   </div>
                 </div>
               </div>

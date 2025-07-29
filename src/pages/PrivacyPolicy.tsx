@@ -16,7 +16,7 @@ export const PrivacyPolicy: React.FC = () => {
       id: 'introduction',
       title: '1. Introduction',
       icon: <Shield className="h-6 w-6 text-primary-600" />,
-      content: `Welcome to Tag My Thing ("we," "us," "our"). We are committed to protecting your privacy and handling your personal data transparently. This Privacy Policy describes how we collect, use, and protect your personal data when you use our website and services.`
+      content: `Welcome to Tag <span className="text-primary-600">My</span> Thing ("we," "us," "our"). We are committed to protecting your privacy and handling your personal data transparently. This Privacy Policy describes how we collect, use, and protect your personal data when you use our website and services.`
     },
     {
       id: 'data-collection',
@@ -154,8 +154,7 @@ export const PrivacyPolicy: React.FC = () => {
                       </h2>
                       
                       {section.content && (
-                        <p className="text-gray-700 mb-4 leading-relaxed">
-                          {section.content}
+                        <p className="text-gray-700 mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: section.content }}>
                         </p>
                       )}
                       
