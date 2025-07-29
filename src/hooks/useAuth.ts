@@ -92,12 +92,25 @@ export const useAuth = () => {
     console.log('useAuth - useEffect starting');
     
     let mounted = true;
-    let initializationTimeout: NodeJS.Timeout;
     
     // Set loading state at the start of initialization
     setLoading(true);
 
     const initializeAuth = async () => {
+      let initializationTimeout: NodeJS.Timeout;
+      
+      // Set timeout for this specific initialization attempt
+      initializationTimeout = setTimeout(() => {
+        if (mounted && !initialized) {
+          console.warn('useAuth - Session check timeout, forcing initialization');
+          if (mounted) {
+            clearAuthState();
+            setInitialized(true);
+            setLoading(false);
+          }
+        }
+      }, 10000); // 10 second timeout
+      
       try {
         console.log('useAuth - Getting initial session');
         
@@ -152,24 +165,14 @@ export const useAuth = () => {
         }
       } finally {
         // Always turn off loading when initialization attempt is complete
+        // Clear the timeout for this specific initialization attempt
+        clearTimeout(initializationTimeout);
         if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    // Set a timeout to prevent infinite loading
-    initializationTimeout = setTimeout(() => {
-      if (mounted && !initialized) {
-        console.warn('useAuth - Session check timeout, forcing initialization');
-        if (mounted) {
-          clearAuthState();
-          setInitialized(true);
-          setLoading(false);
-        }
-      }
-    }, 10000); // 10 second timeout
-    
     // Initialize auth state
     initializeAuth();
 
@@ -212,7 +215,6 @@ export const useAuth = () => {
 
     return () => {
       mounted = false;
-      clearTimeout(initializationTimeout);
       subscription.unsubscribe();
     };
   }, []); // Empty dependency array to prevent re-running
