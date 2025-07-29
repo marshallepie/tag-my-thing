@@ -83,41 +83,11 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 // Protected Route Component with role-based redirects
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading, initialized } = useAuth();
-  const [timeoutReached, setTimeoutReached] = useState(false);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!initialized) {
-        console.warn('ProtectedRoute - Initialization timeout reached');
-        setTimeoutReached(true);
-      }
-    }, 15000); // 15 second timeout
-
-    return () => clearTimeout(timeout);
-  }, [initialized]);
-
-  if ((!initialized || loading) && !timeoutReached) {
+  if (!initialized || loading) {
     return <LoadingScreen />;
   }
 
-  if (timeoutReached && !initialized) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Loading Timeout</h1>
-          <p className="text-gray-600 mb-6">
-            The application is taking longer than expected to load. Please try refreshing the page.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
@@ -181,30 +151,15 @@ const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 // Auth redirect component
 const AuthRedirect: React.FC = () => {
   const { isAuthenticated, loading, initialized } = useAuth();
-  const [timeoutReached, setTimeoutReached] = useState(false);
   
   console.log('AuthRedirect - State:', { isAuthenticated, loading, initialized });
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!initialized) {
-        console.warn('AuthRedirect - Initialization timeout reached');
-        setTimeoutReached(true);
-      }
-    }, 15000); // 15 second timeout
 
-    return () => clearTimeout(timeout);
-  }, [initialized]);
-
-  if ((!initialized || loading) && !timeoutReached) {
+  if (!initialized || loading) {
     console.log('AuthRedirect - Showing loading screen');
     return <LoadingScreen />;
   }
 
-  if (timeoutReached && !initialized) {
-    console.log('AuthRedirect - Timeout reached, forcing auth form');
-    return <Auth />;
-  }
 
   if (isAuthenticated) {
     console.log('AuthRedirect - User authenticated, redirecting to dashboard');
