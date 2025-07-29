@@ -10,7 +10,6 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
 
   // Centralized profile fetching function
   const fetchProfile = useCallback(async (userId: string) => {
@@ -78,8 +77,6 @@ export const useAuth = () => {
   const clearAuthState = useCallback(() => {
     setUser(null);
     setProfile(null);
-    setLoading(false);
-    setInitialized(true);
   }, []);
 
   // Set authenticated state
@@ -87,8 +84,6 @@ export const useAuth = () => {
     setUser(authUser);
     
     const profileData = await fetchProfile(authUser.id);
-    setLoading(false);
-    setInitialized(true);
     
     return profileData;
   }, [fetchProfile]);
@@ -98,16 +93,16 @@ export const useAuth = () => {
     
     let mounted = true;
     let initializationTimeout: NodeJS.Timeout;
+    
+    // Set loading state at the start of initialization
+    setLoading(true);
 
     const initializeAuth = async () => {
       try {
         console.log('useAuth - Getting initial session');
-        setSessionChecked(false);
         
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        setSessionChecked(true);
         
         if (error) {
           console.error('useAuth - Session error:', error);
@@ -143,22 +138,38 @@ export const useAuth = () => {
           console.log('useAuth - No session found, clearing auth state');
           clearAuthState();
         }
+        
+        // Mark as initialized only after processing is complete
+        if (mounted) {
+          setInitialized(true);
+        }
       } catch (error) {
         console.error('useAuth - Session fetch error:', error);
         
         if (mounted) {
           clearAuthState();
+          setInitialized(true);
+        }
+      } finally {
+        // Always turn off loading when initialization attempt is complete
+        if (mounted) {
+          setLoading(false);
         }
       }
     };
 
     // Set a timeout to prevent infinite loading
     initializationTimeout = setTimeout(() => {
-      if (mounted && !sessionChecked) {
+      if (mounted && !initialized) {
         console.warn('useAuth - Session check timeout, forcing initialization');
-        clearAuthState();
+        if (mounted) {
+          clearAuthState();
+          setInitialized(true);
+          setLoading(false);
+        }
       }
     }, 10000); // 10 second timeout
+    
     // Initialize auth state
     initializeAuth();
 
@@ -172,16 +183,19 @@ export const useAuth = () => {
         if (event === 'SIGNED_OUT' || !session?.user) {
           console.log('useAuth - User signed out, clearing state');
           clearAuthState();
+          setInitialized(true);
+          setLoading(false);
           return;
         }
 
         if (event === 'SIGNED_IN') {
           console.log('useAuth - User signed in/token refreshed, setting authenticated state');
-          setLoading(true);
           
           // Set authenticated state immediately
           if (mounted) {
             await setAuthenticatedState(session.user);
+            setInitialized(true);
+            setLoading(false);
           }
         }
         
@@ -201,7 +215,7 @@ export const useAuth = () => {
       clearTimeout(initializationTimeout);
       subscription.unsubscribe();
     };
-  }, [clearAuthState, setAuthenticatedState]);
+  }, []); // Empty dependency array to prevent re-running
 
   const signOut = async () => {
     try {
