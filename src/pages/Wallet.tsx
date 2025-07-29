@@ -225,6 +225,9 @@ export const Wallet: React.FC = () => {
 
   const uniqueSources = [...new Set(transactions.map((tx: any) => tx.source))];
 
+  // Debug log to check processing payment state
+  console.log('Processing Payment State:', processingPayment);
+
   // Quick actions - now includes referrals for all users
   const quickActions = [
     {
