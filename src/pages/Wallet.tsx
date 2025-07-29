@@ -292,7 +292,16 @@ export const Wallet: React.FC = () => {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button onClick={handlePurchase} disabled={processingPayment}>
+            <Button 
+              onClick={() => {
+                const buyTokensSection = document.getElementById('buy-tokens-section');
+                if (buyTokensSection) {
+                  buyTokensSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }} 
+              disabled={processingPayment}
+              className="lg:hidden"
+            >
               <Plus className="h-5 w-5 mr-2" />
               {processingPayment ? 'Processing...' : 'Buy Tokens'}
             </Button>
@@ -423,7 +432,7 @@ export const Wallet: React.FC = () => {
 
           {/* Token Packages */}
           <div>
-            <Card>
+            <Card id="buy-tokens-section">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Buy Tokens</h2>
               </div>
