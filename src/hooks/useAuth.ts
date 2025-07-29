@@ -10,6 +10,7 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   // Centralized profile fetching function
   const fetchProfile = useCallback(async (userId: string) => {
@@ -96,12 +97,17 @@ export const useAuth = () => {
     console.log('useAuth - useEffect starting');
     
     let mounted = true;
+    let initializationTimeout: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
         console.log('useAuth - Getting initial session');
+        setSessionChecked(false);
+        
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        setSessionChecked(true);
         
         if (error) {
           console.error('useAuth - Session error:', error);
@@ -146,6 +152,13 @@ export const useAuth = () => {
       }
     };
 
+    // Set a timeout to prevent infinite loading
+    initializationTimeout = setTimeout(() => {
+      if (mounted && !sessionChecked) {
+        console.warn('useAuth - Session check timeout, forcing initialization');
+        clearAuthState();
+      }
+    }, 10000); // 10 second timeout
     // Initialize auth state
     initializeAuth();
 
@@ -176,6 +189,7 @@ export const useAuth = () => {
 
     return () => {
       mounted = false;
+      clearTimeout(initializationTimeout);
       subscription.unsubscribe();
     };
   }, [clearAuthState, setAuthenticatedState]);

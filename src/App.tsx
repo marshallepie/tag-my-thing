@@ -38,6 +38,7 @@ const LoadingScreen: React.FC = () => (
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading...</p>
+      <p className="text-sm text-gray-500 mt-2">If this takes too long, try refreshing the page</p>
     </div>
   </div>
 );
@@ -82,9 +83,40 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 // Protected Route Component with role-based redirects
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading, initialized } = useAuth();
+  const [timeoutReached, setTimeoutReached] = useState(false);
 
-  if (!initialized || loading) {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!initialized) {
+        console.warn('ProtectedRoute - Initialization timeout reached');
+        setTimeoutReached(true);
+      }
+    }, 15000); // 15 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [initialized]);
+
+  if ((!initialized || loading) && !timeoutReached) {
     return <LoadingScreen />;
+  }
+
+  if (timeoutReached && !initialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Loading Timeout</h1>
+          <p className="text-gray-600 mb-6">
+            The application is taking longer than expected to load. Please try refreshing the page.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -149,12 +181,29 @@ const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 // Auth redirect component
 const AuthRedirect: React.FC = () => {
   const { isAuthenticated, loading, initialized } = useAuth();
+  const [timeoutReached, setTimeoutReached] = useState(false);
   
   console.log('AuthRedirect - State:', { isAuthenticated, loading, initialized });
 
-  if (!initialized || loading) {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!initialized) {
+        console.warn('AuthRedirect - Initialization timeout reached');
+        setTimeoutReached(true);
+      }
+    }, 15000); // 15 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [initialized]);
+
+  if ((!initialized || loading) && !timeoutReached) {
     console.log('AuthRedirect - Showing loading screen');
     return <LoadingScreen />;
+  }
+
+  if (timeoutReached && !initialized) {
+    console.log('AuthRedirect - Timeout reached, forcing auth form');
+    return <Auth />;
   }
 
   if (isAuthenticated) {
