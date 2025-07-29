@@ -175,13 +175,22 @@ export const useAuth = () => {
           return;
         }
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN') {
           console.log('useAuth - User signed in/token refreshed, setting authenticated state');
           setLoading(true);
           
           // Set authenticated state immediately
           if (mounted) {
             await setAuthenticatedState(session.user);
+          }
+        }
+        
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('useAuth - Token refreshed, updating user without loading state');
+          // Update user object with new token but don't trigger loading state
+          if (mounted) {
+            setUser(session.user);
+            // Profile data doesn't change during token refresh, so no need to refetch
           }
         }
       }
