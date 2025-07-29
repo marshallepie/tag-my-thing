@@ -60,7 +60,6 @@ export const NFTTaggingLanding: React.FC = () => {
                 alt="TagMyThing" 
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-xl font-bold text-gray-900">TagMyThing</span>
               <span className="text-xl font-bold text-gray-900">Tag<span className="text-primary-600">My</span>Thing</span>
             </button>
 
