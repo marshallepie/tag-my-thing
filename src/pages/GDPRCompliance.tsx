@@ -119,7 +119,7 @@ export const GDPRCompliance: React.FC = () => {
                   Full GDPR Compliance Commitment
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Tag My Thing is committed to full compliance with the European Union General Data Protection Regulation (GDPR). 
+                  Tag <span className="text-primary-600">My</span> Thing is committed to full compliance with the European Union General Data Protection Regulation (GDPR).
                   We ensure that your personal data is processed lawfully, fairly, and transparently at all times.
                 </p>
               </div>

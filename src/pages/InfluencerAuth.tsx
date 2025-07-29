@@ -88,6 +88,7 @@ export const InfluencerAuth: React.FC = () => {
                 className="w-10 h-10 object-contain"
               />
               <span className="text-xl font-bold text-gray-900">TagMyThing</span>
+              <span className="text-xl font-bold text-gray-900">Tag<span className="text-primary-600">My</span>Thing</span>
               <div className="flex items-center space-x-1 ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
                 <Crown className="h-3 w-3" />
                 <span>Influencer</span>

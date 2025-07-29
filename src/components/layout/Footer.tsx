@@ -62,6 +62,7 @@ export const Footer: React.FC = () => {
                 className="w-10 h-10 object-contain"
               />
               <span className="text-xl font-bold">TagMyThing</span>
+              <span className="text-xl font-bold">Tag<span className="text-primary-600">My</span>Thing</span>
             </div>
             <p className="text-gray-400 mb-4 leading-relaxed">
               Secure, tag, and manage your digital and physical assets with blockchain technology. 

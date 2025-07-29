@@ -103,7 +103,7 @@ export const Launch: React.FC = () => {
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
                   Welcome to
-                  <span className="block text-primary-600">TagMyThing</span>
+                  <span className="block">Tag<span className="text-primary-600">My</span>Thing</span>
                 </h1>
                 
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">

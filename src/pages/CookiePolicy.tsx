@@ -110,9 +110,9 @@ export const CookiePolicy: React.FC = () => {
                   What are Cookies?
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Cookies are small text files stored on your device when you visit a website. 
-                  They help us recognize your browser, remember your preferences, and improve your experience 
-                  with TagMyThing.
+                  Cookies are small text files stored on your device when you visit a website.
+                  They help us recognize your browser, remember your preferences, and improve your experience
+                  with Tag<span className="text-primary-600">My</span>Thing.
                 </p>
               </div>
             </Card>

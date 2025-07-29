@@ -394,7 +394,7 @@ export const CustomerSupport: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-700">
-                    You can find your unique referral link in your dashboard under the "Referrals" section.
+                    Tag<span className="text-primary-600">My</span>Thing aims to become the go-to app for digital truth-keeping and asset memory.
                   </p>
                 </div>
               </div>
@@ -419,7 +419,7 @@ export const CustomerSupport: React.FC = () => {
                     Your Digital Truth-Keeping and Asset Memory
                   </h3>
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    TagMyThing is a digital asset tagging system that lets users document ownership of any item—physical or digital—in a secure, timestamped, and verifiable way.
+                    Tag<span className="text-primary-600">My</span>Thing is a digital asset tagging system that lets users document ownership of any item—physical or digital—in a secure, timestamped, and verifiable way.
                     It's a place to record your intentions and ensure your belongings and their meaning outlive you.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
