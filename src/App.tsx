@@ -30,6 +30,7 @@ import { BusinessDashboard } from './pages/BusinessDashboard';
 import { ProductVerificationPage } from './pages/ProductVerificationPage';
 import { PublicAssetsPage } from './pages/PublicAssetsPage';
 import { BusinessAuth } from './pages/BusinessAuth';
+import { Dao } from './pages/Dao';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -328,6 +329,14 @@ function App() {
               element={
                 <SafeRoute>
                   <PublicAssetsPage />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/dao" 
+              element={
+                <SafeRoute>
+                  <Dao />
                 </SafeRoute>
               } 
             />
