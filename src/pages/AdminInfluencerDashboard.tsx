@@ -22,7 +22,9 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
-  DollarSign
+  DollarSign,
+  Archive,
+  Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -61,6 +63,17 @@ interface TokenAdjustment {
   reason: string;
 }
 
+interface AssetForArchiving {
+  id: string;
+  title: string;
+  media_type: 'photo' | 'video';
+  archive_status: 'pending' | 'failed' | 'instant_requested';
+  created_at: string;
+  archive_requested_at: string | null;
+  user_id: string;
+  user_email: string;
+}
+
 export const AdminInfluencerDashboard: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
@@ -85,12 +98,17 @@ export const AdminInfluencerDashboard: React.FC = () => {
     reason: ''
   });
   const [adjustmentLoading, setAdjustmentLoading] = useState(false);
+  const [assetsForArchiving, setAssetsForArchiving] = useState<AssetForArchiving[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [retryLoading, setRetryLoading] = useState(false);
 
   const { isAdminInfluencer } = useAuth();
 
   useEffect(() => {
     if (isAdminInfluencer) {
       fetchDashboardData();
+      fetchAssetsForArchiving();
     }
   }, [isAdminInfluencer]);
 
@@ -99,11 +117,18 @@ export const AdminInfluencerDashboard: React.FC = () => {
   }, [users, searchTerm, roleFilter]);
 
   const fetchDashboardData = async () => {
+    const TIMEOUT_MS = 15000; // 15 second timeout
+    
     try {
       setLoading(true);
       
-      // Fetch all users with their wallet balances
-      const { data: usersData, error: usersError } = await supabase
+      // Create timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
+      });
+      
+      // Fetch users with timeout
+      const usersPromise = supabase
         .from('user_profiles')
         .select(`
           id,
@@ -116,6 +141,11 @@ export const AdminInfluencerDashboard: React.FC = () => {
           user_wallets(balance)
         `)
         .order('created_at', { ascending: false });
+      
+      const { data: usersData, error: usersError } = await Promise.race([
+        usersPromise,
+        timeoutPromise
+      ]) as any;
 
       if (usersError) throw usersError;
 
@@ -127,28 +157,52 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
       setUsers(transformedUsers);
 
-      // Fetch analytics using the RPC function
-      const { data: analyticsData, error: analyticsError } = await supabase
-        .rpc('get_user_analytics');
+      // Fetch analytics with timeout
+      try {
+        const analyticsPromise = supabase.rpc('get_user_analytics');
+        const { data: analyticsData, error: analyticsError } = await Promise.race([
+          analyticsPromise,
+          timeoutPromise
+        ]) as any;
 
-      if (analyticsError) {
-        console.error('Analytics error:', analyticsError);
-        // Calculate basic stats manually if RPC fails
+        if (analyticsError) {
+          console.error('Analytics error:', analyticsError);
+          calculateBasicStats(transformedUsers);
+        } else if (analyticsData?.success) {
+          setStats({
+            totalUsers: analyticsData.user_stats.total_users,
+            newUsersToday: analyticsData.user_stats.new_users_today,
+            newUsersWeek: analyticsData.user_stats.new_users_week,
+            newUsersMonth: analyticsData.user_stats.new_users_month,
+            totalTokensDistributed: analyticsData.token_stats.total_tokens_distributed,
+            totalTransactions: analyticsData.token_stats.total_transactions,
+            totalAssets: analyticsData.asset_stats.total_assets
+          });
+        } else {
+          calculateBasicStats(transformedUsers);
+        }
+      } catch (analyticsError) {
+        console.error('Analytics fetch failed:', analyticsError);
         calculateBasicStats(transformedUsers);
-      } else if (analyticsData?.success) {
-        setStats({
-          totalUsers: analyticsData.user_stats.total_users,
-          newUsersToday: analyticsData.user_stats.new_users_today,
-          newUsersWeek: analyticsData.user_stats.new_users_week,
-          newUsersMonth: analyticsData.user_stats.new_users_month,
-          totalTokensDistributed: analyticsData.token_stats.total_tokens_distributed,
-          totalTransactions: analyticsData.token_stats.total_transactions,
-          totalAssets: analyticsData.asset_stats.total_assets
-        });
       }
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
-      toast.error('Failed to load dashboard data');
+      if (error.message === 'Request timeout') {
+        toast.error('Dashboard data loading timed out. Please try refreshing.');
+      } else {
+        toast.error('Failed to load dashboard data: ' + error.message);
+      }
+      // Set empty data to prevent infinite loading
+      setUsers([]);
+      setStats({
+        totalUsers: 0,
+        newUsersToday: 0,
+        newUsersWeek: 0,
+        newUsersMonth: 0,
+        totalTokensDistributed: 0,
+        totalTransactions: 0,
+        totalAssets: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -185,6 +239,139 @@ export const AdminInfluencerDashboard: React.FC = () => {
       totalTransactions: 0, // Would need separate query
       totalAssets: 0 // Would need separate query
     });
+  };
+
+  const fetchAssetsForArchiving = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('assets')
+        .select(`
+          id,
+          title,
+          media_type,
+          archive_status,
+          created_at,
+          archive_requested_at,
+          user_id,
+          user_profiles!inner(email)
+        `)
+        .in('archive_status', ['pending', 'failed', 'instant_requested'])
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const transformedAssets = data?.map(asset => ({
+        ...asset,
+        user_email: asset.user_profiles?.email || 'Unknown'
+      })) || [];
+
+      setAssetsForArchiving(transformedAssets);
+    } catch (error: any) {
+      console.error('Error fetching assets for archiving:', error);
+      toast.error('Failed to load assets for archiving');
+      setAssetsForArchiving([]);
+    }
+  };
+
+  const toggleAssetSelection = (assetId: string) => {
+    setSelectedAssets(prev => 
+      prev.includes(assetId) 
+        ? prev.filter(id => id !== assetId)
+        : [...prev, assetId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedAssets.length === assetsForArchiving.length) {
+      setSelectedAssets([]);
+    } else {
+      setSelectedAssets(assetsForArchiving.map(asset => asset.id));
+    }
+  };
+
+  const handleArchiveSelected = async () => {
+    if (selectedAssets.length === 0) return;
+
+    setArchiveLoading(true);
+    try {
+      // Process each selected asset
+      const results = await Promise.allSettled(
+        selectedAssets.map(assetId => 
+          supabase.rpc('archive_tag_now', { asset_id: assetId })
+        )
+      );
+
+      const successful = results.filter(result => 
+        result.status === 'fulfilled' && result.value?.data?.success
+      ).length;
+
+      const failed = results.length - successful;
+
+      if (successful > 0) {
+        toast.success(`Successfully archived ${successful} assets${failed > 0 ? `, ${failed} failed` : ''}`);
+        setSelectedAssets([]);
+        fetchAssetsForArchiving();
+      } else {
+        toast.error('Failed to archive selected assets');
+      }
+    } catch (error: any) {
+      console.error('Archive error:', error);
+      toast.error('Failed to archive assets');
+    } finally {
+      setArchiveLoading(false);
+    }
+  };
+
+  const handleRetryFailed = async () => {
+    const failedAssets = assetsForArchiving.filter(asset => asset.archive_status === 'failed');
+    if (failedAssets.length === 0) return;
+
+    setRetryLoading(true);
+    try {
+      const results = await Promise.allSettled(
+        failedAssets.map(asset => 
+          supabase.rpc('archive_tag_now', { asset_id: asset.id })
+        )
+      );
+
+      const successful = results.filter(result => 
+        result.status === 'fulfilled' && result.value?.data?.success
+      ).length;
+
+      toast.success(`Retried ${failedAssets.length} failed assets, ${successful} successful`);
+      fetchAssetsForArchiving();
+    } catch (error: any) {
+      console.error('Retry error:', error);
+      toast.error('Failed to retry failed assets');
+    } finally {
+      setRetryLoading(false);
+    }
+  };
+
+  const getArchiveStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="h-4 w-4 text-warning-600" />;
+      case 'failed':
+        return <AlertTriangle className="h-4 w-4 text-error-600" />;
+      case 'instant_requested':
+        return <RefreshCw className="h-4 w-4 text-primary-600 animate-spin" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const getArchiveStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-warning-100 text-warning-800';
+      case 'failed':
+        return 'bg-error-100 text-error-800';
+      case 'instant_requested':
+        return 'bg-primary-100 text-primary-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const filterUsers = () => {
