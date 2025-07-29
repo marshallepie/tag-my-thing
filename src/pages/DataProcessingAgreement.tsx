@@ -48,7 +48,6 @@ export const DataProcessingAgreement: React.FC = () => {
       id: 'sub-processors',
       title: '5. Sub-Processors',
       icon: <Building className="h-6 w-6 text-primary-600" />,
-      content: `The Customer authorizes Tag My Thing to use the following sub-processors:`,
       content: `The Customer authorizes Tag <span className="text-primary-600">My</span> Thing to use the following sub-processors:`,
       subProcessors: [
         {
