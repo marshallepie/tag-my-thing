@@ -121,13 +121,13 @@ export const InfluencerAuth: React.FC = () => {
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="flex justify-center w-full">
             {/* Auth Form */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="order-2 lg:order-1"
+              className="w-full max-w-md"
             >
               <AuthForm 
                 mode={mode} 
