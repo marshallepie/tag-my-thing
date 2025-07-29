@@ -128,7 +128,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
         setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
       });
       
-      // Fetch users with timeout
+      // Fetch users without wallet data first
       const usersPromise = supabase
         .from('user_profiles')
         .select(`
@@ -138,8 +138,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
           role,
           subscription_plan,
           created_at,
-          referral_code,
-          user_wallets(balance)
+          referral_code
         `)
         .order('created_at', { ascending: false });
       
@@ -150,10 +149,33 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
       if (usersError) throw usersError;
 
-      // Transform the data to include balance
+      // Fetch wallet balances separately
+      const walletsPromise = supabase
+        .from('user_wallets')
+        .select('user_id, balance');
+      
+      const { data: walletsData, error: walletsError } = await Promise.race([
+        walletsPromise,
+        timeoutPromise
+      ]) as any;
+
+      if (walletsError) {
+        console.error('Wallets fetch error:', walletsError);
+        // Continue without wallet data rather than failing completely
+      }
+
+      // Create a map of user_id to balance for efficient lookup
+      const balanceMap = new Map();
+      if (walletsData) {
+        walletsData.forEach((wallet: any) => {
+          balanceMap.set(wallet.user_id, wallet.balance || 0);
+        });
+      }
+
+      // Transform the data to include balance from the separate query
       const transformedUsers = usersData?.map(user => ({
         ...user,
-        balance: user.user_wallets?.[0]?.balance || 0
+        balance: balanceMap.get(user.id) || 0
       })) || [];
 
       setUsers(transformedUsers);
