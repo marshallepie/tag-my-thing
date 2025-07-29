@@ -38,6 +38,7 @@ export const Header: React.FC = () => {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Tag Asset', href: '/tag' },
     { name: 'My Assets', href: '/assets' },
+    { name: 'Wallet', href: '/wallet' },
     { name: 'NOK', href: '/nok' },
   ];
 
