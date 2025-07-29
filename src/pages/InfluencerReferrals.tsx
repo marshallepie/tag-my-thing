@@ -87,12 +87,6 @@ export const InfluencerReferrals: React.FC = () => {
 
     console.log('InfluencerReferrals - Setting up real-time subscription for user:', user.id);
 
-    // Create debounced refresh function to prevent excessive updates
-    const debouncedRefresh = debounce(() => {
-      console.log('InfluencerReferrals - Debounced refresh triggered');
-      forceRefresh();
-    }, 2000); // 2 second debounce to prevent rapid refreshes
-
     // Subscribe to referrals table changes
     const referralsSubscription = supabase
       .channel('referrals-changes')
@@ -136,7 +130,16 @@ export const InfluencerReferrals: React.FC = () => {
       referralsSubscription.unsubscribe();
       rewardsSubscription.unsubscribe();
     };
-  }, [user?.id, profile?.role, forceRefresh]);
+  }, [user?.id, profile?.role, debouncedRefresh]);
+
+  // Create memoized debounced refresh function to prevent excessive updates
+  const debouncedRefresh = React.useCallback(
+    debounce(() => {
+      console.log('InfluencerReferrals - Debounced refresh triggered');
+      forceRefresh();
+    }, 2000), // 2 second debounce to prevent rapid refreshes
+    [forceRefresh]
+  );
 
   const loadReferralUrl = async () => {
     setUrlLoading(true);
