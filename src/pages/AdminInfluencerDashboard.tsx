@@ -261,7 +261,13 @@ export const AdminInfluencerDashboard: React.FC = () => {
       if (error) throw error;
 
       const transformedAssets = data?.map(asset => ({
-        ...asset,
+        id: asset.id,
+        title: asset.title,
+        media_type: asset.media_type,
+        archive_status: asset.archive_status,
+        created_at: asset.created_at,
+        archive_requested_at: asset.archive_requested_at,
+        user_id: asset.user_id,
         user_email: asset.user_profiles?.email || 'Unknown'
       })) || [];
 
