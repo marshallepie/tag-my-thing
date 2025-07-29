@@ -297,9 +297,13 @@ export const Wallet: React.FC = () => {
             </Button>
             <Button 
               onClick={() => {
+               console.log('Buy Tokens button clicked!');
                 const buyTokensSection = document.getElementById('buy-tokens-section');
                 if (buyTokensSection) {
+                 console.log('Found buy-tokens-section element:', buyTokensSection);
                   buyTokensSection.scrollIntoView({ behavior: 'smooth' });
+               } else {
+                 console.log('buy-tokens-section element not found!');
                 }
               }} 
               disabled={processingPayment}
