@@ -24,7 +24,8 @@ import {
   CheckCircle,
   DollarSign,
   Archive,
-  Clock
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
