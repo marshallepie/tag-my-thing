@@ -124,18 +124,41 @@ serve(async (req) => {
     const amountInPounds = session.amount_total ? session.amount_total / 100 : 0; // Convert from pence to pounds
     let tokenAmount = 0;
 
-    if (amountInPounds === 1.00) {
-      tokenAmount = 100;
-    } else if (amountInPounds === 4.50) {
-      tokenAmount = 500;
+    // Attempt to get token amount from session metadata first
+    const tokenAmountFromMetadata = session.metadata?.token_amount;
+
+    if (tokenAmountFromMetadata) {
+      tokenAmount = parseInt(tokenAmountFromMetadata);
+      if (isNaN(tokenAmount)) {
+        return new Response(JSON.stringify({
+          error: 'Invalid token_amount in metadata',
+          metadata: session.metadata
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
     } else {
-      return new Response(JSON.stringify({
-        error: 'Invalid payment amount',
-        amount: amountInPounds
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      // Fallback to amount mapping if metadata is missing or invalid
+      if (amountInPounds === 1.00) {
+        tokenAmount = 100;
+      } else if (amountInPounds === 4.50) {
+        tokenAmount = 500;
+      } else if (amountInPounds === 39.99) { // Mega package
+        tokenAmount = 5000;
+      } else if (amountInPounds === 8.00) { // Pro Business Subscription
+        tokenAmount = 1000;
+      } else if (amountInPounds === 40.00) { // Enterprise Subscription
+        tokenAmount = 10000;
+      } else {
+        return new Response(JSON.stringify({
+          error: 'Invalid payment amount or missing metadata',
+          amount: amountInPounds
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
     }
 
     // Record the payment in the database
