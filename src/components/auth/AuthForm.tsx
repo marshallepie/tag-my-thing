@@ -15,7 +15,12 @@ interface AuthFormProps {
   defaultIsBusinessUser?: boolean;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole = 'user', defaultIsBusinessUser = false }) => {
+export const AuthForm: React.FC<AuthFormProps> = ({ 
+  mode, 
+  onSuccess, 
+  initialRole = 'user', 
+  defaultIsBusinessUser = false 
+}) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,7 +30,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [isBusinessUserSignup, setIsBusinessUserSignup] = useState(defaultIsBusinessUser);
-  const { processReferralSignup, refreshData } = useReferrals();
+  const { processReferralSignup } = useReferrals();
 
   useEffect(() => {
     // Check for referral code in URL
@@ -36,193 +41,176 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess, initialRole
     }
   }, []);
 
+  const createUserProfile = async (userId: string, email: string, fullName: string) => {
+    console.log('AuthForm - Creating user profile for:', userId);
+    
+    const profileData = {
+      id: userId,
+      email: email,
+      full_name: fullName,
+      role: isBusinessUserSignup ? 'user' : initialRole,
+      subscription_plan: 'freemium',
+      is_business_user: isBusinessUserSignup,
+    };
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .insert(profileData);
+
+    if (error) {
+      console.error('AuthForm - Profile creation error:', error);
+      throw new Error(`Failed to create user profile: ${error.message}`);
+    }
+
+    console.log('AuthForm - Profile created successfully');
+    return profileData;
+  };
+
+  const createUserWallet = async (userId: string, signupBonus: number) => {
+    console.log('AuthForm - Creating user wallet with bonus:', signupBonus);
+    
+    const { error } = await supabase
+      .from('user_wallets')
+      .insert({
+        user_id: userId,
+        balance: signupBonus,
+      });
+
+    if (error) {
+      console.error('AuthForm - Wallet creation error:', error);
+      throw new Error(`Failed to create user wallet: ${error.message}`);
+    }
+
+    console.log('AuthForm - Wallet created successfully');
+  };
+
+  const createSignupTransaction = async (userId: string, signupBonus: number) => {
+    console.log('AuthForm - Creating signup transaction');
+    
+    const { error } = await supabase
+      .from('token_transactions')
+      .insert({
+        user_id: userId,
+        amount: signupBonus,
+        type: 'earned',
+        source: 'signup',
+        description: `Welcome bonus${initialRole === 'influencer' ? ' (Influencer)' : ''}`,
+      });
+
+    if (error) {
+      console.error('AuthForm - Transaction creation error:', error);
+      throw new Error(`Failed to create signup transaction: ${error.message}`);
+    }
+
+    console.log('AuthForm - Transaction created successfully');
+  };
+
+  const handleSignup = async () => {
+    console.log('AuthForm - Starting signup process');
+
+    // Sign up user with Supabase Auth
+    const { data: auth, error: authError } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo: undefined // Disable email confirmation
+      }
+    });
+
+    if (authError) {
+      console.error('AuthForm - Signup auth error:', authError);
+      throw authError;
+    }
+
+    if (!auth.user) {
+      throw new Error('No user returned from signup');
+    }
+
+    console.log('AuthForm - User created in auth, setting up profile');
+
+    // Determine signup bonus based on role
+    const signupBonus = initialRole === 'influencer' ? 100 : 50;
+
+    // Create user profile, wallet, and transaction
+    await createUserProfile(auth.user.id, formData.email, formData.fullName);
+    await createUserWallet(auth.user.id, signupBonus);
+    await createSignupTransaction(auth.user.id, signupBonus);
+
+    // Process referral if present
+    if (referralCode) {
+      console.log('AuthForm - Processing referral:', referralCode);
+      try {
+        // Add a delay to ensure all database operations complete
+        setTimeout(async () => {
+          try {
+            await processReferralSignup(referralCode, auth.user.id);
+          } catch (referralError) {
+            console.error('AuthForm - Referral processing failed:', referralError);
+            // Don't fail the signup if referral processing fails
+          }
+        }, 1000);
+      } catch (referralError) {
+        console.error('AuthForm - Referral processing setup failed:', referralError);
+        // Don't fail the signup if referral processing fails
+      }
+    }
+
+    const successMessage = initialRole === 'influencer' 
+      ? 'Influencer account created successfully! You received 100 TMT tokens!'
+      : 'Account created successfully! You received 50 TMT tokens!';
+    
+    console.log('AuthForm - Signup completed successfully');
+    toast.success(successMessage);
+    
+    // The onAuthStateChange listener in useAuth will handle state updates
+    // Add a small delay to ensure the auth state is updated
+    setTimeout(() => {
+      onSuccess();
+    }, 500);
+  };
+
+  const handleSignin = async () => {
+    console.log('AuthForm - Starting signin process');
+
+    const { data: auth, error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (error) {
+      console.error('AuthForm - Signin error:', error);
+      throw error;
+    }
+    
+    console.log('AuthForm - Signin completed successfully');
+    toast.success('Welcome back!');
+    
+    // The onAuthStateChange listener in useAuth will handle state updates
+    // Add a small delay to ensure the auth state is updated
+    setTimeout(() => {
+      onSuccess();
+    }, 500);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (mode === 'signup') {
-        console.log('AuthForm - Starting signup process for role:', initialRole);
-
-        // Sign up user
-        const { data: auth, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: undefined // Disable email confirmation
-          }
-        });
-
-        console.log('AuthForm - Signup result:', { auth: !!auth.user, error: authError });
-
-        if (authError) throw authError;
-
-        if (auth.user) {
-          console.log('AuthForm - User created, setting up profile for:', auth.user.id);
-          
-          // Determine signup bonus based on role
-          const signupBonus = initialRole === 'influencer' ? 100 : 50;
-
-          // Create user profile with retry logic
-          let profileError;
-          let retryCount = 0;
-          const maxRetries = 3;
-          
-          while (retryCount < maxRetries) {
-            const { error } = await supabase
-              .from('user_profiles')
-              .insert({
-                id: auth.user.id,
-                email: formData.email,
-                full_name: formData.fullName,
-                role: isBusinessUserSignup ? 'user' : initialRole,
-                subscription_plan: 'freemium', // Only freemium plan available
-                is_business_user: isBusinessUserSignup,
-              });
-            
-            profileError = error;
-            
-            if (!error) {
-              console.log('AuthForm - Profile created successfully');
-              break;
-            }
-            
-            console.log(`AuthForm - Profile creation attempt ${retryCount + 1} failed:`, error);
-            retryCount++;
-            
-            if (retryCount < maxRetries) {
-              // Wait before retry
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-          }
-
-          console.log('AuthForm - Profile creation result:', { error: profileError });
-          if (profileError) throw profileError;
-
-          // Create wallet with signup bonus (with retry)
-          let walletError;
-          retryCount = 0;
-          
-          while (retryCount < maxRetries) {
-            const { error } = await supabase
-              .from('user_wallets')
-              .insert({
-                user_id: auth.user.id,
-                balance: signupBonus,
-              });
-            
-            walletError = error;
-            
-            if (!error) {
-              console.log('AuthForm - Wallet created successfully');
-              break;
-            }
-            
-            console.log(`AuthForm - Wallet creation attempt ${retryCount + 1} failed:`, error);
-            retryCount++;
-            
-            if (retryCount < maxRetries) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-          }
-
-          console.log('AuthForm - Wallet creation result:', { error: walletError });
-          if (walletError) throw walletError;
-
-          // Record signup transaction (with retry)
-          let transactionError;
-          retryCount = 0;
-          
-          while (retryCount < maxRetries) {
-            const { error } = await supabase
-              .from('token_transactions')
-              .insert({
-                user_id: auth.user.id,
-                amount: signupBonus,
-                type: 'earned',
-                source: 'signup',
-                description: `Welcome bonus${initialRole === 'influencer' ? ' (Influencer)' : ''}`,
-              });
-            
-            transactionError = error;
-            
-            if (!error) {
-              console.log('AuthForm - Transaction created successfully');
-              break;
-            }
-            
-            console.log(`AuthForm - Transaction creation attempt ${retryCount + 1} failed:`, error);
-            retryCount++;
-            
-            if (retryCount < maxRetries) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-          }
-
-          console.log('AuthForm - Transaction creation result:', { error: transactionError });
-          if (transactionError) throw transactionError;
-
-          // Process referral if present
-          if (referralCode) {
-            try {
-              console.log('AuthForm - Processing referral:', referralCode);
-              // Add a delay to ensure all database operations complete
-              setTimeout(async () => {
-                try {
-                  await processReferralSignup(referralCode, auth.user.id);
-                  // Force refresh of auth data after referral processing
-                  setTimeout(() => {
-                    refreshData?.();
-                  }, 1000);
-                } catch (referralError) {
-                  console.error('Delayed referral processing failed:', referralError);
-                }
-              }, 1000);
-            } catch (referralError) {
-              console.error('Referral processing failed:', referralError);
-              // Don't fail the signup if referral processing fails
-            }
-          }
-
-          const successMessage = initialRole === 'influencer' 
-            ? 'Influencer account created successfully! You received 100 TMT tokens!'
-            : 'Account created successfully! You received 50 TMT tokens!';
-          
-          console.log('AuthForm - Signup completed successfully, calling onSuccess');
-          toast.success(successMessage);
-          
-          // Add longer delay to ensure auth state is fully established
-          setTimeout(() => {
-            onSuccess();
-          }, 1000);
-        }
+        await handleSignup();
       } else {
-        console.log('AuthForm - Starting signin process');
-
-        // Sign in user
-        const { data: auth, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (error) throw error;
-        
-        console.log('AuthForm - Signin completed successfully');
-        toast.success('Welcome back!');
-        
-        // Longer delay for auth state to fully update
-        setTimeout(() => {
-          onSuccess();
-        }, 800);
+        await handleSignin();
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
+      console.error('AuthForm - Submit error:', error);
       
       // Better error handling
       let errorMessage = 'Authentication failed';
       
       if (error.message) {
-        if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid email or password')) {
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('Invalid email or password')) {
           errorMessage = 'Invalid email or password. Please check your credentials.';
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Please check your email and confirm your account.';
