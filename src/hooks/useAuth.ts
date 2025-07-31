@@ -232,9 +232,6 @@ export const useAuth = () => {
       
       // Clear state immediately
       clearAuthState();
-      
-      // Redirect to home page
-      window.location.href = '/';
     } catch (error) {
       console.error('useAuth - Sign out error:', error);
       
@@ -242,7 +239,8 @@ export const useAuth = () => {
       localStorage.clear();
       sessionStorage.clear();
       clearAuthState();
-      window.location.href = '/';
+    } finally {
+      setLoading(false);
     }
   };
 
