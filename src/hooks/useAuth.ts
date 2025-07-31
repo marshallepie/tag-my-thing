@@ -20,6 +20,18 @@ export const useAuth = () => {
     initialized: false,
   });
 
+  // Update user activity when auth state changes
+  const updateUserActivity = useCallback(async () => {
+    try {
+      const { error } = await supabase.rpc('update_user_activity');
+      if (error) {
+        console.error('Error updating user activity:', error);
+      }
+    } catch (error: any) {
+      console.error('Error updating user activity:', error);
+    }
+  }, []);
+
   // Fetch user profile from database
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
@@ -77,6 +89,9 @@ export const useAuth = () => {
           full_name: data.full_name,
           is_business_user: data.is_business_user
         });
+        
+        // Update user activity when profile is successfully fetched
+        updateUserActivity();
       } else {
         console.log('useAuth - fetchProfile - No profile found for userId:', userId);
       }
@@ -103,7 +118,7 @@ export const useAuth = () => {
       });
       return null;
     }
-  }, []);
+  }, [updateUserActivity]);
 
   // Handle authentication state changes
   const handleAuthStateChange = useCallback(async (event: string, session: any) => {

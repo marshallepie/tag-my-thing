@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Wallet, Package, Users, TrendingUp, Plus } from 'lucide-react';
+import { Camera, Wallet, Package, Users, TrendingUp, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
+import { useNOKAssignments } from '../hooks/useNOKAssignments';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
@@ -11,6 +12,7 @@ import { Layout } from '../components/layout/Layout';
 export const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const { balance, transactions } = useTokens();
+  const { stats: nokStats, loading: nokLoading } = useNOKAssignments();
 
   const quickActions = [
     {
@@ -28,10 +30,10 @@ export const Dashboard: React.FC = () => {
       color: 'bg-secondary-600',
     },
     {
-      title: 'Referral Program',
-      description: 'Earn tokens by referring friends',
-      icon: <Users className="h-8 w-8" />,
-      link: '/referrals',
+      title: 'Next of Kin',
+      description: 'Manage your digital legacy',
+      icon: <Shield className="h-8 w-8" />,
+      link: '/nok',
       color: 'bg-accent-600',
     },
   ];
@@ -56,7 +58,7 @@ export const Dashboard: React.FC = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -101,18 +103,84 @@ export const Dashboard: React.FC = () => {
             <Card>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingUp className="h-8 w-8 text-success-600" />
+                  <ArrowLeft className="h-8 w-8 text-accent-600" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Plan</h3>
-                  <p className="text-2xl font-bold text-success-600 capitalize">
-                    {profile?.subscription_plan}
+                  <h3 className="text-lg font-medium text-gray-900">Incoming NOK</h3>
+                  <p className="text-2xl font-bold text-accent-600">
+                    {nokLoading ? '...' : nokStats.incoming_count}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card>
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <ArrowRight className="h-8 w-8 text-success-600" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Outgoing NOK</h3>
+                  <p className="text-2xl font-bold text-success-600">
+                    {nokLoading ? '...' : nokStats.outgoing_count}
                   </p>
                 </div>
               </div>
             </Card>
           </motion.div>
         </div>
+
+        {/* NOK Overview Section */}
+        {!nokLoading && (nokStats.incoming_count > 0 || nokStats.outgoing_count > 0 || nokStats.upcoming_dms_count > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-8"
+          >
+            <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 border-primary-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                    <Shield className="h-5 w-5 mr-2 text-primary-600" />
+                    Next of Kin Overview
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <ArrowLeft className="h-4 w-4 text-secondary-600" />
+                      <span className="text-gray-600">Incoming:</span>
+                      <span className="font-semibold text-gray-900">{nokStats.incoming_count}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <ArrowRight className="h-4 w-4 text-accent-600" />
+                      <span className="text-gray-600">Outgoing:</span>
+                      <span className="font-semibold text-gray-900">{nokStats.outgoing_count}</span>
+                    </div>
+                    {nokStats.upcoming_dms_count > 0 && (
+                      <div className="flex items-center space-x-2">
+                        <Timer className="h-4 w-4 text-warning-600" />
+                        <span className="text-gray-600">Upcoming DMS:</span>
+                        <span className="font-semibold text-warning-700">{nokStats.upcoming_dms_count}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <Link to="/nok">
+                  <Button variant="outline" size="sm">
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage NOK
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
@@ -124,7 +192,7 @@ export const Dashboard: React.FC = () => {
                   key={action.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
                 >
                   <Link to={action.link}>
                     <Card hover className="text-center p-6 h-full">
@@ -143,7 +211,7 @@ export const Dashboard: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.9 }}
             >
               <Card className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
                 <h3 className="text-xl font-semibold mb-2">Ready to start tagging?</h3>

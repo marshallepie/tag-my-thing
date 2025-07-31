@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2, Eye } from 'lucide-react';
+import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2, Eye, Timer, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { Modal } from '../ui/Modal';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
+import { useNOKAssignments } from '../../hooks/useNOKAssignments';
 import { calculateTokens, formatFileSize, formatDuration, type TokenCalculationResult } from '../../lib/tokenCalculator';
+import toast from 'react-hot-toast';
 
 interface MediaFile {
   file: File;
@@ -29,6 +33,16 @@ export interface AssetFormData {
   estimatedValue: number;
   location: string;
   assignNOK: boolean;
+  selectedNOKId: string;
+  dmsYears: number;
+}
+
+interface NextOfKin {
+  id: string;
+  name: string;
+  email: string;
+  relationship: string;
+  status: 'pending' | 'verified' | 'declined';
 }
 
 export const TagAssetForm: React.FC<TagAssetFormProps> = ({
@@ -45,11 +59,18 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
     estimatedValue: 0,
     location: '',
     assignNOK: false,
+    selectedNOKId: '',
+    dmsYears: 1,
   });
   const [tagInput, setTagInput] = useState('');
   const [tokenCalculation, setTokenCalculation] = useState<TokenCalculationResult | null>(null);
   const [calculationLoading, setCalculationLoading] = useState(true);
   const [selectedMediaForPreview, setSelectedMediaForPreview] = useState<MediaFile | null>(null);
+  const [nokList, setNokList] = useState<NextOfKin[]>([]);
+  const [nokLoading, setNokLoading] = useState(false);
+
+  const { user } = useAuth();
+  const { assignNOKToAsset } = useNOKAssignments();
 
   // Calculate tokens when component mounts or media files change
   useEffect(() => {
@@ -76,11 +97,43 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
     }
   }, [mediaFiles]);
 
+  // Fetch NOK list when component mounts
+  useEffect(() => {
+    const fetchNOKList = async () => {
+      if (!user) return;
+
+      setNokLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('next_of_kin')
+          .select('id, name, email, relationship, status')
+          .eq('user_id', user.id)
+          .eq('status', 'verified') // Only show verified NOKs for assignment
+          .order('name');
+
+        if (error) throw error;
+        setNokList(data || []);
+      } catch (error: any) {
+        console.error('Error fetching NOK list:', error);
+      } finally {
+        setNokLoading(false);
+      }
+    };
+
+    fetchNOKList();
+  }, [user]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (tokenCalculation) {
-      onSubmit(formData, tokenCalculation);
+    if (!tokenCalculation) return;
+
+    // If NOK assignment is enabled, validate selection
+    if (formData.assignNOK && !formData.selectedNOKId) {
+      toast.error('Please select a Next of Kin to assign this asset to');
+      return;
     }
+
+    onSubmit(formData, tokenCalculation);
   };
 
   const handleChange = (field: keyof AssetFormData, value: any) => {
@@ -415,18 +468,18 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
               <div>
                 <h4 className="font-medium text-gray-900">Assign Next of Kin</h4>
                 <p className="text-sm text-gray-600">
-                  Allow someone to access this asset in the future
+                  Allow someone to access this asset with Dead Man's Switch protection
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => handleChange('assignNOK', !formData.assignNOK)}
-              disabled={true} // Grayed out initially as per requirements
+              disabled={nokList.length === 0}
               className={`
                 relative inline-flex h-6 w-11 items-center rounded-full transition-colors
                 ${formData.assignNOK ? 'bg-primary-600' : 'bg-gray-300'}
-                ${true ? 'opacity-50 cursor-not-allowed' : ''}
+                ${nokList.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}
             >
               <span
@@ -437,6 +490,83 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
               />
             </button>
           </div>
+
+          {/* NOK Assignment Details */}
+          {formData.assignNOK && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-4 p-4 bg-primary-50 border border-primary-200 rounded-lg"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Next of Kin *
+                </label>
+                {nokLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                  </div>
+                ) : nokList.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-600 mb-2">No verified Next of Kin available</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open('/nok', '_blank')}
+                    >
+                      Add Next of Kin
+                    </Button>
+                  </div>
+                ) : (
+                  <select
+                    value={formData.selectedNOKId}
+                    onChange={(e) => handleChange('selectedNOKId', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required={formData.assignNOK}
+                  >
+                    <option value="">Choose Next of Kin</option>
+                    {nokList.map(nok => (
+                      <option key={nok.id} value={nok.id}>
+                        {nok.name} ({nok.relationship})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dead Man's Switch Period
+                </label>
+                <select
+                  value={formData.dmsYears}
+                  onChange={(e) => handleChange('dmsYears', parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value={1}>1 Year</option>
+                  <option value={2}>2 Years</option>
+                  <option value={3}>3 Years</option>
+                  <option value={4}>4 Years</option>
+                  <option value={5}>5 Years</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  If you don't log in for this period, your selected Next of Kin will gain access to this asset.
+                </p>
+              </div>
+
+              <div className="bg-warning-50 border border-warning-200 rounded-lg p-3">
+                <div className="flex items-start">
+                  <Timer className="h-4 w-4 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <div className="text-xs text-warning-700">
+                    <p className="font-medium mb-1">Privacy Protection</p>
+                    <p>Your Next of Kin will only know they've been assigned without seeing asset details until the Dead Man's Switch is triggered.</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Submit Buttons */}
           <div className="flex space-x-3 pt-4">

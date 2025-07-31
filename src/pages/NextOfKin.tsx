@@ -19,10 +19,19 @@ import {
   Search,
   Filter,
   Send,
-  AlertCircle
+  AlertCircle,
+  ArrowRight,
+  ArrowLeft,
+  Timer,
+  Zap,
+  RefreshCw,
+  Package,
+  Target,
+  Share2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { useNOKAssignments } from '../hooks/useNOKAssignments';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -43,6 +52,13 @@ interface NextOfKin {
   updated_at: string;
 }
 
+interface NOKFormData {
+  name: string;
+  email: string;
+  phone: string;
+  relationship: string;
+}
+
 interface Asset {
   id: string;
   title: string;
@@ -50,13 +66,6 @@ interface Asset {
   media_url: string;
   privacy: 'private' | 'public';
   created_at: string;
-}
-
-interface NOKFormData {
-  name: string;
-  email: string;
-  phone: string;
-  relationship: string;
 }
 
 export const NextOfKin: React.FC = () => {
@@ -67,8 +76,12 @@ export const NextOfKin: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showMassAssignModal, setShowMassAssignModal] = useState(false);
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [showIncomingModal, setShowIncomingModal] = useState(false);
+  const [showOutgoingModal, setShowOutgoingModal] = useState(false);
   const [selectedNOK, setSelectedNOK] = useState<NextOfKin | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [formData, setFormData] = useState<NOKFormData>({
     name: '',
     email: '',
@@ -78,8 +91,22 @@ export const NextOfKin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'verified' | 'declined'>('all');
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [massAssignLoading, setMassAssignLoading] = useState(false);
+  const [reassignLoading, setReassignLoading] = useState(false);
+  const [selectedDMSYears, setSelectedDMSYears] = useState(1);
+  const [activeTab, setActiveTab] = useState<'nok-list' | 'incoming' | 'outgoing'>('nok-list');
   
   const { user } = useAuth();
+  const {
+    incomingAssignments,
+    outgoingAssignments,
+    stats,
+    loading: assignmentsLoading,
+    assignNOKToAsset,
+    massAssignAssetsToNOK,
+    reassignIncomingAssignment,
+    refreshAssignments
+  } = useNOKAssignments();
 
   useEffect(() => {
     if (user) {
@@ -239,6 +266,48 @@ export const NextOfKin: React.FC = () => {
     }
   };
 
+  const handleMassAssign = async () => {
+    if (!selectedNOK) return;
+
+    setMassAssignLoading(true);
+    try {
+      const dmsDate = new Date();
+      dmsDate.setFullYear(dmsDate.getFullYear() + selectedDMSYears);
+
+      const success = await massAssignAssetsToNOK(selectedNOK.id, dmsDate);
+      if (success) {
+        setShowMassAssignModal(false);
+        setSelectedNOK(null);
+        await refreshAssignments();
+      }
+    } catch (error: any) {
+      console.error('Error mass assigning:', error);
+      toast.error('Failed to mass assign assets');
+    } finally {
+      setMassAssignLoading(false);
+    }
+  };
+
+  const handleReassign = async () => {
+    if (!selectedAssignment || !selectedNOK) return;
+
+    setReassignLoading(true);
+    try {
+      const success = await reassignIncomingAssignment(selectedAssignment.assignment_id, selectedNOK.id);
+      if (success) {
+        setShowReassignModal(false);
+        setSelectedAssignment(null);
+        setSelectedNOK(null);
+        await refreshAssignments();
+      }
+    } catch (error: any) {
+      console.error('Error reassigning:', error);
+      toast.error('Failed to reassign assignment');
+    } finally {
+      setReassignLoading(false);
+    }
+  };
+
   const openEditModal = (nok: NextOfKin) => {
     setSelectedNOK(nok);
     setFormData({
@@ -253,6 +322,17 @@ export const NextOfKin: React.FC = () => {
   const openDeleteModal = (nok: NextOfKin) => {
     setSelectedNOK(nok);
     setShowDeleteModal(true);
+  };
+
+  const openMassAssignModal = (nok: NextOfKin) => {
+    setSelectedNOK(nok);
+    setSelectedDMSYears(1);
+    setShowMassAssignModal(true);
+  };
+
+  const openReassignModal = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setShowReassignModal(true);
   };
 
   const getStatusIcon = (status: string) => {
@@ -281,7 +361,46 @@ export const NextOfKin: React.FC = () => {
     }
   };
 
-  const stats = [
+  const getDMSStatusIcon = (status: string) => {
+    switch (status) {
+      case 'triggered':
+        return <Zap className="h-4 w-4 text-warning-600" />;
+      case 'active':
+        return <Timer className="h-4 w-4 text-primary-600" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 text-gray-600" />;
+      case 'cancelled':
+        return <XCircle className="h-4 w-4 text-error-600" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const getDMSStatusColor = (status: string) => {
+    switch (status) {
+      case 'triggered':
+        return 'bg-warning-100 text-warning-800';
+      case 'active':
+        return 'bg-primary-100 text-primary-800';
+      case 'pending':
+        return 'bg-gray-100 text-gray-800';
+      case 'cancelled':
+        return 'bg-error-100 text-error-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDaysUntilDMS = (days: number) => {
+    if (days < 0) return 'Overdue';
+    if (days === 0) return 'Today';
+    if (days === 1) return '1 day';
+    if (days < 30) return `${days} days`;
+    if (days < 365) return `${Math.round(days / 30)} months`;
+    return `${Math.round(days / 365)} years`;
+  };
+
+  const statsData = [
     {
       title: 'Total NOK',
       value: nokList.length.toString(),
@@ -289,22 +408,22 @@ export const NextOfKin: React.FC = () => {
       color: 'text-primary-600'
     },
     {
-      title: 'Verified',
-      value: nokList.filter(nok => nok.status === 'verified').length.toString(),
-      icon: <CheckCircle className="h-8 w-8 text-success-600" />,
-      color: 'text-success-600'
-    },
-    {
-      title: 'Pending',
-      value: nokList.filter(nok => nok.status === 'pending').length.toString(),
-      icon: <Clock className="h-8 w-8 text-warning-600" />,
-      color: 'text-warning-600'
-    },
-    {
-      title: 'Assets',
-      value: assets.length.toString(),
-      icon: <Shield className="h-8 w-8 text-secondary-600" />,
+      title: 'Incoming NOK',
+      value: stats.incoming_count.toString(),
+      icon: <ArrowLeft className="h-8 w-8 text-secondary-600" />,
       color: 'text-secondary-600'
+    },
+    {
+      title: 'Outgoing NOK',
+      value: stats.outgoing_count.toString(),
+      icon: <ArrowRight className="h-8 w-8 text-accent-600" />,
+      color: 'text-accent-600'
+    },
+    {
+      title: 'Upcoming DMS',
+      value: stats.upcoming_dms_count.toString(),
+      icon: <Timer className="h-8 w-8 text-warning-600" />,
+      color: 'text-warning-600'
     }
   ];
 
@@ -321,13 +440,13 @@ export const NextOfKin: React.FC = () => {
     'Other'
   ];
 
-  if (loading) {
+  if (loading || assignmentsLoading) {
     return (
       <Layout>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading Next of Kin...</p>
+            <p className="text-gray-600">Loading Next of Kin data...</p>
           </div>
         </div>
       </Layout>
@@ -342,18 +461,28 @@ export const NextOfKin: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Next of Kin</h1>
             <p className="text-gray-600">
-              Manage who can access your assets in the future
+              Manage who can access your assets with Dead Man's Switch protection
             </p>
           </div>
-          <Button onClick={() => setShowAddModal(true)} className="mt-4 sm:mt-0">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Next of Kin
-          </Button>
+          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+            <Button
+              variant="outline"
+              onClick={refreshAssignments}
+              disabled={assignmentsLoading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${assignmentsLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button onClick={() => setShowAddModal(true)}>
+              <Plus className="h-5 w-5 mr-2" />
+              Add Next of Kin
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsData.map((stat, index) => (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
@@ -375,6 +504,37 @@ export const NextOfKin: React.FC = () => {
           ))}
         </div>
 
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8 px-6">
+              {[
+                { id: 'nok-list', name: 'Next of Kin List', icon: <Users className="h-5 w-5" /> },
+                { id: 'incoming', name: `Incoming (${stats.incoming_count})`, icon: <ArrowLeft className="h-5 w-5" /> },
+                { id: 'outgoing', name: `Outgoing (${stats.outgoing_count})`, icon: <ArrowRight className="h-5 w-5" /> }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`
+                    flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                    ${activeTab === tab.id
+                      ? 'border-primary-500 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  {tab.icon}
+                  <span>{tab.name}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'nok-list' && (
+          <>
         {nokList.length === 0 ? (
           /* Empty State */
           <motion.div
@@ -387,7 +547,7 @@ export const NextOfKin: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">No Next of Kin Added</h2>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              Secure your digital legacy by adding trusted people who can access your assets when needed.
+              Secure your digital legacy by adding trusted people who can access your assets with Dead Man's Switch protection.
             </p>
             <Button size="lg" onClick={() => setShowAddModal(true)}>
               <UserPlus className="h-5 w-5 mr-2" />
@@ -477,23 +637,36 @@ export const NextOfKin: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex space-x-2">
+                      <div className="space-y-2">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditModal(nok)}
+                            className="flex-1"
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openDeleteModal(nok)}
+                            className="text-error-600 hover:text-error-700 hover:bg-error-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        {/* Mass Assign Button */}
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => openEditModal(nok)}
-                          className="flex-1"
+                          onClick={() => openMassAssignModal(nok)}
+                          className="w-full text-primary-600 hover:text-primary-700 hover:bg-primary-50"
                         >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openDeleteModal(nok)}
-                          className="text-error-600 hover:text-error-700 hover:bg-error-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
+                          <Package className="h-4 w-4 mr-1" />
+                          Assign All Assets
                         </Button>
                       </div>
 
@@ -514,6 +687,164 @@ export const NextOfKin: React.FC = () => {
               </div>
             )}
           </>
+        )}
+          </>
+        )}
+
+        {/* Incoming Assignments Tab */}
+        {activeTab === 'incoming' && (
+          <div className="space-y-6">
+            {incomingAssignments.length === 0 ? (
+              <div className="text-center py-16">
+                <ArrowLeft className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Incoming Assignments</h3>
+                <p className="text-gray-600">No one has assigned you as their Next of Kin yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {incomingAssignments.map((assignment, index) => (
+                  <motion.div
+                    key={assignment.assignment_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="h-full">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {assignment.can_view_details ? assignment.asset_title : 'Asset Assignment'}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            From: {assignment.can_view_details ? assignment.assigner_full_name || assignment.assigner_email : 'Someone'}
+                          </p>
+                        </div>
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getDMSStatusColor(assignment.status)}`}>
+                          {getDMSStatusIcon(assignment.status)}
+                          <span className="ml-1 capitalize">{assignment.status}</span>
+                        </div>
+                      </div>
+
+                      {assignment.can_view_details && assignment.asset_media_url && (
+                        <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
+                          {assignment.asset_media_type === 'video' ? (
+                            <video
+                              src={assignment.asset_media_url}
+                              className="w-full h-full object-cover"
+                              muted
+                            />
+                          ) : (
+                            <img
+                              src={assignment.asset_media_url}
+                              alt={assignment.asset_title}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+                      )}
+
+                      <div className="space-y-3 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Timer className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span>DMS Date: {format(new Date(assignment.dms_date), 'MMM d, yyyy')}</span>
+                        </div>
+                        {assignment.access_granted_at && (
+                          <div className="flex items-center text-sm text-success-600">
+                            <Zap className="h-4 w-4 mr-2 flex-shrink-0" />
+                            <span>Access granted: {format(new Date(assignment.access_granted_at), 'MMM d, yyyy')}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {assignment.status !== 'triggered' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openReassignModal(assignment)}
+                          className="w-full"
+                        >
+                          <Share2 className="h-4 w-4 mr-1" />
+                          Reassign to Someone Else
+                        </Button>
+                      )}
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Outgoing Assignments Tab */}
+        {activeTab === 'outgoing' && (
+          <div className="space-y-6">
+            {outgoingAssignments.length === 0 ? (
+              <div className="text-center py-16">
+                <ArrowRight className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Outgoing Assignments</h3>
+                <p className="text-gray-600">You haven't assigned any Next of Kin to your assets yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {outgoingAssignments.map((assignment, index) => (
+                  <motion.div
+                    key={assignment.assignment_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="h-full">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1">{assignment.asset_title}</h3>
+                          <p className="text-sm text-gray-600">
+                            Assigned to: {assignment.nok_name} ({assignment.nok_relationship})
+                          </p>
+                        </div>
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getDMSStatusColor(assignment.status)}`}>
+                          {getDMSStatusIcon(assignment.status)}
+                          <span className="ml-1 capitalize">{assignment.status}</span>
+                        </div>
+                      </div>
+
+                      <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
+                        {assignment.asset_media_type === 'video' ? (
+                          <video
+                            src={assignment.asset_media_url}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={assignment.asset_media_url}
+                            alt={assignment.asset_title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Timer className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span>DMS: {formatDaysUntilDMS(assignment.days_until_dms)}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{assignment.nok_email}</span>
+                        </div>
+                        {assignment.access_granted_at && (
+                          <div className="flex items-center text-sm text-success-600">
+                            <Zap className="h-4 w-4 mr-2 flex-shrink-0" />
+                            <span>Access granted: {format(new Date(assignment.access_granted_at), 'MMM d, yyyy')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Add NOK Modal */}
@@ -572,12 +903,12 @@ export const NextOfKin: React.FC = () => {
               </select>
             </div>
 
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
               <div className="flex items-start">
-                <Shield className="h-5 w-5 text-primary-600 mt-0.5 mr-2 flex-shrink-0" />
-                <div className="text-sm text-primary-700">
-                  <p className="font-medium mb-1">Privacy & Security</p>
-                  <p>This person will receive an email to verify their identity before gaining access to any assigned assets.</p>
+                <Timer className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                <div className="text-sm text-warning-700">
+                  <p className="font-medium mb-1">Dead Man's Switch Protection</p>
+                  <p>This person will only gain access to assigned assets if you don't log in for the specified time period. They won't see asset details until then.</p>
                 </div>
               </div>
             </div>
@@ -603,6 +934,162 @@ export const NextOfKin: React.FC = () => {
               </Button>
             </div>
           </form>
+        </Modal>
+
+        {/* Mass Assign Modal */}
+        <Modal
+          isOpen={showMassAssignModal}
+          onClose={() => {
+            setShowMassAssignModal(false);
+            setSelectedNOK(null);
+            setSelectedDMSYears(1);
+          }}
+          title="Mass Assign All Assets"
+        >
+          {selectedNOK && (
+            <div className="space-y-4">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                    {selectedNOK.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{selectedNOK.name}</h3>
+                    <p className="text-sm text-gray-600">{selectedNOK.email}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dead Man's Switch Period
+                </label>
+                <select
+                  value={selectedDMSYears}
+                  onChange={(e) => setSelectedDMSYears(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value={1}>1 Year</option>
+                  <option value={2}>2 Years</option>
+                  <option value={3}>3 Years</option>
+                  <option value={4}>4 Years</option>
+                  <option value={5}>5 Years</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  If you don't log in for this period, {selectedNOK.name} will gain access to all your assets.
+                </p>
+              </div>
+
+              <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <Package className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <div className="text-sm text-warning-700">
+                    <p className="font-medium mb-1">Mass Assignment</p>
+                    <p>This will assign ALL your current assets ({assets.length} assets) to {selectedNOK.name}. They will only gain access if the Dead Man's Switch is triggered.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowMassAssignModal(false);
+                    setSelectedNOK(null);
+                    setSelectedDMSYears(1);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleMassAssign}
+                  loading={massAssignLoading}
+                  className="flex-1"
+                >
+                  <Package className="h-4 w-4 mr-2" />
+                  Assign All Assets
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Reassign Modal */}
+        <Modal
+          isOpen={showReassignModal}
+          onClose={() => {
+            setShowReassignModal(false);
+            setSelectedAssignment(null);
+            setSelectedNOK(null);
+          }}
+          title="Reassign Assignment"
+        >
+          {selectedAssignment && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-medium text-gray-900 mb-2">Current Assignment</h3>
+                <p className="text-sm text-gray-600">
+                  You are assigned as Next of Kin for an asset from{' '}
+                  {selectedAssignment.can_view_details ? selectedAssignment.assigner_full_name || selectedAssignment.assigner_email : 'someone'}.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reassign to Next of Kin
+                </label>
+                <select
+                  value={selectedNOK?.id || ''}
+                  onChange={(e) => {
+                    const nok = nokList.find(n => n.id === e.target.value);
+                    setSelectedNOK(nok || null);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">Select Next of Kin</option>
+                  {nokList.filter(nok => nok.status === 'verified').map(nok => (
+                    <option key={nok.id} value={nok.id}>
+                      {nok.name} ({nok.relationship})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <Share2 className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                  <div className="text-sm text-warning-700">
+                    <p className="font-medium mb-1">Reassignment</p>
+                    <p>This will transfer the Next of Kin responsibility to the selected person. The original Dead Man's Switch date will remain the same.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowReassignModal(false);
+                    setSelectedAssignment(null);
+                    setSelectedNOK(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleReassign}
+                  loading={reassignLoading}
+                  disabled={!selectedNOK}
+                  className="flex-1"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Reassign
+                </Button>
+              </div>
+            </div>
+          )}
         </Modal>
 
         {/* Edit NOK Modal */}
