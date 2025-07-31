@@ -119,6 +119,7 @@ COMMENT ON COLUMN asset_nok_assignments.original_assigner_user_id IS 'The origin
 
 -- Create a trigger to update last_activity_at on user_profiles when a user logs in
 -- This requires a function to be created first
+DROP FUNCTION IF EXISTS update_last_activity_at() CASCADE;
 CREATE OR REPLACE FUNCTION update_last_activity_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -141,6 +142,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 --   FOR EACH ROW EXECUTE FUNCTION public.update_last_activity_at();
 
 -- Function to update last_activity_at for the current user
+DROP FUNCTION IF EXISTS update_user_activity() CASCADE;
 CREATE OR REPLACE FUNCTION update_user_activity()
 RETURNS void AS $$
 BEGIN
@@ -151,6 +153,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to assign NOK to an asset with DMS date
+DROP FUNCTION IF EXISTS assign_nok_to_asset_with_dms(uuid, uuid, timestamptz) CASCADE;
 CREATE OR REPLACE FUNCTION assign_nok_to_asset_with_dms(
   p_asset_id uuid,
   p_nok_id uuid,
@@ -183,6 +186,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to mass assign all user's assets to a single NOK
+DROP FUNCTION IF EXISTS mass_assign_assets_to_nok(uuid, timestamptz) CASCADE;
 CREATE OR REPLACE FUNCTION mass_assign_assets_to_nok(
   p_nok_id uuid,
   p_dms_date timestamptz DEFAULT (now() + interval '1 year')
@@ -209,6 +213,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function for a designated NOK to reassign an incoming assignment
+DROP FUNCTION IF EXISTS reassign_incoming_nok_assignment(uuid, uuid) CASCADE;
 CREATE OR REPLACE FUNCTION reassign_incoming_nok_assignment(
   p_assignment_id uuid,
   p_new_nok_id uuid
@@ -247,6 +252,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get assignments where the current user is the designated NOK
+DROP FUNCTION IF EXISTS get_user_incoming_nok_assignments() CASCADE;
 CREATE OR REPLACE FUNCTION get_user_incoming_nok_assignments()
 RETURNS TABLE(
   assignment_id uuid,
@@ -300,6 +306,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get assignments where the current user assigned others as NOK
+DROP FUNCTION IF EXISTS get_user_outgoing_nok_assignments() CASCADE;
 CREATE OR REPLACE FUNCTION get_user_outgoing_nok_assignments()
 RETURNS TABLE(
   assignment_id uuid,
@@ -338,6 +345,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Core DMS trigger function
+DROP FUNCTION IF EXISTS check_and_trigger_dms() CASCADE;
 CREATE OR REPLACE FUNCTION check_and_trigger_dms()
 RETURNS jsonb AS $$
 DECLARE
@@ -390,6 +398,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get NOK assignment statistics for dashboard
+DROP FUNCTION IF EXISTS get_nok_assignment_stats() CASCADE;
 CREATE OR REPLACE FUNCTION get_nok_assignment_stats()
 RETURNS jsonb AS $$
 DECLARE
