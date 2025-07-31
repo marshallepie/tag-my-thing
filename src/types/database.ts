@@ -351,6 +351,52 @@ export interface Database {
           metadata?: Record<string, any> | null;
         };
       };
+      bug_reports: {
+        Row: {
+          id: string;
+          created_at: string;
+          updated_at: string;
+          user_id: string | null;
+          user_email: string | null;
+          user_name: string | null;
+          error_message: string;
+          console_logs: string | null;
+          screenshot_url: string | null;
+          page_url: string | null;
+          user_agent: string | null;
+          metadata: Record<string, any>;
+          status: 'new' | 'triaged' | 'in_progress' | 'resolved' | 'wont_fix';
+          priority: 'low' | 'medium' | 'high' | 'critical';
+          admin_notes: string | null;
+        };
+        Insert: {
+          user_id?: string | null;
+          user_email?: string | null;
+          user_name?: string | null;
+          error_message: string;
+          console_logs?: string | null;
+          screenshot_url?: string | null;
+          page_url?: string | null;
+          user_agent?: string | null;
+          metadata?: Record<string, any>;
+          status?: 'new' | 'triaged' | 'in_progress' | 'resolved' | 'wont_fix';
+          priority?: 'low' | 'medium' | 'high' | 'critical';
+          admin_notes?: string | null;
+        };
+        Update: {
+          user_email?: string | null;
+          user_name?: string | null;
+          error_message?: string;
+          console_logs?: string | null;
+          screenshot_url?: string | null;
+          page_url?: string | null;
+          user_agent?: string | null;
+          metadata?: Record<string, any>;
+          status?: 'new' | 'triaged' | 'in_progress' | 'resolved' | 'wont_fix';
+          priority?: 'low' | 'medium' | 'high' | 'critical';
+          admin_notes?: string | null;
+        };
+      };
       products: {
         Row: {
           id: string;

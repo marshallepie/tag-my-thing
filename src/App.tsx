@@ -31,6 +31,7 @@ import { ProductVerificationPage } from './pages/ProductVerificationPage';
 import { PublicAssetsPage } from './pages/PublicAssetsPage';
 import { BusinessAuth } from './pages/BusinessAuth';
 import { Dao } from './pages/Dao';
+import { BugReports } from './pages/BugReports';
 import { useAuth } from './hooks/useAuth';
 
 // Loading component for better UX
@@ -433,6 +434,18 @@ function App() {
                 <SafeRoute>
                   <AdminInfluencerRoute>
                     <AdminInfluencerDashboard />
+                  </AdminInfluencerRoute>
+                </SafeRoute>
+              }
+            />
+
+            {/* Bug Reports Route (Admin Influencer Only) */}
+            <Route
+              path="/bug-reports"
+              element={
+                <SafeRoute>
+                  <AdminInfluencerRoute>
+                    <BugReports />
                   </AdminInfluencerRoute>
                 </SafeRoute>
               }

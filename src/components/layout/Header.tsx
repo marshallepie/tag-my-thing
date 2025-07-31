@@ -54,6 +54,7 @@ export const Header: React.FC = () => {
 
   if (isAdminInfluencer) {
     navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
+    navigation.push({ name: 'Bug Reports', href: '/bug-reports' });
   } else if (isAdmin) {
     navigation.push({ name: 'Admin', href: '/admin' });
   } else if (isModerator) {
