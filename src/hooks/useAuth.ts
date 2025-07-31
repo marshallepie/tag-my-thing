@@ -22,24 +22,62 @@ export const useAuth = () => {
 
   // Fetch user profile from database
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+    console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
+    console.log('useAuth - fetchProfile - Current timestamp:', new Date().toISOString());
+    
     try {
-      console.log('useAuth - Fetching profile for user:', userId);
+      console.log('useAuth - fetchProfile - About to execute Supabase query');
+      console.log('useAuth - fetchProfile - Query details: SELECT * FROM user_profiles WHERE id =', userId);
       
+      const queryStartTime = performance.now();
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
+      
+      const queryEndTime = performance.now();
+      const queryDuration = queryEndTime - queryStartTime;
+      console.log('useAuth - fetchProfile - Query completed in', queryDuration.toFixed(2), 'ms');
 
+      console.log('useAuth - fetchProfile - Raw query response:', {
+        data: data,
+        error: error,
+        hasData: !!data,
+        hasError: !!error
+      });
+      
       if (error) {
-        console.error('useAuth - Profile fetch error:', error);
+        console.error('useAuth - fetchProfile ERROR - Supabase query failed:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         return null;
       }
 
-      console.log('useAuth - Profile fetched:', data ? 'success' : 'not found');
+      if (data) {
+        console.log('useAuth - fetchProfile SUCCESS - Profile found:', {
+          id: data.id,
+          email: data.email,
+          role: data.role,
+          full_name: data.full_name,
+          is_business_user: data.is_business_user
+        });
+      } else {
+        console.log('useAuth - fetchProfile - No profile found for userId:', userId);
+      }
+      
+      console.log('useAuth - fetchProfile EXIT - Returning:', data ? 'profile object' : 'null');
       return data;
     } catch (error) {
-      console.error('useAuth - Profile fetch exception:', error);
+      console.error('useAuth - fetchProfile EXCEPTION - Unexpected error:', {
+        error: error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        userId: userId
+      });
       return null;
     }
   }, []);
@@ -67,9 +105,16 @@ export const useAuth = () => {
 
       if (['INITIAL_SESSION', 'SIGNED_IN', 'TOKEN_REFRESHED'].includes(event)) {
         console.log('useAuth - Processing authenticated session');
+        console.log('useAuth - Session user details:', {
+          id: session.user.id,
+          email: session.user.email,
+          created_at: session.user.created_at
+        });
         
         const user = session.user;
+        console.log('useAuth - About to call fetchProfile for user:', user.id);
         const profile = await fetchProfile(user.id);
+        console.log('useAuth - fetchProfile returned:', profile ? 'profile found' : 'null profile');
 
         setAuthState({
           user,
@@ -78,14 +123,22 @@ export const useAuth = () => {
           initialized: true,
         });
 
-        console.log('useAuth - Auth state updated:', {
+        console.log('useAuth - Auth state updated successfully:', {
           hasUser: !!user,
           hasProfile: !!profile,
-          isAuthenticated: !!(user && profile)
+          isAuthenticated: !!(user && profile),
+          profileRole: profile?.role,
+          profileEmail: profile?.email
         });
       }
     } catch (error) {
-      console.error('useAuth - Error handling auth state change:', error);
+      console.error('useAuth - CRITICAL ERROR in handleAuthStateChange:', {
+        event: event,
+        error: error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        hasSession: !!session,
+        sessionUserId: session?.user?.id
+      });
       setAuthState(prev => ({
         ...prev,
         loading: false,
