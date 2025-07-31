@@ -187,15 +187,12 @@ serve(async (req) => {
       .insert(bugReportRecord)
       .select()
       .single();
-        throw new Error(`Failed to upload screenshot: ${uploadError.message}`);
-      }
 
-    console.log('Bug report submitted successfully:', bugReport.id);
+    if (insertError) {
+      console.error('Database insert error:', insertError);
+      throw new Error(`Failed to save bug report: ${insertError.message}`);
+    }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      bugReportId: bugReport.id,
-      message: 'Bug report submitted successfully'
     console.log('Bug report submitted successfully:', bugReport.id);
 
     return new Response(JSON.stringify({ 
@@ -210,9 +207,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('Edge Function error:', error);
     return new Response(JSON.stringify({ 
-      error: error.message || 'Internal server error',
-      details: 'An unexpected error occurred while processing the bug report'
-    }), {
       error: error.message || 'Internal server error',
       details: 'An unexpected error occurred while processing the bug report'
     }), {
