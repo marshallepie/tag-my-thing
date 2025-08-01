@@ -28,6 +28,7 @@ export const Auth: React.FC = () => {
   }
 
   const handleSuccess = () => {
+    console.log('Auth page: handleSuccess called, navigating to dashboard');
     navigate('/dashboard', { replace: true });
   };
 

@@ -129,11 +129,13 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('useAuth: Auth state change detected. Event:', event, 'Session user:', session?.user?.id);
         if (!mountedRef.current) return;
 
         console.log('Auth state change:', event);
 
         if (event === 'SIGNED_OUT' || !session?.user) {
+          console.log('useAuth: Processing SIGNED_OUT event');
           setGlobalAuthState({
             user: null,
             profile: null,
@@ -145,6 +147,7 @@ export const useAuth = () => {
         }
 
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          console.log('useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
           setGlobalAuthState({ loading: true });
           setLocalState(globalAuthState);
 
@@ -153,12 +156,15 @@ export const useAuth = () => {
           
           const profile = await fetchProfile(session.user.id);
           
+          console.log('useAuth: Profile fetched:', profile?.email, 'Role:', profile?.role);
+          
           setGlobalAuthState({
             user: session.user,
             profile,
             loading: false,
             initialized: true,
           });
+          console.log('useAuth: Auth state updated after sign-in');
           setLocalState(globalAuthState);
         }
       }

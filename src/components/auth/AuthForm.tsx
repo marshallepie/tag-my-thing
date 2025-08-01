@@ -151,6 +151,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   };
 
   const handleSignin = async () => {
+    console.log('AuthForm: handleSignin called');
 
     const { data: auth, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
@@ -158,6 +159,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     });
 
     if (error) {
+      console.log('AuthForm: Sign-in error:', error);
       if (error.message.includes('Email not confirmed') || 
           error.message.includes('Email link is invalid or has expired') ||
           error.message.includes('signup_disabled')) {
@@ -166,10 +168,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw error;
     }
     
+    console.log('AuthForm: Sign-in successful, user:', auth.user?.id);
+    
     const pendingReferralCode = localStorage.getItem('pending_referral_code');
     const pendingUserId = localStorage.getItem('pending_referral_user_id');
     
     if (pendingReferralCode && pendingUserId === auth.user?.id) {
+      console.log('AuthForm: Processing pending referral code');
       try {
         await processReferralSignup(pendingReferralCode, auth.user.id);
         localStorage.removeItem('pending_referral_code');
@@ -178,6 +183,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         console.error('Referral processing failed:', referralError);
       }
     }
+    
+    console.log('AuthForm: Calling onSuccess for sign-in');
     // Redirect to check email page
     navigate('/check-email', { state: { email: formData.email } });
   };
