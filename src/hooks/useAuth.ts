@@ -46,7 +46,7 @@ export const useAuth = () => {
     console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
     console.log('useAuth - fetchProfile - Current timestamp:', new Date().toISOString());
     
-    // Create and store the fetch operation promise
+    // Create and store the fetch operation promise with proper timeout
     const fetchOperation = async (): Promise<UserProfile | null> => {
       try {
         console.log('useAuth - fetchProfile - About to execute Supabase query');
@@ -54,11 +54,22 @@ export const useAuth = () => {
         
         const queryStartTime = performance.now();
         
-        const { data, error } = await supabase
+        // Create a timeout promise that rejects after 15 seconds
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Profile fetch timeout after 15 seconds'));
+          }, 15000);
+        });
+        
+        // Create the actual query promise
+        const queryPromise = supabase
           .from('user_profiles')
           .select('*')
           .eq('id', userId)
           .maybeSingle();
+        
+        // Race the query against the timeout
+        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
         
         const queryEndTime = performance.now();
         const queryDuration = queryEndTime - queryStartTime;
@@ -99,6 +110,17 @@ export const useAuth = () => {
         console.log('useAuth - fetchProfile EXIT - Returning:', data ? 'profile object' : 'null');
         return data;
       } catch (error) {
+        // Check if this is a timeout error
+        if (error instanceof Error && error.message.includes('timeout')) {
+          console.error('useAuth - fetchProfile TIMEOUT - Query timed out after 15 seconds:', {
+            userId: userId,
+            error: error.message,
+            timestamp: new Date().toISOString()
+          });
+          // Return null to allow the app to continue without profile data
+          return null;
+        }
+        
         console.error('useAuth - fetchProfile EXCEPTION - Unexpected error:', {
           error: error,
           message: error instanceof Error ? error.message : 'Unknown error',
