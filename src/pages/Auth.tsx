@@ -30,16 +30,13 @@ export const Auth: React.FC = () => {
   const handleSuccess = () => {
     navigate('/dashboard', { replace: true });
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <motion.div
+    // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
+    // This function is no longer needed as AuthForm does not call onSuccess for signin.
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <AuthForm mode={mode} onSuccess={handleSuccess} />
+          <AuthForm mode={mode} />
           
           <div className="text-center mt-6">
             {mode === 'signin' ? (
