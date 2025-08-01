@@ -86,15 +86,20 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading, initialized } = useAuth();
 
+  console.log('ProtectedRoute - Auth state:', { isAuthenticated, loading, initialized });
+
   if (!initialized || loading) {
+    console.log('ProtectedRoute - Showing loading screen');
     return <LoadingScreen />;
   }
 
 
   if (!isAuthenticated) {
+    console.log('ProtectedRoute - Not authenticated, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
+  console.log('ProtectedRoute - Authenticated, rendering children');
   return <>{children}</>;
 };
 

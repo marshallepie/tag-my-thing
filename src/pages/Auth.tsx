@@ -26,11 +26,12 @@ export const Auth: React.FC = () => {
   }
 
   const handleSuccess = () => {
-    // Navigate to dashboard with delay to ensure auth state is ready
+    // Navigate to dashboard with longer delay to ensure auth state is ready
     console.log('Auth - Signup/signin successful, navigating to dashboard');
     setTimeout(() => {
-      navigate('/dashboard');
-    }, 100);
+      console.log('Auth - Executing navigation to dashboard');
+      navigate('/dashboard', { replace: true });
+    }, 1000);
   };
 
   return (
