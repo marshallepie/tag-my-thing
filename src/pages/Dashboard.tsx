@@ -22,17 +22,18 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchTotalAssets = async () => {
       if (!user) {
-        console.log('Dashboard - No user found, skipping asset fetch');
+        console.log('Dashboard - fetchTotalAssets - No user found, skipping asset fetch');
         setAssetsLoading(false);
         return;
       }
       try {
         setAssetsLoading(true);
-        console.log('Dashboard - Starting fetchTotalAssets for user:', user.id);
-        console.log('Dashboard - Calling get_user_asset_count RPC...');
+        console.log('Dashboard - fetchTotalAssets - Starting for user:', user.id);
+        console.log('Dashboard - fetchTotalAssets - About to call get_user_asset_count RPC...');
+        
         const { data, error } = await supabase.rpc('get_user_asset_count');
         
-        console.log('Dashboard - get_user_asset_count RPC response:', { 
+        console.log('Dashboard - fetchTotalAssets - get_user_asset_count RPC response:', { 
           data, 
           error, 
           dataType: typeof data,
@@ -42,19 +43,22 @@ export const Dashboard: React.FC = () => {
           errorDetails: error?.details
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Dashboard - fetchTotalAssets - RPC call failed with error:', error);
+          throw error;
+        }
         
-        console.log('Dashboard - Setting totalAssets to:', data || 0);
+        console.log('Dashboard - fetchTotalAssets - Setting totalAssets to:', data || 0);
         setTotalAssets(data || 0);
       } catch (error) {
-        console.error('Dashboard - Error fetching total assets:', {
+        console.error('Dashboard - fetchTotalAssets - Unexpected error:', {
           error,
           message: error instanceof Error ? error.message : 'Unknown error',
           stack: error instanceof Error ? error.stack : undefined
         });
         setTotalAssets(0); // Default to 0 on error
       } finally {
-        console.log('Dashboard - fetchTotalAssets completed, assetsLoading set to false');
+        console.log('Dashboard - fetchTotalAssets - Completed, setting assetsLoading to false');
         setAssetsLoading(false);
       }
     };

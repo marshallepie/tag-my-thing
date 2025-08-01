@@ -12,6 +12,9 @@ interface AuthState {
   initialized: boolean;
 }
 
+// Define this outside the hook to ensure it's truly global across all hook instances
+let authListenerInitialized = false;
+
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -22,8 +25,6 @@ export const useAuth = () => {
 
   // Ref to store ongoing profile fetch promise to prevent redundant calls
   const profileFetchPromiseRef = useRef<Promise<UserProfile | null> | null>(null);
-  // Ref to track if auth listener is already set up
-  const authListenerSetupRef = useRef(false);
   // Ref to track mounted state
   const mountedRef = useRef(true);
 
@@ -291,14 +292,14 @@ export const useAuth = () => {
 
   // Initialize authentication
   useEffect(() => {
-    // Prevent multiple initializations
-    if (authListenerSetupRef.current) {
-      console.log('useAuth - Auth listener already set up, skipping initialization');
+    // Use the module-level variable to prevent multiple initializations
+    if (authListenerInitialized) {
+      console.log('useAuth - Auth listener already set up globally, skipping initialization');
       return;
     }
     
-    console.log('useAuth - Initializing authentication');
-    authListenerSetupRef.current = true;
+    console.log('useAuth - Initializing authentication globally');
+    authListenerInitialized = true; // Mark as initialized
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -356,7 +357,7 @@ export const useAuth = () => {
     return () => {
       console.log('useAuth - Cleaning up auth listener');
       mountedRef.current = false;
-      authListenerSetupRef.current = false;
+      // Do NOT set authListenerInitialized to false here, as it's a global singleton
       subscription.unsubscribe();
     };
   }, [handleAuthStateChange]);
