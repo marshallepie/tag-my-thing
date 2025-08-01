@@ -151,7 +151,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   };
 
   const handleSignin = async () => {
-    console.log('AuthForm - Starting handleSignin');
 
     const { data: auth, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
@@ -159,48 +158,33 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     });
 
     if (error) {
-      console.error('AuthForm - Signin error:', error);
-      
-      // Intercept specific error for unconfirmed email
       if (error.message.includes('Email not confirmed') || 
           error.message.includes('Email link is invalid or has expired') ||
           error.message.includes('signup_disabled')) {
         throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
       }
-      
       throw error;
     }
     
-    // Check for pending referral processing after successful login
     const pendingReferralCode = localStorage.getItem('pending_referral_code');
     const pendingUserId = localStorage.getItem('pending_referral_user_id');
     
     if (pendingReferralCode && pendingUserId === auth.user?.id) {
-      console.log('AuthForm - Processing pending referral after email confirmation');
       try {
         await processReferralSignup(pendingReferralCode, auth.user.id);
         localStorage.removeItem('pending_referral_code');
         localStorage.removeItem('pending_referral_user_id');
       } catch (referralError) {
-        console.error('AuthForm - Referral processing failed:', referralError);
-        // Don't fail the signin if referral processing fails
+        console.error('Referral processing failed:', referralError);
       }
     }
     
-    console.log('AuthForm - Signin completed successfully');
     toast.success('Welcome back!');
-    
-    // The onAuthStateChange listener in useAuth will handle state updates
-    // Add a small delay to ensure the auth state is updated
-    setTimeout(() => {
-      onSuccess();
-    }, 1500);
-    console.log('AuthForm - Finished handleSignin');
+    onSuccess();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('AuthForm - Starting handleSubmit, mode:', mode);
     setLoading(true);
 
     try {
@@ -210,9 +194,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         await handleSignin();
       }
     } catch (error: any) {
-      console.error('AuthForm - Submit error:', error);
-      
-      // Better error handling
       let errorMessage = 'Authentication failed';
       
       if (error?.message) {
@@ -248,7 +229,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       toast.error(errorMessage);
     } finally {
       setLoading(false);
-      console.log('AuthForm - Finished handleSubmit');
     }
   };
 

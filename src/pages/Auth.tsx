@@ -10,40 +10,25 @@ export const Auth: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated, loading, initialized } = useAuth();
 
-  // Check if there's a referral code in the URL to determine initial mode
   const urlParams = new URLSearchParams(location.search);
   const hasReferralCode = urlParams.has('ref');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
-  // Show loading while auth is initializing
   if (!initialized) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-50" />;
   }
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Only redirect to influencer signup if there's a referral code
   if (hasReferralCode) {
     const redirectUrl = `/influencer-signup?ref=${urlParams.get('ref')}`;
     return <Navigate to={redirectUrl} replace />;
   }
 
   const handleSuccess = () => {
-    // Navigate to dashboard with longer delay to ensure auth state is ready
-    console.log('Auth - Signup/signin successful, navigating to dashboard');
-    setTimeout(() => {
-      console.log('Auth - Executing navigation to dashboard');
-      navigate('/dashboard', { replace: true });
-    }, 1500);
+    navigate('/dashboard', { replace: true });
   };
 
   return (

@@ -12,7 +12,6 @@ export const InfluencerAuth: React.FC = () => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const { isAuthenticated, loading, initialized, user } = useAuth();
 
-  // Extract URL parameters for redirect after auth
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
   const fromParam = urlParams.get('from');
@@ -32,42 +31,22 @@ export const InfluencerAuth: React.FC = () => {
     }
   };
 
-  // Show loading while auth is initializing - but with timeout
   if (!initialized) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing...</p>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-50" />;
   }
 
-  // Redirect if already authenticated
   if (isAuthenticated) {
-    // Check if we need to redirect to a specific page (e.g., after tagging an asset)
     if (fromParam === 'tagging' && redirectParam) {
-      console.log('InfluencerAuth - Authenticated, redirecting to original destination:', `${redirectParam}?from=${fromParam}`);
       return <Navigate to={`${redirectParam}?from=${fromParam}`} replace />;
     }
-    console.log('InfluencerAuth - User already authenticated, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
   const handleSuccess = () => {
-    console.log('InfluencerAuth - Signup/signin successful');
-    
     if (fromParam === 'tagging' && redirectParam) {
-      // Redirect back to complete asset saving
-      setTimeout(() => {
-        navigate(`${redirectParam}?from=tagging`, { replace: true });
-      }, 1500);
+      navigate(`${redirectParam}?from=tagging`, { replace: true });
     } else {
-      // Default redirect to dashboard
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 1500);
+      navigate('/dashboard', { replace: true });
     }
   };
 

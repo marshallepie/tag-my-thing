@@ -41,7 +41,6 @@ const LoadingScreen: React.FC = () => (
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading...</p>
-      <p className="text-sm text-gray-500 mt-2">If this takes too long, try refreshing the page</p>
     </div>
   </div>
 );
@@ -85,35 +84,16 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 
 // Protected Route Component with role-based redirects
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Always call useAuth at the top level to maintain hook order
   const { isAuthenticated, loading, initialized, user, profile } = useAuth();
 
-  console.log('ProtectedRoute - Auth state:', { 
-    isAuthenticated, 
-    loading, 
-    initialized, 
-    hasUser: !!user, 
-    hasProfile: !!profile 
-  });
-
-  // Early returns after all hooks are called
-  if (!initialized || loading) {
-    console.log('ProtectedRoute - Showing loading screen');
+  if (!initialized) {
     return <LoadingScreen />;
   }
 
   if (!isAuthenticated) {
-    console.log('ProtectedRoute - Not authenticated, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
-  // Additional check to ensure we have both user and profile
-  if (!user || !profile) {
-    console.log('ProtectedRoute - Missing user or profile, showing loading');
-    return <LoadingScreen />;
-  }
-
-  console.log('ProtectedRoute - Authenticated, rendering children');
   return <>{children}</>;
 };
 
@@ -173,17 +153,14 @@ const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const AuthRedirect: React.FC = () => {
   const { isAuthenticated, loading, initialized } = useAuth();
   
-  // Show loading while initializing
   if (!initialized) {
     return <LoadingScreen />;
   }
 
-  // If already authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Otherwise show auth form
   return <Auth />;
 };
 
