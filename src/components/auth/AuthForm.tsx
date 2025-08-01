@@ -213,10 +213,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       // Better error handling
       let errorMessage = 'Authentication failed';
       
-      if (error.message) {
+      if (error?.message) {
         if (error.message.includes('Invalid login credentials') || 
             error.message.includes('Invalid email or password')) {
-          errorMessage = 'Invalid email or password. Please check your credentials.';
+          errorMessage = 'Invalid email or password. Please check your credentials and try again. If you don\'t have an account, please sign up first.';
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Please check your email and confirm your account.';
         } else if (error.message.includes('User already registered')) {
@@ -225,8 +225,19 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           errorMessage = 'Password must be at least 6 characters long.';
         } else if (error.message.includes('duplicate key value') || error.code === '23505') {
           errorMessage = 'Account setup failed. Please try again or contact support.';
+        } else if (error.message.includes('Email address') && error.message.includes('invalid')) {
+          errorMessage = 'Please enter a valid email address.';
         } else {
           errorMessage = error.message;
+        }
+      } else if (error?.code) {
+        // Handle Supabase error codes directly
+        if (error.code === 'invalid_credentials') {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again. If you don\'t have an account, please sign up first.';
+        } else if (error.code === 'email_address_invalid') {
+          errorMessage = 'Please enter a valid email address.';
+        } else {
+          errorMessage = `Authentication error: ${error.code}`;
         }
       }
       
