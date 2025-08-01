@@ -49,6 +49,10 @@ export const BusinessAuth: React.FC = () => {
     }
       // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
       // This function is no longer needed as AuthForm does not call onSuccess for signin.
+  };
+
+  const businessFeatures = [
+    {
       icon: <QrCode className="h-6 w-6 text-primary-600" />,
       title: 'QR Code Generation',
       description: 'Automatically generate unique QR codes for each product'
@@ -58,6 +62,10 @@ export const BusinessAuth: React.FC = () => {
       title: 'Product Verification',
       description: 'Enable customers to verify product authenticity instantly'
     },
+    {
+      icon: <CheckCircle className="h-6 w-6 text-green-600" />,
+      title: 'Brand Protection',
+      description: 'Protect your brand from counterfeiting and unauthorized sales'
       // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
       // This function is no longer needed as AuthForm does not call onSuccess for signin.
     }
