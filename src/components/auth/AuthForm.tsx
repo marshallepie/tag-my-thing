@@ -179,12 +179,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       }
     }
     
-    console.log('AuthForm - Signin completed successfully');
     toast.success('Welcome back!');
-    // The onAuthStateChange listener in useAuth will handle state updates and profile fetching.
-    // Navigation will be handled by the AuthRedirect component in App.tsx.
-    // No direct onSuccess call needed here for navigation.
-    console.log('AuthForm - Finished handleSignin');
+    onSuccess();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

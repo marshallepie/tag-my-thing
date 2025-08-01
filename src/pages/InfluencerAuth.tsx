@@ -44,11 +44,9 @@ export const InfluencerAuth: React.FC = () => {
 
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {
-      // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
-      // This function is no longer needed as AuthForm does not call onSuccess for signin.
+      navigate(`${redirectParam}?from=tagging`, { replace: true });
     } else {
-      // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
-      // This function is no longer needed as AuthForm does not call onSuccess for signin.
+      navigate('/dashboard', { replace: true });
     }
   };
 
@@ -110,8 +108,9 @@ export const InfluencerAuth: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="w-full max-w-md"
             >
-              <AuthForm
-                mode={mode}
+              <AuthForm 
+                mode={mode} 
+                onSuccess={handleSuccess} 
                 initialRole={businessParam ? 'user' : 'influencer'}
                 defaultIsBusinessUser={businessParam}
               />

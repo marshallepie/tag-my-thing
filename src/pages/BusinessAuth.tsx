@@ -46,9 +46,9 @@ export const BusinessAuth: React.FC = () => {
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {
       navigate(`${redirectParam}?from=tagging`, { replace: true });
+    } else {
+      navigate('/business-dashboard', { replace: true });
     }
-      // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
-      // This function is no longer needed as AuthForm does not call onSuccess for signin.
   };
 
   const businessFeatures = [
@@ -63,11 +63,9 @@ export const BusinessAuth: React.FC = () => {
       description: 'Enable customers to verify product authenticity instantly'
     },
     {
-      icon: <CheckCircle className="h-6 w-6 text-green-600" />,
-      title: 'Brand Protection',
-      description: 'Protect your brand from counterfeiting and unauthorized sales'
-      // Navigation is now handled by the AuthRedirect component in App.tsx based on useAuth state.
-      // This function is no longer needed as AuthForm does not call onSuccess for signin.
+      icon: <CheckCircle className="h-6 w-6 text-success-600" />,
+      title: 'Scan History Tracking',
+      description: 'Monitor scan patterns to identify potential counterfeits'
     }
   ];
 
@@ -140,8 +138,9 @@ export const BusinessAuth: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="order-2 lg:order-1"
             >
-              <AuthForm
-                mode={mode}
+              <AuthForm 
+                mode={mode} 
+                onSuccess={handleSuccess} 
                 initialRole="user"
                 defaultIsBusinessUser={true}
               />

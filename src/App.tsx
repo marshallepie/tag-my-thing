@@ -158,7 +158,7 @@ const AuthRedirect: React.FC = () => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />; // Redirect to dashboard if already authenticated
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Auth />;
