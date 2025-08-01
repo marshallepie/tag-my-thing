@@ -58,17 +58,12 @@ export const useAuth = () => {
         
         const queryStartTime = performance.now();
         
-        // Execute the query with a reasonable timeout
-        const { data, error } = await Promise.race([
-          supabase
+        // Execute the query without timeout
+        const { data, error } = await supabase
           .from('user_profiles')
           .select('*')
           .eq('id', userId)
-          .maybeSingle(),
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Profile fetch timeout after 10 seconds')), 10000)
-          )
-        ]);
+          .maybeSingle();
         
         const queryEndTime = performance.now();
         const queryDuration = queryEndTime - queryStartTime;
@@ -111,17 +106,6 @@ export const useAuth = () => {
         console.log('useAuth - fetchProfile EXIT - Returning:', data ? 'profile object' : 'null');
         return data;
       } catch (error) {
-        // Check if this is a timeout error
-        if (error instanceof Error && error.message.includes('timeout')) {
-          console.error('useAuth - fetchProfile TIMEOUT - Query timed out after 10 seconds:', {
-            userId: userId,
-            error: 'Profile fetch timeout after 10 seconds',
-            timestamp: new Date().toISOString()
-          });
-          // Return null to allow the app to continue without profile data
-          return null;
-        }
-        
         console.error('useAuth - fetchProfile EXCEPTION - Unexpected error:', {
           error: error,
           message: error instanceof Error ? error.message : 'Unknown error',
