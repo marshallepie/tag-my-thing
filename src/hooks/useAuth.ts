@@ -37,6 +37,9 @@ let globalAuthState: AuthState = {
 // Global listeners for state changes
 const globalListeners = new Set<(state: AuthState) => void>();
 
+// Flag to prevent multiple auth listener setups
+let authListenerSetup = false;
+
 // Function to update global state and notify all listeners
 const updateGlobalAuthState = (newState: Partial<AuthState>) => {
   globalAuthState = { ...globalAuthState, ...newState };
@@ -57,9 +60,6 @@ const updateGlobalAuthState = (newState: Partial<AuthState>) => {
     }
   });
 };
-
-// Define this outside the hook to ensure it's truly global across all hook instances
-let authListenerInitialized = false;
 
 export const useAuth = () => {
   const [localState, setLocalState] = useState<AuthState>(globalAuthState);
@@ -257,14 +257,14 @@ export const useAuth = () => {
 
   // Initialize authentication
   useEffect(() => {
-    // Use the module-level variable to prevent multiple initializations
-    if (authListenerInitialized) {
+    // Prevent multiple auth listener setups
+    if (authListenerSetup) {
       console.log('useAuth - Auth listener already set up globally, skipping initialization');
       return;
     }
     
     console.log('useAuth - Initializing authentication globally');
-    authListenerInitialized = true; // Mark as initialized
+    authListenerSetup = true;
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -316,8 +316,8 @@ export const useAuth = () => {
     return () => {
       console.log('useAuth - Cleaning up auth listener');
       mountedRef.current = false;
-      // Do NOT set authListenerInitialized to false here, as it's a global singleton
       subscription.unsubscribe();
+      // Don't reset authListenerSetup here as it's a global singleton
     };
   }, [handleAuthStateChange]);
 

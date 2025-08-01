@@ -173,17 +173,17 @@ const ReferralsRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const AuthRedirect: React.FC = () => {
   const { isAuthenticated, loading, initialized } = useAuth();
   
-  // Only show loading if we're still initializing
+  // Show loading while initializing
   if (!initialized) {
     return <LoadingScreen />;
   }
 
-  // If authenticated, redirect to dashboard
+  // If already authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Show auth form for non-authenticated users
+  // Otherwise show auth form
   return <Auth />;
 };
 

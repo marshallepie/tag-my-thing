@@ -8,12 +8,24 @@ import { Button } from '../components/ui/Button';
 export const Auth: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading, initialized } = useAuth();
 
   // Check if there's a referral code in the URL to determine initial mode
   const urlParams = new URLSearchParams(location.search);
   const hasReferralCode = urlParams.has('ref');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+
+  // Show loading while auth is initializing
+  if (!initialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
