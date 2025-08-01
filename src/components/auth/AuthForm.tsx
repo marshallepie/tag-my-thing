@@ -185,8 +185,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     }
     
     console.log('AuthForm: Calling onSuccess for sign-in');
-    // Redirect to check email page
-    navigate('/check-email', { state: { email: formData.email } });
+    onSuccess();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
