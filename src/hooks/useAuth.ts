@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
@@ -12,16 +12,57 @@ interface AuthState {
   initialized: boolean;
 }
 
+interface AuthContextType extends AuthState {
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isModerator: boolean;
+  isInfluencer: boolean;
+  isAdminInfluencer: boolean;
+  isBusinessUser: boolean;
+  signOut: () => Promise<void>;
+  refreshProfile: () => Promise<UserProfile | null>;
+}
+
+// Create the context
+const AuthContext = createContext<AuthContextType | null>(null);
+
+// Global auth state - shared across all hook instances
+let globalAuthState: AuthState = {
+  user: null,
+  profile: null,
+  loading: true,
+  initialized: false,
+};
+
+// Global listeners for state changes
+const globalListeners = new Set<(state: AuthState) => void>();
+
+// Function to update global state and notify all listeners
+const updateGlobalAuthState = (newState: Partial<AuthState>) => {
+  globalAuthState = { ...globalAuthState, ...newState };
+  console.log('useAuth - Global state updated:', {
+    hasUser: !!globalAuthState.user,
+    hasProfile: !!globalAuthState.profile,
+    loading: globalAuthState.loading,
+    initialized: globalAuthState.initialized,
+    isAuthenticated: !!(globalAuthState.user && globalAuthState.profile)
+  });
+  
+  // Notify all listeners
+  globalListeners.forEach(listener => {
+    try {
+      listener(globalAuthState);
+    } catch (error) {
+      console.error('useAuth - Error in state listener:', error);
+    }
+  });
+};
+
 // Define this outside the hook to ensure it's truly global across all hook instances
 let authListenerInitialized = false;
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    profile: null,
-    loading: true,
-    initialized: false,
-  });
+  const [localState, setLocalState] = useState<AuthState>(globalAuthState);
 
   // Ref to store ongoing profile fetch promise to prevent redundant calls
   const profileFetchPromiseRef = useRef<Promise<UserProfile | null> | null>(null);
@@ -125,96 +166,6 @@ export const useAuth = () => {
     return profileFetchPromiseRef.current;
   }, [updateUserActivity]);
 
-  // Original fetchProfile implementation (removed)
-  /*
-  const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
-    console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
-    console.log('useAuth - fetchProfile - Current timestamp:', new Date().toISOString());
-    
-    try {
-      console.log('useAuth - fetchProfile - About to execute Supabase query');
-      console.log('useAuth - fetchProfile - Query details: SELECT * FROM user_profiles WHERE id =', userId);
-      
-      const queryStartTime = performance.now();
-      
-      // Create timeout promise
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          reject(new Error('Profile fetch timeout after 10 seconds'));
-        }, 10000); // 10 second timeout
-      });
-      
-      // Create the actual query promise
-      const queryPromise = supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      // Race the query against the timeout
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
-      
-      const queryEndTime = performance.now();
-      const queryDuration = queryEndTime - queryStartTime;
-      console.log('useAuth - fetchProfile - Query completed in', queryDuration.toFixed(2), 'ms');
-
-      console.log('useAuth - fetchProfile - Raw query response:', {
-        data: data,
-        error: error,
-        hasData: !!data,
-        hasError: !!error
-      });
-      
-      if (error) {
-        console.error('useAuth - fetchProfile ERROR - Supabase query failed:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        return null;
-      }
-
-      if (data) {
-        console.log('useAuth - fetchProfile SUCCESS - Profile found:', {
-          id: data.id,
-          email: data.email,
-          role: data.role,
-          full_name: data.full_name,
-          is_business_user: data.is_business_user
-        });
-        
-        // Update user activity when profile is successfully fetched
-        updateUserActivity();
-      } else {
-        console.log('useAuth - fetchProfile - No profile found for userId:', userId);
-      }
-      
-      console.log('useAuth - fetchProfile EXIT - Returning:', data ? 'profile object' : 'null');
-      return data;
-    } catch (error) {
-      // Check if this is a timeout error
-      if (error instanceof Error && error.message.includes('timeout')) {
-        console.error('useAuth - fetchProfile TIMEOUT - Query timed out after 10 seconds:', {
-          userId: userId,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        });
-        // Return null to allow the app to continue without profile data
-        return null;
-      }
-      
-      console.error('useAuth - fetchProfile EXCEPTION - Unexpected error:', {
-        error: error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        userId: userId
-      });
-      return null;
-    }
-  }, [updateUserActivity]);
-  */
-
   // Handle authentication state changes
   const handleAuthStateChange = useCallback(async (event: string, session: any) => {
     if (!mountedRef.current) return;
@@ -223,22 +174,18 @@ export const useAuth = () => {
 
     // Set loading for all events that require async operations
     if (['INITIAL_SESSION', 'SIGNED_IN', 'TOKEN_REFRESHED'].includes(event)) {
-      if (mountedRef.current) {
-        setAuthState(prev => ({ ...prev, loading: true }));
-      }
+      updateGlobalAuthState({ loading: true });
     }
 
     try {
       if (event === 'SIGNED_OUT' || !session?.user) {
         console.log('useAuth - User signed out or no session');
-        if (mountedRef.current) {
-          setAuthState({
-            user: null,
-            profile: null,
-            loading: false,
-            initialized: true,
-          });
-        }
+        updateGlobalAuthState({
+          user: null,
+          profile: null,
+          loading: false,
+          initialized: true,
+        });
         return;
       }
 
@@ -260,14 +207,12 @@ export const useAuth = () => {
         const profile = await fetchProfile(user.id);
         console.log('useAuth - fetchProfile returned:', profile ? 'profile found' : 'null profile');
 
-        if (mountedRef.current) {
-          setAuthState({
-            user,
-            profile,
-            loading: false,
-            initialized: true,
-          });
-        }
+        updateGlobalAuthState({
+          user,
+          profile,
+          loading: false,
+          initialized: true,
+        });
 
         console.log('useAuth - Auth state updated successfully:', {
           hasUser: !!user,
@@ -285,15 +230,30 @@ export const useAuth = () => {
         hasSession: !!session,
         sessionUserId: session?.user?.id
       });
-      if (mountedRef.current) {
-        setAuthState(prev => ({
-          ...prev,
-          loading: false,
-          initialized: true,
-        }));
-      }
+      updateGlobalAuthState({
+        loading: false,
+        initialized: true,
+      });
     }
   }, [fetchProfile]);
+
+  // Subscribe to global state changes
+  useEffect(() => {
+    const listener = (newState: AuthState) => {
+      if (mountedRef.current) {
+        setLocalState(newState);
+      }
+    };
+
+    globalListeners.add(listener);
+    
+    // Set initial state
+    setLocalState(globalAuthState);
+
+    return () => {
+      globalListeners.delete(listener);
+    };
+  }, []);
 
   // Initialize authentication
   useEffect(() => {
@@ -330,30 +290,24 @@ export const useAuth = () => {
             sessionStorage.clear();
           }
           
-          if (mountedRef.current) {
-            setAuthState({
-              user: null,
-              profile: null,
-              loading: false,
-              initialized: true,
-            });
-          }
-          return;
-        }
-
-        if (mountedRef.current) {
-          await handleAuthStateChange('INITIAL_SESSION', session);
-        }
-      } catch (error) {
-        console.error('useAuth - Initial session exception:', error);
-        if (mountedRef.current) {
-          setAuthState({
+          updateGlobalAuthState({
             user: null,
             profile: null,
             loading: false,
             initialized: true,
           });
+          return;
         }
+
+        await handleAuthStateChange('INITIAL_SESSION', session);
+      } catch (error) {
+        console.error('useAuth - Initial session exception:', error);
+        updateGlobalAuthState({
+          user: null,
+          profile: null,
+          loading: false,
+          initialized: true,
+        });
       }
     };
 
@@ -378,41 +332,34 @@ export const useAuth = () => {
   // Debug effect to log state changes
   useEffect(() => {
     console.log('useAuth - State changed:', {
-      hasUser: !!authState.user,
-      hasProfile: !!authState.profile,
-      loading: authState.loading,
-      initialized: authState.initialized,
-      isAuthenticated: !!(authState.user && authState.profile)
+      hasUser: !!localState.user,
+      hasProfile: !!localState.profile,
+      loading: localState.loading,
+      initialized: localState.initialized,
+      isAuthenticated: !!(localState.user && localState.profile)
     });
-  }, [authState]);
+  }, [localState]);
 
   // Refresh profile function
   const refreshProfile = useCallback(async () => {
-    if (!authState.user?.id) {
+    if (!localState.user?.id) {
       console.log('useAuth - No user ID for profile refresh');
       return null;
     }
 
     console.log('useAuth - Refreshing profile');
-    const profile = await fetchProfile(authState.user.id);
+    const profile = await fetchProfile(localState.user.id);
     
-    if (mountedRef.current) {
-      setAuthState(prev => ({
-        ...prev,
-        profile,
-      }));
-    }
+    updateGlobalAuthState({ profile });
 
     return profile;
-  }, [authState.user?.id, fetchProfile]);
+  }, [localState.user?.id, fetchProfile]);
 
   // Sign out function
   const signOut = useCallback(async () => {
     try {
       console.log('useAuth - Signing out');
-      if (mountedRef.current) {
-        setAuthState(prev => ({ ...prev, loading: true }));
-      }
+      updateGlobalAuthState({ loading: true });
       
       await supabase.auth.signOut();
       
@@ -427,30 +374,28 @@ export const useAuth = () => {
       // Force clear state even if signOut fails
       localStorage.clear();
       sessionStorage.clear();
-      if (mountedRef.current) {
-        setAuthState({
-          user: null,
-          profile: null,
-          loading: false,
-          initialized: true,
-        });
-      }
+      updateGlobalAuthState({
+        user: null,
+        profile: null,
+        loading: false,
+        initialized: true,
+      });
     }
   }, []);
 
   // Derived properties
-  const isAuthenticated = !!(authState.user && authState.profile);
-  const isAdmin = authState.profile?.role === 'admin';
-  const isModerator = authState.profile?.role === 'moderator' || authState.profile?.role === 'admin';
-  const isInfluencer = authState.profile?.role === 'influencer';
-  const isAdminInfluencer = authState.profile?.role === 'admin_influencer';
-  const isBusinessUser = authState.profile?.is_business_user || false;
+  const isAuthenticated = !!(localState.user && localState.profile);
+  const isAdmin = localState.profile?.role === 'admin';
+  const isModerator = localState.profile?.role === 'moderator' || localState.profile?.role === 'admin';
+  const isInfluencer = localState.profile?.role === 'influencer';
+  const isAdminInfluencer = localState.profile?.role === 'admin_influencer';
+  const isBusinessUser = localState.profile?.is_business_user || false;
 
   return {
-    user: authState.user,
-    profile: authState.profile,
-    loading: authState.loading,
-    initialized: authState.initialized,
+    user: localState.user,
+    profile: localState.profile,
+    loading: localState.loading,
+    initialized: localState.initialized,
     isAuthenticated,
     isAdmin,
     isModerator,
