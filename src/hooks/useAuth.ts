@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
@@ -20,6 +20,9 @@ export const useAuth = () => {
     initialized: false,
   });
 
+  // Ref to store ongoing profile fetch promise to prevent redundant calls
+  const profileFetchPromiseRef = useRef<Promise<UserProfile | null> | null>(null);
+
   // Update user activity when auth state changes
   const updateUserActivity = useCallback(async () => {
     try {
@@ -33,6 +36,89 @@ export const useAuth = () => {
   }, []);
 
   // Fetch user profile from database
+  const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+    // If a profile fetch is already in progress, return the existing promise
+    if (profileFetchPromiseRef.current) {
+      console.log('useAuth - fetchProfile - Returning existing profile fetch promise');
+      return profileFetchPromiseRef.current;
+    }
+
+    console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
+    console.log('useAuth - fetchProfile - Current timestamp:', new Date().toISOString());
+    
+    // Create and store the fetch operation promise
+    const fetchOperation = async (): Promise<UserProfile | null> => {
+      try {
+        console.log('useAuth - fetchProfile - About to execute Supabase query');
+        console.log('useAuth - fetchProfile - Query details: SELECT * FROM user_profiles WHERE id =', userId);
+        
+        const queryStartTime = performance.now();
+        
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+        
+        const queryEndTime = performance.now();
+        const queryDuration = queryEndTime - queryStartTime;
+        console.log('useAuth - fetchProfile - Query completed in', queryDuration.toFixed(2), 'ms');
+
+        console.log('useAuth - fetchProfile - Raw query response:', {
+          data: data,
+          error: error,
+          hasData: !!data,
+          hasError: !!error
+        });
+        
+        if (error) {
+          console.error('useAuth - fetchProfile ERROR - Supabase query failed:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
+          return null;
+        }
+
+        if (data) {
+          console.log('useAuth - fetchProfile SUCCESS - Profile found:', {
+            id: data.id,
+            email: data.email,
+            role: data.role,
+            full_name: data.full_name,
+            is_business_user: data.is_business_user
+          });
+          
+          // Update user activity when profile is successfully fetched
+          updateUserActivity();
+        } else {
+          console.log('useAuth - fetchProfile - No profile found for userId:', userId);
+        }
+        
+        console.log('useAuth - fetchProfile EXIT - Returning:', data ? 'profile object' : 'null');
+        return data;
+      } catch (error) {
+        console.error('useAuth - fetchProfile EXCEPTION - Unexpected error:', {
+          error: error,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          userId: userId
+        });
+        return null;
+      } finally {
+        // Clear the promise reference so future calls can create a new fetch
+        profileFetchPromiseRef.current = null;
+      }
+    };
+
+    // Store the promise and return it
+    profileFetchPromiseRef.current = fetchOperation();
+    return profileFetchPromiseRef.current;
+  }, [updateUserActivity]);
+
+  // Original fetchProfile implementation (removed)
+  /*
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     console.log('useAuth - fetchProfile ENTRY - Starting profile fetch for userId:', userId);
     console.log('useAuth - fetchProfile - Current timestamp:', new Date().toISOString());
@@ -119,6 +205,7 @@ export const useAuth = () => {
       return null;
     }
   }, [updateUserActivity]);
+  */
 
   // Handle authentication state changes
   const handleAuthStateChange = useCallback(async (event: string, session: any) => {
