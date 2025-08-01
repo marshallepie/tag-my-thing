@@ -90,22 +90,12 @@ export const CheckEmail: React.FC = () => {
               Resend confirmation email
             </Button>
 
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => window.history.back()}
-                variant="outline"
-                className="flex-1"
-              >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Go Back
-              </Button>
-              <Button
-                onClick={() => window.location.href = '/auth'}
-                className="flex-1"
-              >
-                Sign In
-              </Button>
-            </div>
+            <Button
+              onClick={() => window.close()}
+              className="w-full"
+            >
+              Close this window
+            </Button>
           </div>
           
           {!email && (
