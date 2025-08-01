@@ -178,9 +178,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         console.error('Referral processing failed:', referralError);
       }
     }
-    
-    toast.success('Welcome back!');
-    onSuccess();
+    // Redirect to check email page
+    navigate('/check-email', { state: { email: formData.email } });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
