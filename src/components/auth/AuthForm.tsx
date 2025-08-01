@@ -107,14 +107,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
   const handleSignup = async () => {
     console.log('AuthForm - Starting handleSignup');
-    console.log('AuthForm - Starting signup process');
 
-    // Sign up user with Supabase Auth
+    // Sign up user with Supabase Auth - profile will be created automatically by database trigger
     const { data: auth, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: undefined // Disable email confirmation
+        emailRedirectTo: undefined, // Disable email confirmation
+        data: {
+          full_name: formData.fullName,
+          role: isBusinessUserSignup ? 'user' : initialRole,
+          is_business_user: isBusinessUserSignup
+        }
       }
     });
 
@@ -127,15 +131,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw new Error('No user returned from signup');
     }
 
-    console.log('AuthForm - User created in auth, setting up profile');
-
-    // Determine signup bonus based on role
-    const signupBonus = initialRole === 'influencer' ? 100 : 50;
-
-    // Create user profile, wallet, and transaction
-    await createUserProfile(auth.user.id, formData.email, formData.fullName);
-    await createUserWallet(auth.user.id, signupBonus);
-    await createSignupTransaction(auth.user.id, signupBonus);
+    console.log('AuthForm - User created in auth, profile will be created by database trigger');
 
     // Process referral if present
     if (referralCode) {
@@ -149,7 +145,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             console.error('AuthForm - Referral processing failed:', referralError);
             // Don't fail the signup if referral processing fails
           }
-        }, 1000);
+        }, 2000); // Increased delay to ensure trigger completes
       } catch (referralError) {
         console.error('AuthForm - Referral processing setup failed:', referralError);
         // Don't fail the signup if referral processing fails
@@ -167,7 +163,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     // Add a small delay to ensure the auth state is updated
     setTimeout(() => {
       onSuccess();
-    }, 500);
+    }, 1000); // Increased delay to ensure database trigger completes
     console.log('AuthForm - Finished handleSignup');
   };
 
