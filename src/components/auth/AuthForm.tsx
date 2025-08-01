@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User, Crown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -21,6 +22,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   initialRole = 'user', 
   defaultIsBusinessUser = false 
 }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -108,12 +110,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const handleSignup = async () => {
     console.log('AuthForm - Starting handleSignup');
 
-    // Sign up user with Supabase Auth - profile will be created automatically by database trigger
+    // Sign up user with Supabase Auth with email confirmation
     const { data: auth, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: undefined, // Disable email confirmation
+        emailRedirectTo: `${window.location.origin}/auth`, // Redirect to auth page after email confirmation
         data: {
           full_name: formData.fullName,
           role: isBusinessUserSignup ? 'user' : initialRole,
@@ -131,45 +133,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw new Error('No user returned from signup');
     }
 
-    console.log('AuthForm - User created in auth, profile will be created by database trigger');
+    console.log('AuthForm - User created in auth, email confirmation required');
 
-    // Process referral if present
+    // Store referral code for processing after email confirmation
     if (referralCode) {
-      console.log('AuthForm - Processing referral:', referralCode);
-      try {
-        // Add a delay to ensure all database operations complete
-        setTimeout(async () => {
-          try {
-            await processReferralSignup(referralCode, auth.user.id);
-          } catch (referralError) {
-            console.error('AuthForm - Referral processing failed:', referralError);
-            // Don't fail the signup if referral processing fails
-          }
-        }, 2000); // Increased delay to ensure trigger completes
-      } catch (referralError) {
-        console.error('AuthForm - Referral processing setup failed:', referralError);
-        // Don't fail the signup if referral processing fails
-      }
+      console.log('AuthForm - Referral code will be processed after email confirmation');
+      // Store referral code in localStorage to process after confirmation
+      localStorage.setItem('pending_referral_code', referralCode);
+      localStorage.setItem('pending_referral_user_id', auth.user.id);
     }
 
-    const successMessage = initialRole === 'influencer' 
-      ? 'Influencer account created successfully! You received 100 TMT tokens!'
-      : 'Account created successfully! You received 50 TMT tokens!';
+    toast.success('Account created! Please check your email to confirm your signup.');
     
-    console.log('AuthForm - Signup completed successfully');
-    toast.success(successMessage);
-    
-    // The onAuthStateChange listener in useAuth will handle state updates
-    // Add a small delay to ensure the auth state is updated
-    setTimeout(() => {
-      onSuccess();
-    }, 1500); // Increased delay to ensure database trigger completes
+    // Redirect to check email page
+    navigate('/check-email', { state: { email: formData.email } });
     console.log('AuthForm - Finished handleSignup');
   };
 
   const handleSignin = async () => {
     console.log('AuthForm - Starting handleSignin');
-    console.log('AuthForm - Starting signin process');
 
     const { data: auth, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
@@ -178,7 +160,31 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
     if (error) {
       console.error('AuthForm - Signin error:', error);
+      
+      // Intercept specific error for unconfirmed email
+      if (error.message.includes('Email not confirmed') || 
+          error.message.includes('Email link is invalid or has expired') ||
+          error.message.includes('signup_disabled')) {
+        throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
+      }
+      
       throw error;
+    }
+    
+    // Check for pending referral processing after successful login
+    const pendingReferralCode = localStorage.getItem('pending_referral_code');
+    const pendingUserId = localStorage.getItem('pending_referral_user_id');
+    
+    if (pendingReferralCode && pendingUserId === auth.user?.id) {
+      console.log('AuthForm - Processing pending referral after email confirmation');
+      try {
+        await processReferralSignup(pendingReferralCode, auth.user.id);
+        localStorage.removeItem('pending_referral_code');
+        localStorage.removeItem('pending_referral_user_id');
+      } catch (referralError) {
+        console.error('AuthForm - Referral processing failed:', referralError);
+        // Don't fail the signin if referral processing fails
+      }
     }
     
     console.log('AuthForm - Signin completed successfully');
@@ -210,11 +216,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       let errorMessage = 'Authentication failed';
       
       if (error?.message) {
-        if (error.message.includes('Invalid login credentials') || 
+        if (error.message.includes('Please confirm your email before signing in.')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('Invalid login credentials') || 
             error.message.includes('Invalid email or password')) {
           errorMessage = 'Invalid email or password. Please check your credentials and try again. If you don\'t have an account, please sign up first.';
         } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Please check your email and confirm your account.';
+          errorMessage = 'Please confirm your email before signing in. Check your inbox for the confirmation link.';
         } else if (error.message.includes('User already registered')) {
           errorMessage = 'An account with this email already exists. Try signing in instead.';
         } else if (error.message.includes('Password should be at least')) {

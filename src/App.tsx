@@ -30,6 +30,7 @@ import { BusinessDashboard } from './pages/BusinessDashboard';
 import { ProductVerificationPage } from './pages/ProductVerificationPage';
 import { PublicAssetsPage } from './pages/PublicAssetsPage';
 import { BusinessAuth } from './pages/BusinessAuth';
+import { CheckEmail } from './pages/CheckEmail';
 import { Dao } from './pages/Dao';
 import { BugReports } from './pages/BugReports';
 import { useAuth } from './hooks/useAuth';
@@ -222,6 +223,14 @@ function App() {
               element={
                 <SafeRoute>
                   <AuthRedirect />
+                </SafeRoute>
+              } 
+            />
+            <Route 
+              path="/check-email" 
+              element={
+                <SafeRoute>
+                  <CheckEmail />
                 </SafeRoute>
               } 
             />
