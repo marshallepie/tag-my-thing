@@ -91,11 +91,10 @@ export const CheckEmail: React.FC = () => {
             </Button>
 
             <Button
-              onClick={() => navigate('/auth')}
+              onClick={() => window.close()}
               className="w-full"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              Go to Sign In
+              Close this window
             </Button>
           </div>
           
