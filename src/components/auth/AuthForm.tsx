@@ -163,7 +163,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     // Add a small delay to ensure the auth state is updated
     setTimeout(() => {
       onSuccess();
-    }, 1000); // Increased delay to ensure database trigger completes
+    }, 1500); // Increased delay to ensure database trigger completes
     console.log('AuthForm - Finished handleSignup');
   };
 
@@ -188,7 +188,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     // Add a small delay to ensure the auth state is updated
     setTimeout(() => {
       onSuccess();
-    }, 500);
+    }, 1500);
     console.log('AuthForm - Finished handleSignin');
   };
 

@@ -31,7 +31,7 @@ export const Auth: React.FC = () => {
     setTimeout(() => {
       console.log('Auth - Executing navigation to dashboard');
       navigate('/dashboard', { replace: true });
-    }, 1000);
+    }, 1500);
   };
 
   return (

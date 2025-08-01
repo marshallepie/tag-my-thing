@@ -62,12 +62,12 @@ export const BusinessAuth: React.FC = () => {
       // Redirect back to complete asset saving
       setTimeout(() => {
         navigate(`${redirectParam}?from=tagging`, { replace: true });
-      }, 100);
+      }, 1500);
     } else {
       // Default redirect to business dashboard
       setTimeout(() => {
         navigate('/business-dashboard', { replace: true });
-      }, 100);
+      }, 1500);
     }
   };
 
