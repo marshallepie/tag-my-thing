@@ -22,6 +22,10 @@ export const useAuth = () => {
 
   // Ref to store ongoing profile fetch promise to prevent redundant calls
   const profileFetchPromiseRef = useRef<Promise<UserProfile | null> | null>(null);
+  // Ref to track if auth listener is already set up
+  const authListenerSetupRef = useRef(false);
+  // Ref to track mounted state
+  const mountedRef = useRef(true);
 
   // Update user activity when auth state changes
   const updateUserActivity = useCallback(async () => {
@@ -54,22 +58,17 @@ export const useAuth = () => {
         
         const queryStartTime = performance.now();
         
-        // Create a timeout promise that rejects after 15 seconds
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Profile fetch timeout after 15 seconds'));
-          }, 15000);
-        });
-        
-        // Create the actual query promise
-        const queryPromise = supabase
+        // Execute the query with a reasonable timeout
+        const { data, error } = await Promise.race([
+          supabase
           .from('user_profiles')
           .select('*')
           .eq('id', userId)
-          .maybeSingle();
-        
-        // Race the query against the timeout
-        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+          .maybeSingle(),
+          new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Profile fetch timeout after 10 seconds')), 10000)
+          )
+        ]);
         
         const queryEndTime = performance.now();
         const queryDuration = queryEndTime - queryStartTime;
@@ -102,7 +101,9 @@ export const useAuth = () => {
           });
           
           // Update user activity when profile is successfully fetched
-          updateUserActivity();
+          if (mountedRef.current) {
+            updateUserActivity();
+          }
         } else {
           console.log('useAuth - fetchProfile - No profile found for userId:', userId);
         }
@@ -112,9 +113,9 @@ export const useAuth = () => {
       } catch (error) {
         // Check if this is a timeout error
         if (error instanceof Error && error.message.includes('timeout')) {
-          console.error('useAuth - fetchProfile TIMEOUT - Query timed out after 15 seconds:', {
+          console.error('useAuth - fetchProfile TIMEOUT - Query timed out after 10 seconds:', {
             userId: userId,
-            error: error.message,
+            error: 'Profile fetch timeout after 10 seconds',
             timestamp: new Date().toISOString()
           });
           // Return null to allow the app to continue without profile data
@@ -231,22 +232,28 @@ export const useAuth = () => {
 
   // Handle authentication state changes
   const handleAuthStateChange = useCallback(async (event: string, session: any) => {
+    if (!mountedRef.current) return;
+    
     console.log('useAuth - Auth state change:', event, 'hasSession:', !!session);
 
     // Set loading for all events that require async operations
     if (['INITIAL_SESSION', 'SIGNED_IN', 'TOKEN_REFRESHED'].includes(event)) {
-      setAuthState(prev => ({ ...prev, loading: true }));
+      if (mountedRef.current) {
+        setAuthState(prev => ({ ...prev, loading: true }));
+      }
     }
 
     try {
       if (event === 'SIGNED_OUT' || !session?.user) {
         console.log('useAuth - User signed out or no session');
-        setAuthState({
-          user: null,
-          profile: null,
-          loading: false,
-          initialized: true,
-        });
+        if (mountedRef.current) {
+          setAuthState({
+            user: null,
+            profile: null,
+            loading: false,
+            initialized: true,
+          });
+        }
         return;
       }
 
@@ -263,12 +270,14 @@ export const useAuth = () => {
         const profile = await fetchProfile(user.id);
         console.log('useAuth - fetchProfile returned:', profile ? 'profile found' : 'null profile');
 
-        setAuthState({
-          user,
-          profile,
-          loading: false,
-          initialized: true,
-        });
+        if (mountedRef.current) {
+          setAuthState({
+            user,
+            profile,
+            loading: false,
+            initialized: true,
+          });
+        }
 
         console.log('useAuth - Auth state updated successfully:', {
           hasUser: !!user,
@@ -286,24 +295,30 @@ export const useAuth = () => {
         hasSession: !!session,
         sessionUserId: session?.user?.id
       });
-      setAuthState(prev => ({
-        ...prev,
-        loading: false,
-        initialized: true,
-      }));
+      if (mountedRef.current) {
+        setAuthState(prev => ({
+          ...prev,
+          loading: false,
+          initialized: true,
+        }));
+      }
     }
   }, [fetchProfile]);
 
   // Initialize authentication
   useEffect(() => {
+    // Prevent multiple initializations
+    if (authListenerSetupRef.current) {
+      console.log('useAuth - Auth listener already set up, skipping initialization');
+      return;
+    }
+    
     console.log('useAuth - Initializing authentication');
-
-    let mounted = true;
+    authListenerSetupRef.current = true;
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!mounted) return;
         await handleAuthStateChange(event, session);
       }
     );
@@ -325,7 +340,7 @@ export const useAuth = () => {
             sessionStorage.clear();
           }
           
-          if (mounted) {
+          if (mountedRef.current) {
             setAuthState({
               user: null,
               profile: null,
@@ -336,12 +351,12 @@ export const useAuth = () => {
           return;
         }
 
-        if (mounted) {
+        if (mountedRef.current) {
           await handleAuthStateChange('INITIAL_SESSION', session);
         }
       } catch (error) {
         console.error('useAuth - Initial session exception:', error);
-        if (mounted) {
+        if (mountedRef.current) {
           setAuthState({
             user: null,
             profile: null,
@@ -355,10 +370,20 @@ export const useAuth = () => {
     getInitialSession();
 
     return () => {
-      mounted = false;
+      console.log('useAuth - Cleaning up auth listener');
+      mountedRef.current = false;
+      authListenerSetupRef.current = false;
       subscription.unsubscribe();
     };
   }, [handleAuthStateChange]);
+
+  // Set up mounted ref cleanup
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Refresh profile function
   const refreshProfile = useCallback(async () => {
@@ -370,10 +395,12 @@ export const useAuth = () => {
     console.log('useAuth - Refreshing profile');
     const profile = await fetchProfile(authState.user.id);
     
-    setAuthState(prev => ({
-      ...prev,
-      profile,
-    }));
+    if (mountedRef.current) {
+      setAuthState(prev => ({
+        ...prev,
+        profile,
+      }));
+    }
 
     return profile;
   }, [authState.user?.id, fetchProfile]);
@@ -382,7 +409,9 @@ export const useAuth = () => {
   const signOut = useCallback(async () => {
     try {
       console.log('useAuth - Signing out');
-      setAuthState(prev => ({ ...prev, loading: true }));
+      if (mountedRef.current) {
+        setAuthState(prev => ({ ...prev, loading: true }));
+      }
       
       await supabase.auth.signOut();
       
@@ -397,12 +426,14 @@ export const useAuth = () => {
       // Force clear state even if signOut fails
       localStorage.clear();
       sessionStorage.clear();
-      setAuthState({
-        user: null,
-        profile: null,
-        loading: false,
-        initialized: true,
-      });
+      if (mountedRef.current) {
+        setAuthState({
+          user: null,
+          profile: null,
+          loading: false,
+          initialized: true,
+        });
+      }
     }
   }, []);
 
