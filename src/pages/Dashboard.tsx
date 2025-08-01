@@ -22,18 +22,39 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchTotalAssets = async () => {
       if (!user) {
+        console.log('Dashboard - No user found, skipping asset fetch');
         setAssetsLoading(false);
         return;
       }
       try {
         setAssetsLoading(true);
+        console.log('Dashboard - Starting fetchTotalAssets for user:', user.id);
+        console.log('Dashboard - Calling get_user_asset_count RPC...');
         const { data, error } = await supabase.rpc('get_user_asset_count');
+        
+        console.log('Dashboard - get_user_asset_count RPC response:', { 
+          data, 
+          error, 
+          dataType: typeof data,
+          hasError: !!error,
+          errorMessage: error?.message,
+          errorCode: error?.code,
+          errorDetails: error?.details
+        });
+
         if (error) throw error;
+        
+        console.log('Dashboard - Setting totalAssets to:', data || 0);
         setTotalAssets(data || 0);
       } catch (error) {
-        console.error('Error fetching total assets:', error);
+        console.error('Dashboard - Error fetching total assets:', {
+          error,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        });
         setTotalAssets(0); // Default to 0 on error
       } finally {
+        console.log('Dashboard - fetchTotalAssets completed, assetsLoading set to false');
         setAssetsLoading(false);
       }
     };
