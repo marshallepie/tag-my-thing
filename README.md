@@ -19,7 +19,10 @@ This is not just a place to leave your *last* will—it's a place to record your
 - Optional blockchain storage for proof of existence
 - Asset tagging by name, type, value, and location
 - Searchable personal archive
-- Next-of-kin handover instructions (optional)
+- Advanced Next-of-Kin management with Dead Man's Switch protection
+- Incoming/Outgoing NOK assignment tracking
+- Mass assignment of assets to trusted individuals
+- NOK reassignment capabilities for flexible legacy planning
 - Product authenticity verification for businesses
 - QR code generation and scan tracking
 - Multi-tier subscription plans for business users
@@ -29,9 +32,11 @@ This is not just a place to leave your *last* will—it's a place to record your
 ## 🔐 Target Use Cases
 - Lost & found recovery
 - Proof of ownership
-- Legacy planning
+- Legacy planning with Dead Man's Switch protection
 - Secret safekeeping
 - Emotional or legal testimony
+- Digital inheritance management
+- Trusted asset handover with privacy protection
 
 ---
 
@@ -136,6 +141,31 @@ TagMyThing offers different signup paths for different user types:
 4. **Manage** - View, edit, and organize your assets
 5. **Share** - Control privacy and next-of-kin access
 
+### Next-of-Kin & Dead Man's Switch
+TagMyThing features an advanced Next-of-Kin (NOK) management system with Dead Man's Switch (DMS) protection:
+
+#### Core Features
+- **Incoming NOK Assignments** - Track assets where you've been designated as someone's next-of-kin
+- **Outgoing NOK Assignments** - Manage assets you've assigned to others as next-of-kin
+- **Dead Man's Switch Protection** - Assets are only accessible to NOK after a specified period of inactivity
+- **Privacy Protection** - NOK can see they've been assigned without viewing asset details until DMS triggers
+- **Mass Assignment** - Assign all your assets to a single NOK in one action
+- **Reassignment** - NOK can reassign incoming assignments to other trusted individuals
+
+#### How It Works
+1. **Add Next-of-Kin** - Register trusted individuals with their contact information
+2. **Assign Assets** - Choose specific assets or use mass assignment to assign all assets
+3. **Set DMS Period** - Define how long you must be inactive before access is granted (1-5 years)
+4. **Privacy Protection** - NOK only sees assignment notification, not asset details
+5. **Automatic Trigger** - If you don't log in within the DMS period, NOK gains access
+6. **Reassignment Option** - NOK can reassign responsibility to someone else if needed
+
+#### Dashboard Overview
+- **Incoming Count** - Number of assets assigned to you as NOK
+- **Outgoing Count** - Number of assets you've assigned to others
+- **Triggered Assignments** - Assets where DMS has been activated
+- **Upcoming DMS** - Assignments approaching their DMS date
+
 ### Token Economy
 - **50 TMT** - Free signup bonus for regular users
 - **100 TMT** - Free signup bonus for influencers
@@ -160,11 +190,21 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - `user_profiles` - Extended user information
 - `user_wallets` - TMT token balances
 - `assets` - Tagged assets with metadata
-- `next_of_kin` - Next-of-kin relationships
+- `next_of_kin` - Next-of-kin relationships and contact information
+- `asset_nok_assignments` - NOK assignments with Dead Man's Switch configuration
 - `token_transactions` - Token earning/spending history
 - `payments` - Token purchase records
 - `referrals` - Referral tracking system
 - `referral_rewards` - Referral token rewards
+
+#### Enhanced NOK Schema
+The NOK system includes advanced fields for Dead Man's Switch functionality:
+- `dms_date` - Date when DMS triggers if user remains inactive
+- `status` - Assignment status (pending, active, triggered, cancelled)
+- `access_granted_at` - Timestamp when DMS was triggered
+- `original_assigner_user_id` - User who created the assignment
+- `reassigned_by_user_id` - User who reassigned the NOK responsibility
+- `last_activity_at` - User's last login/activity for DMS tracking
 
 All tables implement Row Level Security (RLS) for data protection.
 
@@ -177,6 +217,9 @@ All tables implement Row Level Security (RLS) for data protection.
 - **File Upload Security** - Secure asset storage with access controls
 - **Token Validation** - Server-side token transaction validation
 - **Privacy Controls** - User-controlled asset visibility
+- **Dead Man's Switch** - Time-based access control for NOK assignments
+- **Conditional Asset Access** - NOK can only view asset details after DMS activation
+- **Activity Tracking** - User activity monitoring for DMS functionality
 
 ---
 
@@ -248,6 +291,10 @@ For support, email tagmything_support@marshallepie.com or join our community dis
 - [ ] Multi-language support
 - [ ] Enterprise features
 - [ ] API for third-party integrations
+- [ ] Email notifications for DMS triggers
+- [ ] Advanced NOK verification system
+- [ ] Bulk NOK management tools
+- [ ] Legacy planning templates
 
 ---
 
