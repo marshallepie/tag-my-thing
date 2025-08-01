@@ -84,6 +84,7 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 
 // Protected Route Component with role-based redirects
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Always call useAuth at the top level to maintain hook order
   const { isAuthenticated, loading, initialized, user, profile } = useAuth();
 
   console.log('ProtectedRoute - Auth state:', { 
@@ -94,20 +95,21 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     hasProfile: !!profile 
   });
 
+  // Early returns after all hooks are called
   if (!initialized || loading) {
     console.log('ProtectedRoute - Showing loading screen');
-    return <LoadingScreen />;
-  }
-
-  // Additional check to ensure we have both user and profile
-  if (!user || !profile) {
-    console.log('ProtectedRoute - Missing user or profile, showing loading');
     return <LoadingScreen />;
   }
 
   if (!isAuthenticated) {
     console.log('ProtectedRoute - Not authenticated, redirecting to auth');
     return <Navigate to="/auth" replace />;
+  }
+
+  // Additional check to ensure we have both user and profile
+  if (!user || !profile) {
+    console.log('ProtectedRoute - Missing user or profile, showing loading');
+    return <LoadingScreen />;
   }
 
   console.log('ProtectedRoute - Authenticated, rendering children');
