@@ -252,6 +252,11 @@ export const useAuth = () => {
         
         const user = session.user;
         console.log('useAuth - About to call fetchProfile for user:', user.id);
+        
+        // Add delay to allow database trigger to complete profile creation
+        console.log('useAuth - Adding 500ms delay to allow profile creation to complete');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         const profile = await fetchProfile(user.id);
         console.log('useAuth - fetchProfile returned:', profile ? 'profile found' : 'null profile');
 
