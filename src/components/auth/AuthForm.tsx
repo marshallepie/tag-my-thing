@@ -106,6 +106,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   };
 
   const handleSignup = async () => {
+    console.log('AuthForm - Starting handleSignup');
     console.log('AuthForm - Starting signup process');
 
     // Sign up user with Supabase Auth
@@ -167,9 +168,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     setTimeout(() => {
       onSuccess();
     }, 500);
+    console.log('AuthForm - Finished handleSignup');
   };
 
   const handleSignin = async () => {
+    console.log('AuthForm - Starting handleSignin');
     console.log('AuthForm - Starting signin process');
 
     const { data: auth, error } = await supabase.auth.signInWithPassword({
@@ -190,10 +193,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     setTimeout(() => {
       onSuccess();
     }, 500);
+    console.log('AuthForm - Finished handleSignin');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('AuthForm - Starting handleSubmit, mode:', mode);
     setLoading(true);
 
     try {
@@ -228,6 +233,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       toast.error(errorMessage);
     } finally {
       setLoading(false);
+      console.log('AuthForm - Finished handleSubmit');
     }
   };
 
