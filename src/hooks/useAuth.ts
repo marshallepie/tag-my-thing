@@ -375,6 +375,17 @@ export const useAuth = () => {
     };
   }, []);
 
+  // Debug effect to log state changes
+  useEffect(() => {
+    console.log('useAuth - State changed:', {
+      hasUser: !!authState.user,
+      hasProfile: !!authState.profile,
+      loading: authState.loading,
+      initialized: authState.initialized,
+      isAuthenticated: !!(authState.user && authState.profile)
+    });
+  }, [authState]);
+
   // Refresh profile function
   const refreshProfile = useCallback(async () => {
     if (!authState.user?.id) {

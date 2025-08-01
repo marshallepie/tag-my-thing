@@ -84,15 +84,26 @@ const RouteErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children 
 
 // Protected Route Component with role-based redirects
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, loading, initialized } = useAuth();
+  const { isAuthenticated, loading, initialized, user, profile } = useAuth();
 
-  console.log('ProtectedRoute - Auth state:', { isAuthenticated, loading, initialized });
+  console.log('ProtectedRoute - Auth state:', { 
+    isAuthenticated, 
+    loading, 
+    initialized, 
+    hasUser: !!user, 
+    hasProfile: !!profile 
+  });
 
   if (!initialized || loading) {
     console.log('ProtectedRoute - Showing loading screen');
     return <LoadingScreen />;
   }
 
+  // Additional check to ensure we have both user and profile
+  if (!user || !profile) {
+    console.log('ProtectedRoute - Missing user or profile, showing loading');
+    return <LoadingScreen />;
+  }
 
   if (!isAuthenticated) {
     console.log('ProtectedRoute - Not authenticated, redirecting to auth');
