@@ -144,9 +144,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     }
 
     toast.success('Account created! Please check your email to confirm your signup.');
-    
-    // Redirect to check email page
-    navigate('/check-email', { state: { email: formData.email } });
+    onSuccess(); // Call the success callback for sign-in
     console.log('AuthForm - Finished handleSignup');
   };
 
