@@ -1,18 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Camera, Wallet, Package, Users, TrendingUp, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
 import { useNOKAssignments } from '../hooks/useNOKAssignments';
+import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
 
 export const Dashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { balance, transactions } = useTokens();
   const { stats: nokStats, loading: nokLoading } = useNOKAssignments();
+
+  const [totalAssets, setTotalAssets] = useState(0);
+  const [assetsLoading, setAssetsLoading] = useState(true);
+
+  // Fetch total assets when component mounts or user changes
+  useEffect(() => {
+    const fetchTotalAssets = async () => {
+      if (!user) {
+        setAssetsLoading(false);
+        return;
+      }
+      try {
+        setAssetsLoading(true);
+        const { data, error } = await supabase.rpc('get_user_asset_count');
+        if (error) throw error;
+        setTotalAssets(data || 0);
+      } catch (error) {
+        console.error('Error fetching total assets:', error);
+        setTotalAssets(0); // Default to 0 on error
+      } finally {
+        setAssetsLoading(false);
+      }
+    };
+
+    fetchTotalAssets();
+  }, [user]);
+
+  // Log nokStats for debugging
+  useEffect(() => {
+    console.log('NOK Stats:', nokStats);
+  }, [nokStats]);
 
   const quickActions = [
     {
@@ -89,7 +121,9 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-gray-900">Total Assets</h3>
-                  <p className="text-2xl font-bold text-secondary-600">0</p>
+                  <p className="text-2xl font-bold text-secondary-600">
+                    {assetsLoading ? '...' : totalAssets}
+                  </p>
                 </div>
               </div>
             </Card>
