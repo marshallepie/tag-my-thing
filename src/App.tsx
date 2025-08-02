@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Session } from '@supabase/supabase-js'
+import { Session } from '@supabase/supabase-ts'
 import { supabase } from './src/supabaseClient'
 import Login from './src/Login'
 import Dashboard from './src/Dashboard'
