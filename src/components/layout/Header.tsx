@@ -9,7 +9,7 @@ import { Button } from '../ui/Button';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, signOut, isAuthenticated, isAdmin, isModerator, isAdminInfluencer } = useAuth();
+  const { user, profile, signOut, isAuthenticated, hasProfile, isAdmin, isModerator, isAdminInfluencer } = useAuth();
   const { isBusinessUser } = useAuth();
   const { balance } = useTokens();
   const navigate = useNavigate();

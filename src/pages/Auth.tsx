@@ -8,7 +8,7 @@ import { Button } from '../components/ui/Button';
 export const Auth: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, loading, initialized } = useAuth();
+  const { isAuthenticated, hasProfile, loading, initialized } = useAuth();
 
   const urlParams = new URLSearchParams(location.search);
   const hasReferralCode = urlParams.has('ref');
@@ -18,7 +18,7 @@ export const Auth: React.FC = () => {
     return <div className="min-h-screen bg-gray-50" />;
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated && hasProfile) {
     return <Navigate to="/dashboard" replace />;
   }
 

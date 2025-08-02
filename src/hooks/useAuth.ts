@@ -218,7 +218,8 @@ export const useAuth = () => {
   }, []);
 
   // Derived properties
-  const isAuthenticated = !!(localState.user && localState.profile);
+  const isAuthenticated = !!localState.user;
+  const hasProfile = !!localState.profile;
   const isAdmin = localState.profile?.role === 'admin';
   const isModerator = localState.profile?.role === 'moderator' || localState.profile?.role === 'admin';
   const isInfluencer = localState.profile?.role === 'influencer';
@@ -231,6 +232,7 @@ export const useAuth = () => {
     loading: localState.loading,
     initialized: localState.initialized,
     isAuthenticated,
+    hasProfile,
     isAdmin,
     isModerator,
     isInfluencer,
