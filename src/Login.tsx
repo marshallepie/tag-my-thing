@@ -27,6 +27,9 @@ function Login() {
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit">Login</button>
       </form>
+<button className="bg-blue-500 text-white px-4 py-2 rounded">
+  Test Button
+</button>
 
       <button onClick={handleGoogleLogin}>Login with Google</button>
 
