@@ -16,7 +16,6 @@ export const BusinessAuth: React.FC = () => {
 
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
-  const fromParam = urlParams.get('from');
 
   // Navigation handler
   const handleNavigation = (path: string) => {
@@ -31,17 +30,6 @@ export const BusinessAuth: React.FC = () => {
       window.location.href = path;
     }
   };
-
-  // If already authenticated, redirect appropriately
-  if (isAuthenticated && hasProfile) {
-    if (fromParam === 'tagging' && redirectParam) {
-      navigate(`${redirectParam}?from=${fromParam}`, { replace: true });
-      return null;
-    } else {
-      navigate('/business-dashboard', { replace: true });
-      return null;
-    }
-  }
 
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {

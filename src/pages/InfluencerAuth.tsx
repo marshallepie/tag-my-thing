@@ -15,7 +15,6 @@ export const InfluencerAuth: React.FC = () => {
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
   const fromParam = urlParams.get('from');
-  const businessParam = urlParams.get('business') === 'true';
 
   // Navigation handler
   const handleNavigation = (path: string) => {
@@ -30,17 +29,6 @@ export const InfluencerAuth: React.FC = () => {
       window.location.href = path;
     }
   };
-
-  // If already authenticated, redirect appropriately
-  if (isAuthenticated && hasProfile) {
-    if (fromParam === 'tagging' && redirectParam) {
-      navigate(`${redirectParam}?from=${fromParam}`, { replace: true });
-      return null;
-    } else {
-      navigate('/dashboard', { replace: true });
-      return null;
-    }
-  }
 
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {
@@ -111,8 +99,8 @@ export const InfluencerAuth: React.FC = () => {
               <AuthForm 
                 mode={mode} 
                 onSuccess={handleSuccess} 
-                initialRole={businessParam ? 'user' : 'influencer'}
-                defaultIsBusinessUser={businessParam}
+                initialRole="influencer"
+                defaultIsBusinessUser={false}
               />
               
               <div className="text-center mt-6">
