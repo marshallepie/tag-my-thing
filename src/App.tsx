@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-ts'
-import { supabase } from './supabaseClient'
-import Login from './Login'
+import { supabase } from './lib/supabase'
+import { Auth } from './pages/Auth'
 import { Dashboard } from './pages/Dashboard'
-import CheckEmail from './pages/CheckEmail'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -24,7 +23,7 @@ function App() {
     }
   }, [])
 
-  if (!session) return <Login />
+  if (!session) return <Auth />
   return <Dashboard />
 }
 
