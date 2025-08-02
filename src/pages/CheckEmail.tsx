@@ -96,12 +96,12 @@ export const CheckEmail: React.FC = () => {
               Resend confirmation email
             </Button>
 
-            <Button
-              onClick={() => navigate('/auth')}
-              className="w-full"
-            >
-              I have confirmed my email
-            </Button>
+           <Button
+  onClick={() => navigate('/login')}
+  className="w-full"
+>
+  I have confirmed my email
+</Button>
           </div>
           
           {/* If no email present */}
