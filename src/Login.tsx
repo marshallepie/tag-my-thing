@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from './supabaseClient'
+import { supabase } from './lib/supabase'
 import { Card } from './components/ui/Card'
 import { Button } from './components/ui/Button'
 
