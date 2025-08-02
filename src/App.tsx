@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-ts'
 import { supabase } from './supabaseClient'
 import Login from './Login'
-import Dashboard from './pages/Dashboard'
+import { Dashboard } from './pages/Dashboard'
 import CheckEmail from './pages/CheckEmail'
 
 function App() {
