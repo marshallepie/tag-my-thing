@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Session } from '@supabase/supabase-js'
-import { supabase } from './supabaseClient'
-import Login from './Login'
-import Dashboard from './Dashboard'
-import CheckEmail from './CheckEmail'
+import { supabase } from './src/supabaseClient'
+import Login from './src/Login'
+import Dashboard from './src/Dashboard'
+import CheckEmail from './src/pages/CheckEmail'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
