@@ -23,7 +23,7 @@ export const TagAsset: React.FC = () => {
   const [waitingForTokens, setWaitingForTokens] = useState(false);
   const [hasProcessedPendingAsset, setHasProcessedPendingAsset] = useState(false);
   const [isProcessingPendingAsset, setIsProcessingPendingAsset] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, hasProfile } = useAuth();
   const { spendTokens, balance, loading: tokensLoading } = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
@@ -240,7 +240,7 @@ export const TagAsset: React.FC = () => {
     console.log('TagAsset - URL params check:', { fromTagging });
     
     // STRICT CONDITIONS: Only proceed if all conditions are met and not already processed/processing
-    if (fromTagging && isAuthenticated && user && !hasProcessedPendingAsset && !isProcessingPendingAsset) {
+    if (fromTagging && isAuthenticated && user && hasProfile && !hasProcessedPendingAsset && !isProcessingPendingAsset) {
       console.log('TagAsset - Conditions met for post-signup save, checking token status');
       
       // Check if we have pending data before proceeding
@@ -281,6 +281,7 @@ export const TagAsset: React.FC = () => {
         fromTagging,
         isAuthenticated,
         hasUser: !!user,
+        hasProfile,
         hasProcessedPendingAsset,
         isProcessingPendingAsset
       });

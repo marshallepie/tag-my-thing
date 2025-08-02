@@ -191,24 +191,11 @@ export const InfluencerReferrals: React.FC = () => {
 
   // Show loading while auth is being determined
   if (authLoading) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="h-12 w-12 text-primary-600 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">Loading...</p>
-          </div>
-        </div>
-      </Layout>
-    );
+    return null; // Let ProtectedRoute handle loading state
   }
 
-  // Redirect if not authenticated or not an influencer
-  // Allow all authenticated users to access referrals now
-  if (!isAuthenticated) {
-    console.log('InfluencerReferrals - Redirecting, auth:', isAuthenticated);
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Note: Authentication check is now handled by ProtectedRoute wrapper
+  // All authenticated users can access referrals
 
   const copyToClipboard = async (text: string) => {
     try {

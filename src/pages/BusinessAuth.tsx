@@ -12,7 +12,7 @@ export const BusinessAuth: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
-  const { isAuthenticated, loading, initialized } = useAuth();
+  const { isAuthenticated, hasProfile } = useAuth();
 
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
@@ -32,15 +32,15 @@ export const BusinessAuth: React.FC = () => {
     }
   };
 
-  if (!initialized) {
-    return <div className="min-h-screen bg-gray-50" />;
-  }
-
-  if (isAuthenticated) {
+  // If already authenticated, redirect appropriately
+  if (isAuthenticated && hasProfile) {
     if (fromParam === 'tagging' && redirectParam) {
-      return <Navigate to={`${redirectParam}?from=${fromParam}`} replace />;
+      navigate(`${redirectParam}?from=${fromParam}`, { replace: true });
+      return null;
+    } else {
+      navigate('/business-dashboard', { replace: true });
+      return null;
     }
-    return <Navigate to="/business-dashboard" replace />;
   }
 
   const handleSuccess = () => {
