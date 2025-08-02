@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, CheckCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Mail, CheckCircle, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { supabase } from '../lib/supabase';
@@ -11,7 +11,9 @@ export const CheckEmail: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [resending, setResending] = useState(false);
-  const email = location.state?.email || ''; // Get email from route state
+
+  // Email comes from route state after signup
+  const email = location.state?.email || '';
 
   const handleResend = async () => {
     if (!email) {
@@ -21,14 +23,13 @@ export const CheckEmail: React.FC = () => {
     
     setResending(true);
     try {
+      // Supabase v2 way: use auth.resend()
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: email,
+        email,
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       toast.success('Confirmation email resent! Please check your inbox.');
     } catch (error: any) {
@@ -48,22 +49,26 @@ export const CheckEmail: React.FC = () => {
         className="w-full max-w-md"
       >
         <Card className="text-center p-8">
+          {/* Top Icon */}
           <div className="flex justify-center mb-6">
             <div className="bg-primary-100 rounded-full p-4">
               <Mail className="h-12 w-12 text-primary-600" />
             </div>
           </div>
           
+          {/* Title */}
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Confirm your signup
           </h1>
           
+          {/* Message */}
           <p className="text-gray-600 mb-6 leading-relaxed">
             We've sent a confirmation email to{' '}
             <span className="font-semibold text-gray-800">{email}</span>.
-            Please click the link in your inbox to activate your account before logging in.
+            Please click the link in your inbox to activate your account.
           </p>
           
+          {/* What happens next box */}
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
               <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
@@ -72,12 +77,13 @@ export const CheckEmail: React.FC = () => {
                 <ul className="space-y-1">
                   <li>• Check your email inbox (and spam folder)</li>
                   <li>• Click the confirmation link</li>
-                  <li>• Return here to sign in</li>
+                  <li>• Then return here to sign in</li>
                 </ul>
               </div>
             </div>
           </div>
           
+          {/* Actions */}
           <div className="space-y-3">
             <Button
               onClick={handleResend}
@@ -98,6 +104,7 @@ export const CheckEmail: React.FC = () => {
             </Button>
           </div>
           
+          {/* If no email present */}
           {!email && (
             <div className="mt-4 p-3 bg-warning-50 border border-warning-200 rounded-lg">
               <p className="text-sm text-warning-700">
