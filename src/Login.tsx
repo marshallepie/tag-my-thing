@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { supabase } from './supabaseClient'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from './supabaseClient'
+import { Card } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
 
 function Login() {
   const [email, setEmail] = useState('')
@@ -10,58 +12,69 @@ function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setErrorMsg(error.message)
-    else navigate('/dashboard')
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setErrorMsg(error.message)
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (err: any) {
+      console.error('Login error:', err)
+      setErrorMsg(err.message || 'Unexpected error occurred')
+    }
   }
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard' },
-    })
-    if (error) setErrorMsg(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/dashboard' },
+      })
+      if (error) {
+        setErrorMsg(error.message)
+      }
+    } catch (err: any) {
+      console.error('Google login error:', err)
+      setErrorMsg(err.message || 'Unexpected error occurred')
+    }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-md p-6 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900 text-center">Login</h1>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
-            placeholder="Email address"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-primary-200"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:ring focus:ring-primary-200"
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-          >
+          <Button type="submit" className="w-full">
             Login
-          </button>
+          </Button>
         </form>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full mt-4 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
-        >
-          Login with Google
-        </button>
+        <div className="flex items-center justify-center">
+          <Button onClick={handleGoogleLogin} variant="outline" className="w-full">
+            Login with Google
+          </Button>
+        </div>
 
         {errorMsg && (
-          <p className="text-red-500 text-sm mt-4 text-center">{errorMsg}</p>
+          <p className="text-red-500 text-sm text-center">{errorMsg}</p>
         )}
-      </div>
+      </Card>
     </div>
   )
 }
