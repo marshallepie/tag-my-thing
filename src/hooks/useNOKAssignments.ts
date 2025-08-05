@@ -15,6 +15,8 @@ interface IncomingAssignment {
   status: 'pending' | 'active' | 'triggered' | 'cancelled';
   access_granted_at: string | null;
   can_view_details: boolean;
+  nok_status: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+  nok_linked_user_id: string | null;
 }
 
 interface OutgoingAssignment {
@@ -30,6 +32,8 @@ interface OutgoingAssignment {
   status: 'pending' | 'active' | 'triggered' | 'cancelled';
   access_granted_at: string | null;
   days_until_dms: number;
+  nok_status: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+  nok_linked_user_id: string | null;
 }
 
 interface NOKStats {

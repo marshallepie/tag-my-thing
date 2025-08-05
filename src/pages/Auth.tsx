@@ -11,9 +11,15 @@ export const Auth: React.FC = () => {
   const { isAuthenticated, hasProfile } = useAuth();
 
   const urlParams = new URLSearchParams(location.search);
+  const nokInviteEmail = urlParams.get('nok_invite_email');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
   const handleSuccess = () => {
+    if (nokInviteEmail) {
+      // If this was a NOK invite, redirect to NOK dashboard
+      navigate('/nok', { replace: true });
+      return;
+    }
     console.log('Auth page: handleSuccess called, navigating to dashboard');
     navigate('/dashboard', { replace: true });
   };
@@ -26,7 +32,13 @@ export const Auth: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <AuthForm mode={mode} onSuccess={handleSuccess} />
+          <AuthForm 
+            mode={mode} 
+            onSuccess={handleSuccess}
+            initialEmail={nokInviteEmail || ''}
+            emailReadOnly={!!nokInviteEmail}
+            nokInviteEmail={nokInviteEmail || undefined}
+          />
           
           <div className="text-center mt-6">
             {mode === 'signin' ? (

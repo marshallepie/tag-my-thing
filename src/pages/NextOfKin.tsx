@@ -80,6 +80,7 @@ export const NextOfKin: React.FC = () => {
   const [showReassignModal, setShowReassignModal] = useState(false);
   const [showIncomingModal, setShowIncomingModal] = useState(false);
   const [showOutgoingModal, setShowOutgoingModal] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState<string | null>(null);
   const [selectedNOK, setSelectedNOK] = useState<NextOfKin | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [formData, setFormData] = useState<NOKFormData>({
@@ -308,6 +309,63 @@ export const NextOfKin: React.FC = () => {
     }
   };
 
+  const handleSendInvite = async (nok: NextOfKin) => {
+    if (!user) return;
+
+    setInviteLoading(nok.id);
+    try {
+      // First, update NOK status to 'invited' via RPC
+      const { data: inviteData, error: inviteError } = await supabase.rpc('send_nok_invite', {
+        p_nok_id: nok.id
+      });
+
+      if (inviteError) throw inviteError;
+
+      if (!inviteData?.success) {
+        throw new Error(inviteData?.error || 'Failed to update NOK status');
+      }
+
+      // Then, call the Edge Function to send the actual email
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No valid session');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-nok-invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          nokId: nok.id,
+          nokEmail: nok.email,
+          nokName: nok.name,
+          nominatorName: profile?.full_name || user.email,
+          relationship: nok.relationship
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send invitation email');
+      }
+
+      if (result.success) {
+        toast.success(`Invitation sent to ${nok.name}!`);
+        await fetchData(); // Refresh NOK list to show updated status
+      } else {
+        throw new Error(result.error || 'Failed to send invitation');
+      }
+    } catch (error: any) {
+      console.error('Error sending NOK invite:', error);
+      toast.error(error.message || 'Failed to send invitation');
+    } finally {
+      setInviteLoading(null);
+    }
+  };
+
   const openEditModal = (nok: NextOfKin) => {
     setSelectedNOK(nok);
     setFormData({
@@ -352,10 +410,14 @@ export const NextOfKin: React.FC = () => {
     switch (status) {
       case 'verified':
         return 'bg-success-100 text-success-800';
+      case 'invited':
+        return 'bg-secondary-100 text-secondary-800';
       case 'pending':
         return 'bg-warning-100 text-warning-800';
       case 'declined':
         return 'bg-error-100 text-error-800';
+      case 'reverted':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -648,6 +710,21 @@ export const NextOfKin: React.FC = () => {
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
+                          
+                          {/* Send Invite / Resend Invite Button */}
+                          {(nok.status === 'pending' || nok.status === 'invited') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSendInvite(nok)}
+                              loading={inviteLoading === nok.id}
+                              className="flex-1 text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50"
+                            >
+                              <Send className="h-4 w-4 mr-1" />
+                              {nok.status === 'invited' ? 'Resend' : 'Invite'}
+                            </Button>
+                          )}
+                          
                           <Button
                             variant="ghost"
                             size="sm"
@@ -676,7 +753,31 @@ export const NextOfKin: React.FC = () => {
                             <AlertCircle className="h-4 w-4 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
                             <div className="text-xs text-warning-700">
                               <p className="font-medium mb-1">Verification Pending</p>
-                              <p>This person needs to verify their email to access your assets.</p>
+                              <p>Send an invitation to this person so they can accept the nomination.</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nok.status === 'invited' && (
+                        <div className="mt-4 p-3 bg-secondary-50 border border-secondary-200 rounded-lg">
+                          <div className="flex items-start">
+                            <Send className="h-4 w-4 text-secondary-600 mt-0.5 mr-2 flex-shrink-0" />
+                            <div className="text-xs text-secondary-700">
+                              <p className="font-medium mb-1">Invitation Sent</p>
+                              <p>This person has been invited and needs to sign up or log in to accept.</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {nok.status === 'reverted' && (
+                        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                          <div className="flex items-start">
+                            <XCircle className="h-4 w-4 text-gray-600 mt-0.5 mr-2 flex-shrink-0" />
+                            <div className="text-xs text-gray-700">
+                              <p className="font-medium mb-1">Account Deleted</p>
+                              <p>This person's account was deleted. You may need to re-invite them.</p>
                             </div>
                           </div>
                         </div>

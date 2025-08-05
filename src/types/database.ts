@@ -132,7 +132,8 @@ export interface Database {
           phone: string | null;
           relationship: string;
           photo_url: string | null;
-          status: 'pending' | 'verified' | 'declined';
+          status: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+          linked_user_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -143,7 +144,8 @@ export interface Database {
           phone?: string | null;
           relationship: string;
           photo_url?: string | null;
-          status?: 'pending' | 'verified' | 'declined';
+          status?: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+          linked_user_id?: string | null;
         };
         Update: {
           name?: string;
@@ -151,7 +153,8 @@ export interface Database {
           phone?: string | null;
           relationship?: string;
           photo_url?: string | null;
-          status?: 'pending' | 'verified' | 'declined';
+          status?: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+          linked_user_id?: string | null;
         };
       };
       asset_nok_assignments: {
@@ -442,6 +445,27 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      send_nok_invite: {
+        Args: {
+          p_nok_id: string;
+        };
+        Returns: {
+          success: boolean;
+          error?: string;
+          message?: string;
+        };
+      };
+      accept_nok_nomination: {
+        Args: {
+          p_nok_email: string;
+          p_linked_user_id: string;
+        };
+        Returns: {
+          success: boolean;
+          error?: string;
+          message?: string;
+        };
+      };
       register_product: {
         Args: {
           p_product_name: string;
