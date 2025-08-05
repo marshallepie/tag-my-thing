@@ -1132,6 +1132,86 @@ export const Assets: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dead Man's Switch Period
+                    </label>
+                    <select
+                      value={dmsYearsForAssignment}
+                      onChange={(e) => setDmsYearsForAssignment(parseInt(e.target.value))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value={1}>1 Year</option>
+                      <option value={2}>2 Years</option>
+                      <option value={3}>3 Years</option>
+                      <option value={4}>4 Years</option>
+                      <option value={5}>5 Years</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      If you don't log in for this period, your selected Next of Kin will gain access to this asset.
+                    </p>
+                  </div>
+
+                  <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Timer className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                      <div className="text-sm text-warning-700">
+                        <p className="font-medium mb-1">Privacy Protection</p>
+                        <p>Your Next of Kin will only know they've been assigned without seeing asset details until the Dead Man's Switch is triggered.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Shield className="h-5 w-5 text-primary-600 mt-0.5 mr-2 flex-shrink-0" />
+                      <div className="text-sm text-primary-700">
+                        <p className="font-medium mb-1">Assignment Details</p>
+                        <p>
+                          Asset "{selectedAssetForNOK.title}" will be assigned to{' '}
+                          {selectedNOKIdForAssignment ? 
+                            nokListForAssignment.find(nok => nok.id === selectedNOKIdForAssignment)?.name || 'Selected NOK' : 
+                            'your chosen Next of Kin'
+                          } with a {dmsYearsForAssignment}-year Dead Man's Switch period.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssignNOKModal(false);
+                    setSelectedAssetForNOK(null);
+                    setSelectedNOKIdForAssignment('');
+                    setDmsYearsForAssignment(1);
+                    setNokListForAssignment([]);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                {nokListForAssignment.length > 0 && (
+                  <Button
+                    onClick={handleConfirmAssignNOK}
+                    loading={assignNOKLoading}
+                    disabled={!selectedNOKIdForAssignment}
+                    className="flex-1"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Assign to NOK
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </Modal>
+
         {/* Delete Confirmation Modal */}
         <Modal
           isOpen={showDeleteModal}
@@ -1204,81 +1284,6 @@ export const Assets: React.FC = () => {
                     className="flex-1"
                   >
                     Delete Asset
-                  </Button>
-                )}
-              </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Dead Man's Switch Period
-                    </label>
-                    <select
-                      value={dmsYearsForAssignment}
-                      onChange={(e) => setDmsYearsForAssignment(parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                      <option value={1}>1 Year</option>
-                      <option value={2}>2 Years</option>
-                      <option value={3}>3 Years</option>
-                      <option value={4}>4 Years</option>
-                      <option value={5}>5 Years</option>
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      If you don't log in for this period, your selected Next of Kin will gain access to this asset.
-                    </p>
-                  </div>
-            </div>
-                  <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <Timer className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
-                      <div className="text-sm text-warning-700">
-                        <p className="font-medium mb-1">Privacy Protection</p>
-                        <p>Your Next of Kin will only know they've been assigned without seeing asset details until the Dead Man's Switch is triggered.</p>
-                      </div>
-                    </div>
-                  </div>
-          )}
-                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <Shield className="h-5 w-5 text-primary-600 mt-0.5 mr-2 flex-shrink-0" />
-                      <div className="text-sm text-primary-700">
-                        <p className="font-medium mb-1">Assignment Details</p>
-                        <p>
-                          Asset "{selectedAssetForNOK.title}" will be assigned to{' '}
-                          {selectedNOKIdForAssignment ? 
-                            nokListForAssignment.find(nok => nok.id === selectedNOKIdForAssignment)?.name || 'Selected NOK' : 
-                            'your chosen Next of Kin'
-                          } with a {dmsYearsForAssignment}-year Dead Man's Switch period.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-        </Modal>
-              {/* Action Buttons */}
-              <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowAssignNOKModal(false);
-                    setSelectedAssetForNOK(null);
-                    setSelectedNOKIdForAssignment('');
-                    setDmsYearsForAssignment(1);
-                    setNokListForAssignment([]);
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                {nokListForAssignment.length > 0 && (
-                  <Button
-                    onClick={handleConfirmAssignNOK}
-                    loading={assignNOKLoading}
-                    disabled={!selectedNOKIdForAssignment}
-                    className="flex-1"
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Assign to NOK
                   </Button>
                 )}
               </div>
