@@ -16,6 +16,8 @@ export const BusinessAuth: React.FC = () => {
 
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
+  const nokInviteEmail = urlParams.get('nok_invite_email');
+  const fromParam = urlParams.get('from');
 
   // Navigation handler
   const handleNavigation = (path: string) => {
@@ -34,6 +36,9 @@ export const BusinessAuth: React.FC = () => {
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {
       navigate(`${redirectParam}?from=tagging`, { replace: true });
+    } else if (nokInviteEmail) {
+      // If this was a NOK invite, redirect to NOK dashboard
+      navigate('/nok', { replace: true });
     } else {
       navigate('/business-dashboard', { replace: true });
     }
@@ -112,6 +117,19 @@ export const BusinessAuth: React.FC = () => {
                   Business Account Setup
                 </h1>
               </div>
+              
+              {nokInviteEmail && (
+                <div className="mb-6 p-4 bg-secondary-50 border border-secondary-200 rounded-lg">
+                  <div className="flex items-center justify-center space-x-2 mb-2">
+                    <Shield className="h-6 w-6 text-secondary-600" />
+                    <h2 className="text-xl font-bold text-gray-900">Next-of-Kin Invitation</h2>
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    You've been nominated as a Next-of-Kin. Complete your business signup to accept this important responsibility.
+                  </p>
+                </div>
+              )}
+              
               <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
                 Protect your products with TagMyThing's business verification system
               </p>
@@ -131,6 +149,9 @@ export const BusinessAuth: React.FC = () => {
                 onSuccess={handleSuccess} 
                 initialRole="user"
                 defaultIsBusinessUser={true}
+                initialEmail={nokInviteEmail || ''}
+                emailReadOnly={!!nokInviteEmail}
+                nokInviteEmail={nokInviteEmail || undefined}
               />
               
               <div className="text-center mt-6">

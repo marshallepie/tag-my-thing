@@ -15,6 +15,7 @@ export const InfluencerAuth: React.FC = () => {
   const urlParams = new URLSearchParams(location.search);
   const redirectParam = urlParams.get('redirect');
   const fromParam = urlParams.get('from');
+  const nokInviteEmail = urlParams.get('nok_invite_email');
 
   // Navigation handler
   const handleNavigation = (path: string) => {
@@ -33,6 +34,9 @@ export const InfluencerAuth: React.FC = () => {
   const handleSuccess = () => {
     if (fromParam === 'tagging' && redirectParam) {
       navigate(`${redirectParam}?from=tagging`, { replace: true });
+    } else if (nokInviteEmail) {
+      // If this was a NOK invite, redirect to NOK dashboard
+      navigate('/nok', { replace: true });
     } else {
       navigate('/dashboard', { replace: true });
     }
@@ -85,6 +89,18 @@ export const InfluencerAuth: React.FC = () => {
             >
               <div className="flex items-center justify-center space-x-2 mb-4">
                 <Crown className="h-12 w-12 text-yellow-600" />              </div>
+              
+              {nokInviteEmail && (
+                <div className="mb-6 p-4 bg-secondary-50 border border-secondary-200 rounded-lg">
+                  <div className="flex items-center justify-center space-x-2 mb-2">
+                    <Shield className="h-6 w-6 text-secondary-600" />
+                    <h2 className="text-xl font-bold text-gray-900">Next-of-Kin Invitation</h2>
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    You've been nominated as a Next-of-Kin. Complete your signup to accept this important responsibility.
+                  </p>
+                </div>
+              )}
             </motion.div>
           </div>
 
@@ -101,6 +117,9 @@ export const InfluencerAuth: React.FC = () => {
                 onSuccess={handleSuccess} 
                 initialRole="influencer"
                 defaultIsBusinessUser={false}
+                initialEmail={nokInviteEmail || ''}
+                emailReadOnly={!!nokInviteEmail}
+                nokInviteEmail={nokInviteEmail || undefined}
               />
               
               <div className="text-center mt-6">

@@ -14,17 +14,23 @@ interface AuthFormProps {
   onSuccess: () => void;
   initialRole?: 'user' | 'influencer';
   defaultIsBusinessUser?: boolean;
+  initialEmail?: string;
+  emailReadOnly?: boolean;
+  nokInviteEmail?: string;
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ 
   mode, 
   onSuccess, 
   initialRole = 'user', 
-  defaultIsBusinessUser = false 
+  defaultIsBusinessUser = false,
+  initialEmail = '',
+  emailReadOnly = false,
+  nokInviteEmail = null
 }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    email: initialEmail,
     password: '',
     fullName: '',
   });
@@ -35,13 +41,18 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const { processReferralSignup } = useReferrals();
 
   useEffect(() => {
+    // Set initial email if provided
+    if (initialEmail && !formData.email) {
+      setFormData(prev => ({ ...prev, email: initialEmail }));
+    }
+
     // Check for referral code in URL
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref');
     if (ref) {
       setReferralCode(ref);
     }
-  }, []);
+  }, [initialEmail]);
 
   const createUserProfile = async (userId: string, email: string, fullName: string) => {
     console.log('AuthForm - Creating user profile for:', userId);
@@ -133,6 +144,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw new Error('No user returned from signup');
     }
 
+    // Handle NOK invite acceptance for new signups
+    await handleSignupSuccess(auth.user.id);
+
     console.log('AuthForm - User created in auth, email confirmation required');
 
     // Store referral code for processing after email confirmation
@@ -170,6 +184,29 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     
     console.log('AuthForm: Sign-in successful, user:', auth.user?.id);
     
+    // Handle NOK invite acceptance on sign-in
+    if (nokInviteEmail && auth.user?.id) {
+      console.log('AuthForm: Processing NOK invite acceptance for:', nokInviteEmail);
+      try {
+        const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
+          p_nok_email: nokInviteEmail,
+          p_linked_user_id: auth.user.id
+        });
+
+        if (acceptError) {
+          console.error('NOK acceptance error:', acceptError);
+          toast.error('Failed to accept NOK nomination');
+        } else if (acceptResult?.success) {
+          toast.success('NOK nomination accepted successfully!');
+        } else {
+          console.log('NOK acceptance result:', acceptResult);
+          // Don't show error if no nomination found - user might just be signing in normally
+        }
+      } catch (nokError) {
+        console.error('NOK acceptance failed:', nokError);
+      }
+    }
+    
     const pendingReferralCode = localStorage.getItem('pending_referral_code');
     const pendingUserId = localStorage.getItem('pending_referral_user_id');
     
@@ -188,6 +225,31 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     onSuccess();
   };
 
+  const handleSignupSuccess = async (userId: string) => {
+    // Handle NOK invite acceptance on sign-up
+    if (nokInviteEmail && userId) {
+      console.log('AuthForm: Processing NOK invite acceptance after signup for:', nokInviteEmail);
+      try {
+        const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
+          p_nok_email: nokInviteEmail,
+          p_linked_user_id: userId
+        });
+
+        if (acceptError) {
+          console.error('NOK acceptance error:', acceptError);
+          toast.error('Account created but failed to accept NOK nomination');
+        } else if (acceptResult?.success) {
+          toast.success('Account created and NOK nomination accepted!');
+        } else {
+          console.log('NOK acceptance result:', acceptResult);
+          toast.success('Account created successfully!');
+        }
+      } catch (nokError) {
+        console.error('NOK acceptance failed:', nokError);
+        toast.success('Account created successfully!');
+      }
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -269,6 +331,19 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             </p>
           </motion.div>
         )}
+        
+        {/* NOK Invite Notice */}
+        {nokInviteEmail && mode === 'signup' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-3 bg-secondary-50 border border-secondary-200 rounded-lg"
+          >
+            <p className="text-sm text-secondary-700">
+              🛡️ You're accepting a Next-of-Kin nomination! You'll be able to manage someone's digital legacy.
+            </p>
+          </motion.div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -292,6 +367,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           type="email"
           value={formData.email}
           onChange={handleChange}
+          disabled={emailReadOnly}
           icon={<Mail className="h-5 w-5 text-gray-400" />}
           required
         />
@@ -336,7 +412,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           className="mt-4 p-3 bg-primary-50 rounded-lg"
         >
           <p className="text-sm text-primary-700 text-center">
-            🎉 Get {initialRole === 'influencer' ? '100' : '50'} TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!{isBusinessUserSignup ? ' Plus access to business features!' : ''}
+            🎉 Get {initialRole === 'influencer' ? '100' : '50'} TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!{isBusinessUserSignup ? ' Plus access to business features!' : ''}{nokInviteEmail ? ' Plus Next-of-Kin access!' : ''}
           </p>
         </motion.div>
       )}
