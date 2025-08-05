@@ -1,5 +1,8 @@
+// supabase/functions/send-nok-invite/index.ts
+
 import { serve } from "https://deno.land/std@0.203.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { Resend } from "npm:resend";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,7 +19,6 @@ interface NOKInviteRequest {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -29,13 +31,11 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client with service role for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Parse request body
     const { nokId, nokEmail, nokName, nominatorName, relationship }: NOKInviteRequest = await req.json();
 
     if (!nokId || !nokEmail || !nokName || !nominatorName) {
@@ -47,7 +47,6 @@ serve(async (req) => {
       });
     }
 
-    // Verify the NOK record exists and is in 'invited' status
     const { data: nokRecord, error: nokError } = await supabaseClient
       .from('next_of_kin')
       .select('*')
@@ -64,13 +63,11 @@ serve(async (req) => {
       });
     }
 
-    // Construct the invitation URL
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173';
     const inviteUrl = `${siteUrl}/influencer-signup?nok_invite_email=${encodeURIComponent(nokEmail)}`;
 
-    // Email content
     const subject = `You've been nominated as a Next-of-Kin by ${nominatorName} on TagMyThing`;
-    
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -87,7 +84,6 @@ serve(async (req) => {
           .highlight { background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 20px; margin: 20px 0; border-radius: 8px; }
           .button { display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
           .footer { background-color: #f3f4f6; padding: 30px; text-align: center; color: #6b7280; font-size: 14px; }
-          .shield-icon { width: 48px; height: 48px; margin: 0 auto 20px; }
         </style>
       </head>
       <body>
@@ -170,65 +166,21 @@ This email was sent because ${nominatorName} nominated you as their Next-of-Kin 
 TagMyThing - Secure Asset Management & Digital Legacy Planning
     `;
 
-    // TODO: Replace this section with your actual email service integration
-    // For now, we'll simulate the email sending and return success
-    
-    // Example integrations:
-    
-    // SENDGRID EXAMPLE:
-    // const sgMail = require('npm:@sendgrid/mail');
-    // sgMail.setApiKey(Deno.env.get('SENDGRID_API_KEY'));
-    // const msg = {
-    //   to: nokEmail,
-    //   from: Deno.env.get('FROM_EMAIL') || 'noreply@yourdomain.com',
-    //   subject: subject,
-    //   text: textContent,
-    //   html: htmlContent,
-    // };
-    // await sgMail.send(msg);
-    
-    // RESEND EXAMPLE:
-    // const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-    // await resend.emails.send({
-    //   from: Deno.env.get('FROM_EMAIL') || 'noreply@yourdomain.com',
-    //   to: nokEmail,
-    //   subject: subject,
-    //   text: textContent,
-    //   html: htmlContent,
-    // });
+    // --- Resend integration ---
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY') ?? '');
 
-    // MAILGUN EXAMPLE:
-    // const mailgun = require('npm:mailgun-js')({
-    //   apiKey: Deno.env.get('MAILGUN_API_KEY'),
-    //   domain: Deno.env.get('MAILGUN_DOMAIN')
-    // });
-    // await mailgun.messages().send({
-    //   from: Deno.env.get('FROM_EMAIL') || 'noreply@yourdomain.com',
-    //   to: nokEmail,
-    //   subject: subject,
-    //   text: textContent,
-    //   html: htmlContent,
-    // });
+    await resend.emails.send({
+      from: Deno.env.get('FROM_EMAIL') || 'noreply@yourdomain.com',
+      to: nokEmail,
+      subject,
+      text: textContent,
+      html: htmlContent,
+    });
 
-    console.log(`NOK invitation email would be sent to: ${nokEmail}`);
-    console.log(`Invitation URL: ${inviteUrl}`);
-    console.log(`Subject: ${subject}`);
-
-    // For development/testing, we'll return success without actually sending email
-    // In production, uncomment and configure one of the email service integrations above
-    
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'NOK invitation email prepared successfully.',
-      inviteUrl: inviteUrl,
-      // Remove these debug fields in production:
-      debug: {
-        nokEmail,
-        nokName,
-        nominatorName,
-        relationship,
-        subject
-      }
+      message: 'NOK invitation email sent successfully.',
+      inviteUrl
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
