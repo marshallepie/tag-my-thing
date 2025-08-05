@@ -27,11 +27,15 @@ import {
   Coins,
   Shield,
   Download,
-  Share2
+  Share2,
+  Users,
+  Timer,
+  UserPlus
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
+import { useNOKAssignments } from '../hooks/useNOKAssignments';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -71,6 +75,14 @@ interface Asset {
   archive_method: string | null;
 }
 
+interface NextOfKin {
+  id: string;
+  name: string;
+  email: string;
+  relationship: string;
+  status: 'pending' | 'invited' | 'verified' | 'declined' | 'reverted';
+}
+
 export const Assets: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
@@ -84,9 +96,19 @@ export const Assets: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [archiveLoading, setArchiveLoading] = useState<string | null>(null);
+  
+  // NOK Assignment states
+  const [showAssignNOKModal, setShowAssignNOKModal] = useState(false);
+  const [selectedAssetForNOK, setSelectedAssetForNOK] = useState<Asset | null>(null);
+  const [nokListForAssignment, setNokListForAssignment] = useState<NextOfKin[]>([]);
+  const [selectedNOKIdForAssignment, setSelectedNOKIdForAssignment] = useState('');
+  const [dmsYearsForAssignment, setDmsYearsForAssignment] = useState(1);
+  const [assignNOKLoading, setAssignNOKLoading] = useState(false);
+  const [nokListLoading, setNokListLoading] = useState(false);
 
   const { user } = useAuth();
   const { balance, spendTokens, refreshWallet } = useTokens();
+  const { assignNOKToAsset, refreshAssignments } = useNOKAssignments();
 
   useEffect(() => {
     if (user) {
@@ -246,6 +268,70 @@ export const Assets: React.FC = () => {
     }
   };
 
+  const fetchNOKListForAssignment = async () => {
+    if (!user) return;
+
+    setNokListLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('next_of_kin')
+        .select('id, name, email, relationship, status')
+        .eq('user_id', user.id)
+        .eq('status', 'verified') // Only show verified NOKs for assignment
+        .order('name');
+
+      if (error) throw error;
+      setNokListForAssignment(data || []);
+    } catch (error: any) {
+      console.error('Error fetching NOK list:', error);
+      toast.error('Failed to load Next of Kin list');
+      setNokListForAssignment([]);
+    } finally {
+      setNokListLoading(false);
+    }
+  };
+
+  const handleAssignNOKClick = (asset: Asset) => {
+    setSelectedAssetForNOK(asset);
+    setSelectedNOKIdForAssignment('');
+    setDmsYearsForAssignment(1);
+    setShowAssignNOKModal(true);
+    fetchNOKListForAssignment();
+  };
+
+  const handleConfirmAssignNOK = async () => {
+    if (!selectedAssetForNOK || !selectedNOKIdForAssignment) {
+      toast.error('Please select a Next of Kin');
+      return;
+    }
+
+    setAssignNOKLoading(true);
+    try {
+      // Calculate DMS date
+      const dmsDate = new Date();
+      dmsDate.setFullYear(dmsDate.getFullYear() + dmsYearsForAssignment);
+
+      const success = await assignNOKToAsset(
+        selectedAssetForNOK.id,
+        selectedNOKIdForAssignment,
+        dmsDate
+      );
+
+      if (success) {
+        const selectedNOK = nokListForAssignment.find(nok => nok.id === selectedNOKIdForAssignment);
+        toast.success(`Asset "${selectedAssetForNOK.title}" assigned to ${selectedNOK?.name}!`);
+        setShowAssignNOKModal(false);
+        setSelectedAssetForNOK(null);
+        setSelectedNOKIdForAssignment('');
+        await refreshAssignments(); // This will update the incoming/outgoing counts
+      }
+    } catch (error: any) {
+      console.error('Error assigning NOK:', error);
+      toast.error('Failed to assign Next of Kin');
+    } finally {
+      setAssignNOKLoading(false);
+    }
+  };
   const getArchiveStatusIcon = (status: string) => {
     switch (status) {
       case 'archived':
@@ -422,6 +508,17 @@ export const Assets: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => handleAssignNOKClick(asset)}
+              className="flex-1 text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50"
+              title="Assign this asset to a Next of Kin"
+            >
+              <Users className="h-4 w-4 mr-1" />
+              Assign NOK
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setSelectedAsset(asset);
                 setShowDetailModal(true);
@@ -554,6 +651,16 @@ export const Assets: React.FC = () => {
                   }}
                 >
                   <Eye className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAssignNOKClick(asset)}
+                  className="text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50"
+                  title="Assign this asset to a Next of Kin"
+                >
+                  <Users className="h-4 w-4" />
                 </Button>
 
                 <Button
@@ -951,6 +1058,80 @@ export const Assets: React.FC = () => {
           )}
         </Modal>
 
+        {/* Assign to Next-of-Kin Modal */}
+        <Modal
+          isOpen={showAssignNOKModal}
+          onClose={() => {
+            setShowAssignNOKModal(false);
+            setSelectedAssetForNOK(null);
+            setSelectedNOKIdForAssignment('');
+            setDmsYearsForAssignment(1);
+            setNokListForAssignment([]);
+          }}
+          title="Assign to Next-of-Kin"
+        >
+          {selectedAssetForNOK && (
+            <div className="space-y-6">
+              {/* Asset Preview */}
+              <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
+                <img
+                  src={selectedAssetForNOK.media_url}
+                  alt={selectedAssetForNOK.title}
+                  className="w-16 h-16 object-cover rounded-lg"
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-900">{selectedAssetForNOK.title}</h3>
+                  <p className="text-sm text-gray-600">
+                    {selectedAssetForNOK.media_type} • {format(new Date(selectedAssetForNOK.created_at), 'MMM d, yyyy')}
+                  </p>
+                </div>
+              </div>
+
+              {nokListLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                  <span className="ml-3 text-gray-600">Loading Next of Kin...</span>
+                </div>
+              ) : nokListForAssignment.length === 0 ? (
+                /* No NOK Available */
+                <div className="text-center py-8">
+                  <UserPlus className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Next of Kin Available</h3>
+                  <p className="text-gray-600 mb-6">
+                    You need to add and verify a Next of Kin before you can assign assets to them.
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setShowAssignNOKModal(false);
+                      window.open('/nok', '_blank');
+                    }}
+                    variant="outline"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Next of Kin
+                  </Button>
+                </div>
+              ) : (
+                /* NOK Selection Form */
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Next of Kin *
+                    </label>
+                    <select
+                      value={selectedNOKIdForAssignment}
+                      onChange={(e) => setSelectedNOKIdForAssignment(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      required
+                    >
+                      <option value="">Choose Next of Kin</option>
+                      {nokListForAssignment.map(nok => (
+                        <option key={nok.id} value={nok.id}>
+                          {nok.name} ({nok.relationship}) - {nok.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
         {/* Delete Confirmation Modal */}
         <Modal
           isOpen={showDeleteModal}
@@ -1023,6 +1204,81 @@ export const Assets: React.FC = () => {
                     className="flex-1"
                   >
                     Delete Asset
+                  </Button>
+                )}
+              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dead Man's Switch Period
+                    </label>
+                    <select
+                      value={dmsYearsForAssignment}
+                      onChange={(e) => setDmsYearsForAssignment(parseInt(e.target.value))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value={1}>1 Year</option>
+                      <option value={2}>2 Years</option>
+                      <option value={3}>3 Years</option>
+                      <option value={4}>4 Years</option>
+                      <option value={5}>5 Years</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      If you don't log in for this period, your selected Next of Kin will gain access to this asset.
+                    </p>
+                  </div>
+            </div>
+                  <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Timer className="h-5 w-5 text-warning-600 mt-0.5 mr-2 flex-shrink-0" />
+                      <div className="text-sm text-warning-700">
+                        <p className="font-medium mb-1">Privacy Protection</p>
+                        <p>Your Next of Kin will only know they've been assigned without seeing asset details until the Dead Man's Switch is triggered.</p>
+                      </div>
+                    </div>
+                  </div>
+          )}
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Shield className="h-5 w-5 text-primary-600 mt-0.5 mr-2 flex-shrink-0" />
+                      <div className="text-sm text-primary-700">
+                        <p className="font-medium mb-1">Assignment Details</p>
+                        <p>
+                          Asset "{selectedAssetForNOK.title}" will be assigned to{' '}
+                          {selectedNOKIdForAssignment ? 
+                            nokListForAssignment.find(nok => nok.id === selectedNOKIdForAssignment)?.name || 'Selected NOK' : 
+                            'your chosen Next of Kin'
+                          } with a {dmsYearsForAssignment}-year Dead Man's Switch period.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+        </Modal>
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssignNOKModal(false);
+                    setSelectedAssetForNOK(null);
+                    setSelectedNOKIdForAssignment('');
+                    setDmsYearsForAssignment(1);
+                    setNokListForAssignment([]);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                {nokListForAssignment.length > 0 && (
+                  <Button
+                    onClick={handleConfirmAssignNOK}
+                    loading={assignNOKLoading}
+                    disabled={!selectedNOKIdForAssignment}
+                    className="flex-1"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Assign to NOK
                   </Button>
                 )}
               </div>
