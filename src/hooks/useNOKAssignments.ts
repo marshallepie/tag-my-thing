@@ -205,6 +205,14 @@ export const useNOKAssignments = () => {
     }
   }, [isAuthenticated, user, fetchAssignments]);
 
+  const getAssignmentMediaUrl = (assignment: IncomingAssignment | OutgoingAssignment): string => {
+    return assignment.asset_media_items?.[0]?.url || '';
+  };
+
+  const getAssignmentMediaType = (assignment: IncomingAssignment | OutgoingAssignment): string => {
+    return assignment.asset_media_items?.[0]?.type || 'photo';
+  };
+
   return {
     incomingAssignments,
     outgoingAssignments,
@@ -215,6 +223,8 @@ export const useNOKAssignments = () => {
     massAssignAssetsToNOK,
     reassignIncomingAssignment,
     updateUserActivity,
-    refreshAssignments: fetchAssignments
+    refreshAssignments: fetchAssignments,
+    getAssignmentMediaUrl,
+    getAssignmentMediaType
   };
 };

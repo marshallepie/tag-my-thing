@@ -909,15 +909,15 @@ export const NextOfKin: React.FC = () => {
                       </div>
 
                       <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
-                        {assignment.asset_media_type === 'video' ? (
+                        {getAssignmentMediaType(assignment) === 'video' ? (
                           <video
-                            src={assignment.asset_media_url}
+                            src={getAssignmentMediaUrl(assignment)}
                             className="w-full h-full object-cover"
                             muted
                           />
                         ) : (
                           <img
-                            src={assignment.asset_media_url}
+                            src={getAssignmentMediaUrl(assignment)}
                             alt={assignment.asset_title}
                             className="w-full h-full object-cover"
                           />

@@ -326,9 +326,9 @@ export const PublicAssetsPage: React.FC = () => {
               >
                 <Card hover className="overflow-hidden h-full">
                   <div className="aspect-video bg-gray-100 overflow-hidden relative">
-                    {asset.media_type === 'video' ? (
+                    {getAssetMediaType(asset) === 'video' ? (
                       <video
-                        src={asset.media_url}
+                        src={getAssetMediaUrl(asset)}
                         className="w-full h-full object-cover"
                         muted
                         loop
@@ -337,7 +337,7 @@ export const PublicAssetsPage: React.FC = () => {
                       />
                     ) : (
                       <img
-                        src={asset.media_url}
+                        src={getAssetMediaUrl(asset)}
                         alt={asset.title}
                         className="w-full h-full object-cover"
                       />
@@ -345,8 +345,8 @@ export const PublicAssetsPage: React.FC = () => {
                     
                     <div className="absolute top-2 left-2">
                       <div className="bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-xs flex items-center">
-                        {getMediaIcon(asset.media_type)}
-                        <span className="ml-1 capitalize">{asset.media_type}</span>
+                        {getMediaIcon(getAssetMediaType(asset))}
+                        <span className="ml-1 capitalize">{getAssetMediaType(asset)}</span>
                       </div>
                     </div>
                     
