@@ -98,8 +98,6 @@ export const TagAsset: React.FC = () => {
         title: formData.title,
         description: formData.description,
         tags: formData.tags,
-        media_url: mediaItems[0]?.url || '', // Keep for backward compatibility
-        media_type: mediaItems[0]?.type === 'video' ? 'video' : 'photo', // Keep for backward compatibility
         media_items: mediaItems, // New field with all media
         privacy: formData.privacy,
         estimated_value: formData.estimatedValue,

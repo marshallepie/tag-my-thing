@@ -14,12 +14,17 @@ interface Asset {
   title: string;
   description: string | null;
   tags: string[];
-  media_url: string;
-  media_type: 'photo' | 'video';
   privacy: 'private' | 'public';
   estimated_value: number | null;
   location: string | null;
   created_at: string;
+  media_items: Array<{
+    url: string;
+    type: 'photo' | 'video' | 'pdf';
+    size?: number;
+    duration?: number;
+    token_cost: number;
+  }> | null;
   user_profiles: {
     full_name: string | null;
     email: string;
@@ -34,6 +39,14 @@ export const PublicAssetsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'created_at' | 'title' | 'user_name'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterMediaType, setFilterMediaType] = useState<'all' | 'photo' | 'video'>('all');
+
+  const getAssetMediaUrl = (asset: Asset): string => {
+    return asset.media_items?.[0]?.url || '';
+  };
+
+  const getAssetMediaType = (asset: Asset): string => {
+    return asset.media_items?.[0]?.type || 'photo';
+  };
 
   useEffect(() => {
     fetchPublicAssets();
@@ -54,8 +67,7 @@ export const PublicAssetsPage: React.FC = () => {
           title,
           description,
           tags,
-          media_url,
-          media_type,
+          media_items,
           privacy,
           estimated_value,
           location,
@@ -92,7 +104,7 @@ export const PublicAssetsPage: React.FC = () => {
 
     // Filter by media type
     if (filterMediaType !== 'all') {
-      currentAssets = currentAssets.filter(asset => asset.media_type === filterMediaType);
+      currentAssets = currentAssets.filter(asset => getAssetMediaType(asset) === filterMediaType);
     }
 
     // Sort

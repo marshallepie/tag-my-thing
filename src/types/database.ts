@@ -62,8 +62,6 @@ export interface Database {
           title: string;
           description: string | null;
           tags: string[];
-          media_url: string;
-          media_type: 'photo' | 'video';
           privacy: 'private' | 'public';
           estimated_value: number | null;
           location: string | null;
@@ -90,8 +88,6 @@ export interface Database {
           title: string;
           description?: string | null;
           tags?: string[];
-          media_url: string;
-          media_type: 'photo' | 'video';
           privacy?: 'private' | 'public';
           estimated_value?: number | null;
           location?: string | null;

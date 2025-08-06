@@ -49,8 +49,6 @@ interface Asset {
   title: string;
   description: string | null;
   tags: string[];
-  media_url: string;
-  media_type: 'photo' | 'video';
   privacy: 'private' | 'public';
   estimated_value: number | null;
   location: string | null;
@@ -323,6 +321,7 @@ export const Assets: React.FC = () => {
     switch (type) {
       case 'photo': return <Image className="h-4 w-4" />;
       case 'video': return <Film className="h-4 w-4" />;
+      case 'pdf': return <FileText className="h-4 w-4" />;
       default: return <FileText className="h-4 w-4" />;
     }
   };
@@ -359,6 +358,14 @@ export const Assets: React.FC = () => {
     'Other'
   ];
 
+  const getAssetMediaUrl = (asset: Asset): string => {
+    return asset.media_items?.[0]?.url || '';
+  };
+
+  const getAssetMediaType = (asset: Asset): string => {
+    return asset.media_items?.[0]?.type || 'photo';
+  };
+
   const AssetCard: React.FC<{ asset: Asset; index: number }> = ({ asset, index }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -368,9 +375,9 @@ export const Assets: React.FC = () => {
     >
       <Card hover className="overflow-hidden h-full">
         <div className="aspect-video bg-gray-100 overflow-hidden relative">
-          {asset.media_type === 'video' ? (
+          {getAssetMediaType(asset) === 'video' ? (
             <video
-              src={asset.media_url}
+              src={getAssetMediaUrl(asset)}
               className="w-full h-full object-cover"
               muted
               loop
@@ -379,7 +386,7 @@ export const Assets: React.FC = () => {
             />
           ) : (
             <img
-              src={asset.media_url}
+              src={getAssetMediaUrl(asset)}
               alt={asset.title}
               className="w-full h-full object-cover"
             />
@@ -387,8 +394,8 @@ export const Assets: React.FC = () => {
           
           <div className="absolute top-2 left-2">
             <div className="bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-xs flex items-center">
-              {getMediaIcon(asset.media_type)}
-              <span className="ml-1 capitalize">{asset.media_type}</span>
+              {getMediaIcon(getAssetMediaType(asset))}
+              <span className="ml-1 capitalize">{getAssetMediaType(asset)}</span>
             </div>
           </div>
           
@@ -524,15 +531,15 @@ export const Assets: React.FC = () => {
       <Card className="p-4">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-            {asset.media_type === 'video' ? (
+            {getAssetMediaType(asset) === 'video' ? (
               <video
-                src={asset.media_url}
+                src={getAssetMediaUrl(asset)}
                 className="w-full h-full object-cover"
                 muted
               />
             ) : (
               <img
-                src={asset.media_url}
+                src={getAssetMediaUrl(asset)}
                 alt={asset.title}
                 className="w-full h-full object-cover"
               />
@@ -549,8 +556,8 @@ export const Assets: React.FC = () => {
                 
                 <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
                   <div className="flex items-center">
-                    {getMediaIcon(asset.media_type)}
-                    <span className="ml-1 capitalize">{asset.media_type}</span>
+                    {getMediaIcon(getAssetMediaType(asset))}
+                    <span className="ml-1 capitalize">{getAssetMediaType(asset)}</span>
                   </div>
                   <div className="flex items-center">
                     {getPrivacyIcon(asset.privacy)}
