@@ -36,9 +36,7 @@ import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
 import { Unauthorized } from './pages/Unauthorized';
 import { CheckEmail } from './pages/CheckEmail';
 
-// Import legacy components for backward compatibility
-import Login from './Login';
-import Signup from './Signup';
+// Import legacy components for password reset functionality
 import ResetPassword from './ResetPassword';
 import UpdatePassword from './UpdatePassword';
 
@@ -62,8 +60,8 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Auth />} />
+      <Route path="/signup" element={<Auth />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/check-email" element={<CheckEmail />} />

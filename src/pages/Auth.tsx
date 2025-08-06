@@ -12,7 +12,15 @@ export const Auth: React.FC = () => {
 
   const urlParams = new URLSearchParams(location.search);
   const nokInviteEmail = urlParams.get('nok_invite_email');
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  
+  // Determine initial mode based on current path
+  const getInitialMode = (): 'signin' | 'signup' => {
+    if (location.pathname === '/signup') return 'signup';
+    if (location.pathname === '/login') return 'signin';
+    return 'signin'; // default
+  };
+  
+  const [mode, setMode] = useState<'signin' | 'signup'>(getInitialMode);
 
   const handleSuccess = () => {
     if (nokInviteEmail) {
