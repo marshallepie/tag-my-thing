@@ -26,7 +26,7 @@ export const FAQ: React.FC = () => {
         },
         {
           q: 'What happens if I delete a tag? Do I get my tokens back?',
-          a: 'Yes. If you delete a tag before it's permanently archived, your tokens are refunded automatically.',
+          a: 'Yes. If you delete a tag before it\'s permanently archived, your tokens are refunded automatically.',
           icon: <DollarSign className="h-5 w-5 text-primary-600" />,
         },
         {
@@ -36,7 +36,7 @@ export const FAQ: React.FC = () => {
         },
         {
           q: 'How do I edit or update a tag?',
-          a: 'If the tag hasn't been archived yet, you can still edit it. Once it's archived, it becomes permanent and cannot be changed.',
+          a: 'If the tag hasn\'t been archived yet, you can still edit it. Once it's archived, it becomes permanent and cannot be changed.',
           icon: <Package className="h-5 w-5 text-primary-600" />,
         },
         {
@@ -51,12 +51,12 @@ export const FAQ: React.FC = () => {
       questions: [
         {
           q: 'What does it mean to be a Next of Kin on this platform?',
-          a: 'Being a NOK means you've been nominated to access or inherit tagged assets in case of death or incapacity of the original owner.',
+          a: 'Being a NOK means you\'ve been nominated to access or inherit tagged assets in case of death or incapacity of the original owner.',
           icon: <Users className="h-5 w-5 text-secondary-600" />,
         },
         {
-          q: 'How do I access someone's assets if I've been named as their NOK?',
-          a: 'If you've been assigned as NOK, you'll receive access to those assets under specific conditions defined by the owner.',
+          q: 'How do I access someone\'s assets if I've been named as their NOK?',
+          a: 'If you\'ve been assigned as NOK, you'll receive access to those assets under specific conditions defined by the owner.',
           icon: <Clock className="h-5 w-5 text-secondary-600" />,
         },
         {
@@ -71,7 +71,7 @@ export const FAQ: React.FC = () => {
       questions: [
         {
           q: 'How do I join the referral program?',
-          a: 'Enable "Influencer Mode" in your profile settings. You'll get five unique referral codes to share.',
+          a: 'Enable "Influencer Mode" in your profile settings. You\'ll get five unique referral codes to share.',
           icon: <Crown className="h-5 w-5 text-accent-600" />,
         },
         {
@@ -80,7 +80,7 @@ export const FAQ: React.FC = () => {
           icon: <Award className="h-5 w-5 text-accent-600" />,
         },
         {
-          q: 'Where can I see who I've referred?',
+          q: 'Where can I see who I\'ve referred?',
           a: 'Your wallet dashboard shows referral stats, including token earnings and referral chains.',
           icon: <DollarSign className="h-5 w-5 text-accent-600" />,
         },
@@ -105,7 +105,7 @@ export const FAQ: React.FC = () => {
           icon: <Clock className="h-5 w-5 text-success-600" />,
         },
         {
-          q: 'What's the difference between Freemium, Professional, and Enterprise plans?',
+          q: 'What\'s the difference between Freemium, Professional, and Enterprise plans?',
           a: 'Freemium is for testing. Professional includes 1,000 tokens/month. Enterprise offers 10,000 tokens/month and advanced features.',
           icon: <DollarSign className="h-5 w-5 text-success-600" />,
         },
