@@ -38,6 +38,7 @@ import { Unauthorized } from './pages/Unauthorized';
 import { CheckEmail } from './pages/CheckEmail';
 import { FAQ } from './pages/FAQ';
 import { AboutUs } from './pages/AboutUs';
+import { Careers } from './pages/Careers';
 
 // Import legacy components for password reset functionality
 import ResetPassword from './ResetPassword';
@@ -93,6 +94,7 @@ function App() {
       <Route path="/support" element={<CustomerSupport />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/about-us" element={<AboutUs />} />
+      <Route path="/careers" element={<Careers />} />
       
       {/* Public Asset Pages */}
       <Route path="/public-assets" element={<PublicAssetsPage />} />
