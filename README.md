@@ -289,9 +289,7 @@ For support, email tagmything_support@marshallepie.com or join our community dis
 - [ ] Advanced blockchain integration
 - [ ] AI-powered asset categorization
 - [ ] Multi-language support
-- [ ] Enterprise features
 - [ ] API for third-party integrations
-- [ ] Email notifications for DMS triggers
 - [ ] Advanced NOK verification system
 - [ ] Bulk NOK management tools
 - [ ] Legacy planning templates
@@ -299,3 +297,85 @@ For support, email tagmything_support@marshallepie.com or join our community dis
 ---
 
 **TagMyThing** - Where your assets live forever. 🏷️✨
+
+
+
+# TagMyThing Pre-Release QA Checklist
+
+## 🧪 Step One: Smoke Test (Quick Manual Check)
+- [ ] Can you load the homepage without errors?
+- [ ] Does navigation between pages work?
+- [ ] Does the Supabase connection initialize properly?
+- [ ] Are all expected menus, buttons, and components showing up?
+
+## ✅ Step Two: Manual End-to-End Flow Checklist
+
+### Sign-Up / Login Flow
+- [ ] Create a new account
+- [ ] Confirm email verification link
+- [ ] Log in
+- [ ] Log out and log back in again
+
+### Tagging Flow (Core Feature)
+- [ ] Tap “Tag Now”
+- [ ] Allow camera access
+- [ ] Take photo or video
+- [ ] Name and describe the item
+- [ ] Save tag and confirm it appears on the dashboard
+- [ ] Click to view the full tag details
+
+### Token System
+- [ ] Confirm default token balance after sign-up
+- [ ] Use tokens to tag something
+- [ ] Try to tag when out of tokens—should block or show upgrade prompt
+
+### Referral System
+- [ ] Use referral link to create a second account
+- [ ] Check if the referral shows under the original account
+- [ ] Confirm token rewards (if any) are credited
+
+### Upgrade / Subscription Flow
+- [ ] Simulate or test Stripe payment (if in test mode)
+- [ ] Check token balance increases correctly
+- [ ] Ensure role or plan status updates if needed
+
+### MyWill / Legacy Features
+- [ ] Assign a tag to a Next of Kin
+- [ ] Test that NOK user can access the assigned tag
+- [ ] Simulate NOK login and view legacy items
+
+### Business Mode (if applicable)
+- [ ] Go through business onboarding
+- [ ] Add product with serial number
+- [ ] Scan or input product code from another device
+- [ ] Confirm verification status appears correctly
+
+## 🧪 Step Three: Automated Cypress Test Suite
+- [ ] Sign up and login flow
+- [ ] Tag an asset
+- [ ] Check dashboard updates
+- [ ] Use token and confirm deduction
+- [ ] Attempt invalid actions (e.g., tagging with 0 tokens)
+
+## 🧩 Step Four: Backend Tests (API / Logic Checks)
+- [ ] Test Supabase RLS policies
+  - [ ] Can a user only access their own tags, payments, referrals?
+  - [ ] Can Admin access all users' data?
+- [ ] Test `archiveTagNow` function manually
+- [ ] Simulate `retryFailedUploads`
+- [ ] Test referral logic by directly querying the `referrals` table
+- [ ] Check token refund when deleting a tag
+
+## 🚨 Step Five: Error & Edge Case Testing
+- [ ] Use invalid email/password
+- [ ] Submit empty forms
+- [ ] Double-click submit buttons
+- [ ] Tag very large files
+- [ ] Use expired links
+- [ ] Rapidly switch between flows (e.g., sign-up → tag → logout mid-tag)
+
+## 🧹 Step Six: Regression Testing (After Any Change)
+- [ ] Re-test full tagging flow
+- [ ] Re-test sign up + token deduction
+- [ ] Re-test referral creation and token reward
+- [ ] Re-test payment flow (if Stripe config is changed)
