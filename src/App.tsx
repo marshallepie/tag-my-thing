@@ -35,6 +35,7 @@ import { MyWillTaggingLanding } from './pages/MyWillTaggingLanding';
 import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
 import { Unauthorized } from './pages/Unauthorized';
 import { CheckEmail } from './pages/CheckEmail';
+import { FAQ } from './pages/FAQ';
 
 // Import legacy components for password reset functionality
 import ResetPassword from './ResetPassword';
@@ -86,6 +87,7 @@ function App() {
       <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
       <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
       <Route path="/support" element={<CustomerSupport />} />
+      <Route path="/faq" element={<FAQ />} />
       
       {/* Public Asset Pages */}
       <Route path="/public-assets" element={<PublicAssetsPage />} />

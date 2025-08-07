@@ -31,6 +31,7 @@ export const Footer: React.FC = () => {
       links: [
         { name: 'Contact Us', href: 'mailto:tagmything@marshallepie.com', internal: false },
         { name: 'Documentation', href: '#', internal: true },
+        { name: 'FAQ', href: '/faq', internal: true },
       ]
     },
     {
