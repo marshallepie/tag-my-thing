@@ -44,7 +44,7 @@ export const AboutUs: React.FC = () => {
                   The concept for TagMyThing dates back to 2018 when Marshall recognized the need for a secure and immutable way
                   to safeguard important digital information, especially for those involved in the early days of cryptocurrency.
                   Many people lost access to their digital assets simply because they misplaced their private keys. This sparked
-                  the idea for what was originally called "Immortal AI," a tool designed to help people keep their valuable
+                  the idea for what was originally called "Immortal AI,\" a tool designed to help people keep their valuable
                   information safe forever.
                 </p>
               </div>
