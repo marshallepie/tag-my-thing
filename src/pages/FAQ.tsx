@@ -55,8 +55,8 @@ export const FAQ: React.FC = () => {
           icon: <Users className="h-5 w-5 text-secondary-600" />,
         },
         {
-          q: 'How do I access someone\'s assets if I've been named as their NOK?',
-          a: 'If you\'ve been assigned as NOK, you'll receive access to those assets under specific conditions defined by the owner.',
+          q: 'How do I access someone\'s assets if I\'ve been named as their NOK?',
+          a: 'If you\'ve been assigned as NOK, you\'ll receive access to those assets under specific conditions defined by the owner.',
           icon: <Clock className="h-5 w-5 text-secondary-600" />,
         },
         {
