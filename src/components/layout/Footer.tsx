@@ -37,7 +37,7 @@ export const Footer: React.FC = () => {
     {
       title: 'Company',
       links: [
-        { name: 'About Us', href: '#', internal: true },
+        { name: 'About Us', href: '/about-us', internal: true },
         { name: 'TagMyThing DAO', href: '/dao', internal: true },
         { name: 'Blog', href: '#', internal: true },
         { name: 'Careers', href: '#', internal: true },

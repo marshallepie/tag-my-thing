@@ -37,6 +37,7 @@ import { BusinessTaggingLanding } from './pages/BusinessTaggingLanding';
 import { Unauthorized } from './pages/Unauthorized';
 import { CheckEmail } from './pages/CheckEmail';
 import { FAQ } from './pages/FAQ';
+import { AboutUs } from './pages/AboutUs';
 
 // Import legacy components for password reset functionality
 import ResetPassword from './ResetPassword';
@@ -91,6 +92,7 @@ function App() {
       <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
       <Route path="/support" element={<CustomerSupport />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/about-us" element={<AboutUs />} />
       
       {/* Public Asset Pages */}
       <Route path="/public-assets" element={<PublicAssetsPage />} />
