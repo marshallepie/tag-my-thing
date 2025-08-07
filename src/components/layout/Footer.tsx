@@ -29,7 +29,6 @@ export const Footer: React.FC = () => {
     {
       title: 'Support',
       links: [
-        { name: 'Help Center', href: '/support', internal: true },
         { name: 'Contact Us', href: 'mailto:tagmything@marshallepie.com', internal: false },
         { name: 'Documentation', href: '#', internal: true },
       ]
