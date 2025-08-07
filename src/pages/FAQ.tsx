@@ -36,7 +36,7 @@ export const FAQ: React.FC = () => {
         },
         {
           q: 'How do I edit or update a tag?',
-          a: 'If the tag hasn\'t been archived yet, you can still edit it. Once it's archived, it becomes permanent and cannot be changed.',
+          a: 'If the tag hasn\'t been archived yet, you can still edit it. Once it\'s archived, it becomes permanent and cannot be changed.',
           icon: <Package className="h-5 w-5 text-primary-600" />,
         },
         {
