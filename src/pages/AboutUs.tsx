@@ -184,7 +184,7 @@ export const AboutUs: React.FC = () => {
                   </a>
                   
                   <a
-                    href="https://www.linkedin.com/in/marshallepie"
+                    href="https://www.linkedin.com/in/marshall-epie"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center space-x-2 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-primary-600 hover:text-primary-700"
