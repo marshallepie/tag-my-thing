@@ -39,6 +39,7 @@ import { CheckEmail } from './pages/CheckEmail';
 import { FAQ } from './pages/FAQ';
 import { AboutUs } from './pages/AboutUs';
 import { Careers } from './pages/Careers';
+import { Documentation } from './pages/Documentation'; // Import the new Documentation component
 
 // Import legacy components for password reset functionality
 import ResetPassword from './ResetPassword';
@@ -95,6 +96,7 @@ function App() {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/careers" element={<Careers />} />
+      <Route path="/documentation" element={<Documentation />} /> {/* New Documentation Route */}
       
       {/* Public Asset Pages */}
       <Route path="/public-assets" element={<PublicAssetsPage />} />

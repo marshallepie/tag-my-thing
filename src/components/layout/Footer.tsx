@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
       title: 'Support',
       links: [
         { name: 'Contact Us', href: 'mailto:tagmything@marshallepie.com', internal: false },
-        { name: 'Documentation', href: '#', internal: true },
+        { name: 'Documentation', href: '/documentation', internal: true }, // Updated Documentation link
         { name: 'FAQ', href: '/faq', internal: true },
       ]
     },
