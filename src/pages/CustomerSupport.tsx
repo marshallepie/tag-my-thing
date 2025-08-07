@@ -381,15 +381,22 @@ export const CustomerSupport: React.FC = () => {
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <h4 className="font-semibold text-gray-900 mb-2">Referral Reward Structure</h4>
                       <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                        {referralSettings.map((reward, index) => (
-                          <li key={index} className="flex items-center">
-                            <Award className="h-4 w-4 text-blue-500 mr-2" />
-                            Level {reward.referral_level}: {reward.token_reward} TMT
+                        {Array.isArray(referralSettings) && referralSettings.length > 0 ? (
+                          referralSettings.map((reward, index) => (
+                            <li key={index} className="flex items-center">
+                              <Award className="h-4 w-4 text-blue-500 mr-2" />
+                              Level {reward.referral_level}: {reward.token_reward} TMT
+                            </li>
+                          ))
+                        ) : (
+                          <li className="flex items-center">
+                            <Award className="h-4 w-4 text-gray-400 mr-2" />
+                            Referral rewards loading...
                           </li>
-                        ))}
+                        )}
                       </ul>
                       <p className="text-xs text-gray-500 mt-2">
-                        Total potential: {referralSettings.reduce((sum, r) => sum + r.token_reward, 0)} TMT per referral chain
+                        Total potential: {Array.isArray(referralSettings) && referralSettings.length > 0 ? referralSettings.reduce((sum, r) => sum + r.token_reward, 0) : 0} TMT per referral chain
                       </p>
                     </div>
                   </div>
