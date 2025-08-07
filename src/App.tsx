@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ScrollToTop } from './components/layout/ScrollToTop';
 
 // Import all page components
 import { Auth } from './pages/Auth';
@@ -57,6 +58,8 @@ function App() {
   }
 
   return (
+    <>
+      <ScrollToTop />
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
@@ -193,6 +196,7 @@ function App() {
       {/* Catch-all route - redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 
