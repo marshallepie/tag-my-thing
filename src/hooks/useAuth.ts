@@ -76,9 +76,6 @@ export const useAuth = () => {
         }
 
         if (session?.user) {
-          // Small delay to allow database trigger to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
           const profile = await fetchProfile(session.user.id);
           
           setAuthState({
@@ -129,9 +126,6 @@ export const useAuth = () => {
           console.log('useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
           setAuthState(prev => ({ ...prev, loading: true }));
 
-          // Small delay for database operations
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
           const profile = await fetchProfile(session.user.id);
           
           console.log('useAuth: Profile fetched:', profile?.email, 'Role:', profile?.role);

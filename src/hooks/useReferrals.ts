@@ -49,21 +49,14 @@ export const useReferrals = () => {
   const { user, profile, isAuthenticated, refreshProfile } = useAuth();
 
   const fetchReferralData = useCallback(async () => {
-    // Early return with safe defaults if conditions aren't met
-    if (!user || !isAuthenticated) {
-      console.log('useReferrals - No user or not authenticated');
+  const fetchReferralData = useCallback(async (currentUserId: string, currentUserProfile: any) => {
+    if (!currentUserId || !currentUserProfile) {
+      console.log('useReferrals - fetchReferralData: Missing user or profile data');
       setLoading(false);
       return;
     }
 
-    // All authenticated users can access referrals now
-    if (!profile) {
-      console.log('useReferrals - No profile available yet');
-      setLoading(false);
-      return;
-    }
-
-    console.log('useReferrals - fetchReferralData started for user:', user.id);
+    console.log('useReferrals - fetchReferralData started for user:', currentUserId);
     
     try {
       setError(null);
@@ -77,11 +70,11 @@ export const useReferrals = () => {
             *,
             referred:user_profiles!referrals_referred_id_fkey(id, full_name, email, created_at)
           `)
-          .eq('referrer_id', user.id),
+          .eq('referrer_id', currentUserId),
         supabase
           .from('referral_rewards')
           .select('*')
-          .eq('referrer_id', user.id)
+          .eq('referrer_id', currentUserId)
       ]);
 
       // Handle referrals result
@@ -184,7 +177,7 @@ export const useReferrals = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, isAuthenticated, profile]);
+  }, []);
 
   const fetchReferralSettings = useCallback(async () => {
     try {
@@ -211,29 +204,26 @@ export const useReferrals = () => {
 
   // Initialize data fetching with better error handling
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      console.log('useReferrals - Not authenticated or no user');
+    // Only run if user and profile are available
+    if (user?.id && profile) {
+      console.log('useReferrals - useEffect triggered for user:', user.id);
+
+      fetchReferralSettings();
+      fetchReferralData(user.id, profile);
+    } else {
+      // Reset state if user logs out or profile is not available
+      setStats({
+        totalReferred: 0,
+        totalEarned: 0,
+        pendingRewards: 0,
+        levelBreakdown: [1, 2, 3, 4, 5].map(referral_level => ({ referral_level, count: 0, earned: 0 }))
+      });
+      setReferredUsers([]);
       setLoading(false);
-      return;
+      setError(null);
+      console.log('useReferrals - Not authenticated or no user/profile, resetting state.');
     }
-
-    // Wait for profile to be available
-    if (!profile) {
-      console.log('useReferrals - No profile available yet');
-      return;
-    }
-
-    console.log('useReferrals - useEffect triggered for user:', user.id);
-
-    // Fetch settings first (lighter operation)
-    fetchReferralSettings();
-    
-    // Then fetch referral data
-    fetchReferralData().catch(error => {
-      console.error('useReferrals - fetchReferralData failed in useEffect:', error);
-      setLoading(false);
-    });
-  }, [isAuthenticated, user, profile, fetchReferralData, fetchReferralSettings]);
+  }, [user?.id, profile, fetchReferralSettings]);
 
   const generateReferralCode = async () => {
     // Add comprehensive safety checks
