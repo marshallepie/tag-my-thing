@@ -208,7 +208,7 @@ export const useReferrals = () => {
       return;
     }
 
-    // Allow all authenticated users to access referrals now
+    // Allow all authenticated users to access referrals
     if (!profile) {
       console.log('useReferrals - No profile available yet');
       setLoading(false);
