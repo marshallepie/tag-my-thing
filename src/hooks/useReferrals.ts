@@ -49,6 +49,8 @@ export const useReferrals = () => {
   const { user, profile, isAuthenticated, refreshProfile } = useAuth();
 
   const fetchReferralData = useCallback(async () => {
+  }
+  )
   const fetchReferralData = useCallback(async (currentUserId: string, currentUserProfile: any) => {
     if (!currentUserId || !currentUserProfile) {
       console.log('useReferrals - fetchReferralData: Missing user or profile data');
