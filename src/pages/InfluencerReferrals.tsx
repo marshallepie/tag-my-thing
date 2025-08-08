@@ -52,6 +52,20 @@ export const InfluencerReferrals: React.FC = () => {
   } = useReferrals();
   const { user, profile, isAuthenticated, loading: authLoading } = useAuth();
 
+  // Show loading while auth is being determined or profile is not yet loaded
+  if (authLoading || !isAuthenticated || !profile) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading referrals...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   // Define landing page options for the dropdown
   const landingPageOptions = [
     {
@@ -81,66 +95,6 @@ export const InfluencerReferrals: React.FC = () => {
     }
   ];
 
-  // Set up real-time subscription for referral updates
-  useEffect(() => {
-    if (!user?.id || profile?.role !== 'influencer') return;
-
-    console.log('InfluencerReferrals - Setting up real-time subscription for user:', user.id);
-
-    // Subscribe to referrals table changes
-    const referralsSubscription = supabase
-      .channel('referrals-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'referrals',
-          filter: `referrer_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('InfluencerReferrals - Referrals change detected:', payload);
-          // Use debounced refresh to prevent excessive updates
-          debouncedRefresh();
-        }
-      )
-      .subscribe();
-
-    // Subscribe to referral_rewards table changes
-    const rewardsSubscription = supabase
-      .channel('rewards-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'referral_rewards',
-          filter: `referrer_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('InfluencerReferrals - Rewards change detected:', payload);
-          // Use debounced refresh to prevent excessive updates
-          debouncedRefresh();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      console.log('InfluencerReferrals - Cleaning up subscriptions');
-      referralsSubscription.unsubscribe();
-      rewardsSubscription.unsubscribe();
-    };
-  }, [user?.id, profile?.role, debouncedRefresh]);
-
-  // Create memoized debounced refresh function to prevent excessive updates
-  const debouncedRefresh = React.useCallback(
-    debounce(() => {
-      console.log('InfluencerReferrals - Debounced refresh triggered');
-      forceRefresh();
-    }, 2000), // 2 second debounce to prevent rapid refreshes
-    [forceRefresh]
-  );
-
   const loadReferralUrl = async () => {
     setUrlLoading(true);
     try {
@@ -163,12 +117,12 @@ export const InfluencerReferrals: React.FC = () => {
   };
 
   useEffect(() => {
-    // Only load referral URL once when profile is available and URL hasn't been loaded yet
-    if (profile?.role === 'influencer' && !urlLoaded && !urlLoading) {
+    // Load referral URL once when profile is available and URL hasn't been loaded yet
+    if (profile && !urlLoaded && !urlLoading) {
       console.log('InfluencerReferrals - Loading referral URL for first time');
       loadReferralUrl();
     }
-  }, [profile?.role, urlLoaded, urlLoading]);
+  }, [profile, urlLoaded, urlLoading]);
 
   // Separate effect for when referral code is updated in profile
   useEffect(() => {
@@ -188,41 +142,6 @@ export const InfluencerReferrals: React.FC = () => {
       setReferralUrl(url);
     }
   }, [selectedLandingPage, profile?.referral_code]);
-
-  // Show loading while auth is being determined
-  if (authLoading) {
-    return null; // Let ProtectedRoute handle loading state
-  }
-
-  // Ensure profile is loaded before rendering content that depends on it
-  // This prevents ReferenceError when profile data is still loading
-  if (!profile) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading user profile...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  // Ensure profile is loaded before rendering content that depends on it
-  // This prevents ReferenceError when profile data is still loading
-  if (!profile) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="h-12 w-12 text-primary-600 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">Loading user profile...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -330,7 +249,7 @@ export const InfluencerReferrals: React.FC = () => {
       <Layout>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <Loader className="h-12 w-12 text-primary-600 mx-auto mb-4 animate-spin" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading referral data...</p>
           </div>
         </div>

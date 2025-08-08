@@ -12,24 +12,13 @@ interface AuthState {
   initialized: boolean;
 }
 
-// Simplified global state without complex listeners
-let globalAuthState: AuthState = {
-  user: null,
-  profile: null,
-  loading: true,
-  initialized: false,
-};
-
-// Simple state update function
-const setGlobalAuthState = (newState: Partial<AuthState>) => {
-  globalAuthState = { ...globalAuthState, ...newState };
-};
-
-// Flag to prevent multiple initializations
-let isInitialized = false;
-
 export const useAuth = () => {
-  const [localState, setLocalState] = useState<AuthState>(globalAuthState);
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    profile: null,
+    loading: true,
+    initialized: false,
+  });
   const mountedRef = useRef(true);
 
   // Update user activity
@@ -66,14 +55,9 @@ export const useAuth = () => {
     }
   }, [updateUserActivity]);
 
-  // Initialize auth once
+  // Initialize auth
   useEffect(() => {
-    if (isInitialized) {
-      setLocalState(globalAuthState);
-      return;
-    }
-
-    isInitialized = true;
+    if (!mountedRef.current) return;
 
     const initializeAuth = async () => {
       try {
@@ -82,13 +66,12 @@ export const useAuth = () => {
         
         if (error) {
           console.error('Initial session error:', error);
-          setGlobalAuthState({
+          setAuthState({
             user: null,
             profile: null,
             loading: false,
             initialized: true,
           });
-          setLocalState(globalAuthState);
           return;
         }
 
@@ -98,31 +81,28 @@ export const useAuth = () => {
           
           const profile = await fetchProfile(session.user.id);
           
-          setGlobalAuthState({
+          setAuthState({
             user: session.user,
             profile,
             loading: false,
             initialized: true,
           });
         } else {
-          setGlobalAuthState({
+          setAuthState({
             user: null,
             profile: null,
             loading: false,
             initialized: true,
           });
         }
-
-        setLocalState(globalAuthState);
       } catch (error) {
         console.error('Auth initialization error:', error);
-        setGlobalAuthState({
+        setAuthState({
           user: null,
           profile: null,
           loading: false,
           initialized: true,
         });
-        setLocalState(globalAuthState);
       }
     };
 
@@ -136,20 +116,18 @@ export const useAuth = () => {
 
         if (event === 'SIGNED_OUT' || !session?.user) {
           console.log('useAuth: Processing SIGNED_OUT event');
-          setGlobalAuthState({
+          setAuthState({
             user: null,
             profile: null,
             loading: false,
             initialized: true,
           });
-          setLocalState(globalAuthState);
           return;
         }
 
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           console.log('useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
-          setGlobalAuthState({ loading: true });
-          setLocalState(globalAuthState);
+          setAuthState(prev => ({ ...prev, loading: true }));
 
           // Small delay for database operations
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -158,14 +136,13 @@ export const useAuth = () => {
           
           console.log('useAuth: Profile fetched:', profile?.email, 'Role:', profile?.role);
           
-          setGlobalAuthState({
+          setAuthState({
             user: session.user,
             profile,
             loading: false,
             initialized: true,
           });
           console.log('useAuth: Auth state updated after sign-in');
-          setLocalState(globalAuthState);
         }
       }
     );
@@ -180,13 +157,12 @@ export const useAuth = () => {
 
   // Refresh profile function
   const refreshProfile = useCallback(async () => {
-    if (!localState.user?.id) return null;
+    if (!authState.user?.id) return null;
 
-    const profile = await fetchProfile(localState.user.id);
-    setGlobalAuthState({ profile });
-    setLocalState(globalAuthState);
+    const profile = await fetchProfile(authState.user.id);
+    setAuthState(prev => ({ ...prev, profile }));
     return profile;
-  }, [localState.user?.id, fetchProfile]);
+  }, [authState.user?.id, fetchProfile]);
 
   // Sign out function
   const signOut = useCallback(async () => {
@@ -195,42 +171,40 @@ export const useAuth = () => {
       localStorage.clear();
       sessionStorage.clear();
       
-      setGlobalAuthState({
+      setAuthState({
         user: null,
         profile: null,
         loading: false,
         initialized: true,
       });
-      setLocalState(globalAuthState);
     } catch (error) {
       console.error('Sign out error:', error);
       // Force clear state
       localStorage.clear();
       sessionStorage.clear();
-      setGlobalAuthState({
+      setAuthState({
         user: null,
         profile: null,
         loading: false,
         initialized: true,
       });
-      setLocalState(globalAuthState);
     }
   }, []);
 
   // Derived properties
-  const isAuthenticated = !!localState.user;
-  const hasProfile = !!localState.profile;
-  const isAdmin = localState.profile?.role === 'admin';
-  const isModerator = localState.profile?.role === 'moderator' || localState.profile?.role === 'admin';
-  const isInfluencer = localState.profile?.role === 'influencer';
-  const isAdminInfluencer = localState.profile?.role === 'admin_influencer';
-  const isBusinessUser = localState.profile?.is_business_user || false;
+  const isAuthenticated = !!authState.user;
+  const hasProfile = !!authState.profile;
+  const isAdmin = authState.profile?.role === 'admin';
+  const isModerator = authState.profile?.role === 'moderator' || authState.profile?.role === 'admin';
+  const isInfluencer = authState.profile?.role === 'influencer';
+  const isAdminInfluencer = authState.profile?.role === 'admin_influencer';
+  const isBusinessUser = authState.profile?.is_business_user || false;
 
   return {
-    user: localState.user,
-    profile: localState.profile,
-    loading: localState.loading,
-    initialized: localState.initialized,
+    user: authState.user,
+    profile: authState.profile,
+    loading: authState.loading,
+    initialized: authState.initialized,
     isAuthenticated,
     hasProfile,
     isAdmin,

@@ -56,7 +56,7 @@ export const useReferrals = () => {
       return;
     }
 
-    // Allow all authenticated users to access referrals now
+    // All authenticated users can access referrals now
     if (!profile) {
       console.log('useReferrals - No profile available yet');
       setLoading(false);
@@ -67,6 +67,7 @@ export const useReferrals = () => {
     
     try {
       setError(null);
+      setLoading(true);
       
       // Fetch referral stats with proper error handling
       const [referralsResult, rewardsResult] = await Promise.allSettled([
@@ -89,14 +90,17 @@ export const useReferrals = () => {
         const { data, error: fetchError } = referralsResult.value;
         if (fetchError) {
           console.error('Referrals fetch error:', fetchError);
-          setError(fetchError.message || 'Failed to fetch referrals data');
-          return;
+          // Don't fail completely, just log and continue with empty data
+          console.warn('Continuing with empty referrals data due to error');
+          referrals = [];
+        } else {
+          referrals = data || [];
         }
-        referrals = data || [];
       } else {
         console.error('Referrals promise rejected:', referralsResult.reason);
-        setError(referralsResult.reason?.message || 'Failed to fetch referrals');
-        return;
+        // Don't fail completely, just log and continue with empty data
+        console.warn('Continuing with empty referrals data due to promise rejection');
+        referrals = [];
       }
 
       let rewards: any[] = [];
@@ -104,13 +108,17 @@ export const useReferrals = () => {
         const { data, error } = rewardsResult.value;
         if (error) {
           console.error('Rewards error:', error);
-          throw error;
+          // Don't fail completely, just log and continue with empty data
+          console.warn('Continuing with empty rewards data due to error');
+          rewards = [];
+        } else {
+          rewards = data || [];
         }
-        rewards = data || [];
       } else {
         console.error('Rewards promise rejected:', rewardsResult.reason); // Log the actual rejection reason
-        setError(rewardsResult.reason?.message || 'Failed to fetch rewards');
-        return;
+        // Don't fail completely, just log and continue with empty data
+        console.warn('Continuing with empty rewards data due to promise rejection');
+        rewards = [];
       }
 
       console.log('useReferrals - Data fetched successfully:', {
@@ -162,7 +170,8 @@ export const useReferrals = () => {
       console.log('useReferrals - Stats calculated successfully');
     } catch (error: any) {
       console.error('Error fetching referral data:', error);
-      setError(error.message || 'Failed to load referral data');
+      // Don't set error state that could cause infinite loops
+      console.warn('Setting safe default values due to error');
       
       // Set safe default values on error
       setStats({
@@ -175,7 +184,7 @@ export const useReferrals = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, isAuthenticated, profile?.role]);
+  }, [user, isAuthenticated, profile]);
 
   const fetchReferralSettings = useCallback(async () => {
     try {
@@ -208,10 +217,9 @@ export const useReferrals = () => {
       return;
     }
 
-    // Allow all authenticated users to access referrals
+    // Wait for profile to be available
     if (!profile) {
       console.log('useReferrals - No profile available yet');
-      setLoading(false);
       return;
     }
 
@@ -220,16 +228,11 @@ export const useReferrals = () => {
     // Fetch settings first (lighter operation)
     fetchReferralSettings();
     
-    // Then fetch referral data with a small delay to prevent race conditions
-    const timer = setTimeout(() => {
-      fetchReferralData().catch(error => {
-        console.error('useReferrals - fetchReferralData failed in useEffect:', error);
-        setLoading(false);
-        setError('Failed to load referral data');
-      });
-    }, 100);
-
-    return () => clearTimeout(timer);
+    // Then fetch referral data
+    fetchReferralData().catch(error => {
+      console.error('useReferrals - fetchReferralData failed in useEffect:', error);
+      setLoading(false);
+    });
   }, [isAuthenticated, user, profile, fetchReferralData, fetchReferralSettings]);
 
   const generateReferralCode = async () => {
