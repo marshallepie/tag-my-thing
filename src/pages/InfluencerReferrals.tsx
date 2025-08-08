@@ -194,8 +194,20 @@ export const InfluencerReferrals: React.FC = () => {
     return null; // Let ProtectedRoute handle loading state
   }
 
-  // Note: Authentication check is now handled by ProtectedRoute wrapper
-  // All authenticated users can access referrals
+  // Ensure profile is loaded before rendering content that depends on it
+  // This prevents ReferenceError when profile data is still loading
+  if (!profile) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader className="h-12 w-12 text-primary-600 mx-auto mb-4 animate-spin" />
+            <p className="text-gray-600">Loading user profile...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -297,7 +309,7 @@ export const InfluencerReferrals: React.FC = () => {
     );
   }
 
-  // Show loading state
+  // Show loading state for referral data
   if (dataLoading) {
     return (
       <Layout>
