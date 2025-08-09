@@ -52,20 +52,7 @@ export const InfluencerReferrals: React.FC = () => {
   } = useReferrals();
   const { user, profile, isAuthenticated, loading: authLoading } = useAuth();
 
-  // Show loading while auth is being determined or profile is not yet loaded
-  if (authLoading || !isAuthenticated || !profile) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading referrals...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
+  
   // Define landing page options for the dropdown
   const landingPageOptions = [
     {
@@ -142,6 +129,21 @@ export const InfluencerReferrals: React.FC = () => {
       setReferralUrl(url);
     }
   }, [selectedLandingPage, profile?.referral_code]);
+
+  // Show loading while auth is being determined or profile is not yet loaded
+  if (authLoading || !isAuthenticated || !profile) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading referrals...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
 
   const copyToClipboard = async (text: string) => {
     try {
