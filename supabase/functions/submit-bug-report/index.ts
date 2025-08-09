@@ -1,4 +1,4 @@
-// supabase/functions/submit-bug-report/index.ts
+// supabase/functions/submit-bug-report/index.ts Updated comment to trigger Git source control
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 

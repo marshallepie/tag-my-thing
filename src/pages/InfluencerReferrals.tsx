@@ -1,3 +1,4 @@
+// src/pages/InfluencerReferrals.tsx
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
