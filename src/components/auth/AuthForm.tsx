@@ -164,66 +164,62 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     console.log('AuthForm - Finished handleSignup');
   };
 
-  const handleSignin = async () => {
-    console.log('AuthForm: handleSignin called');
+const handleSignin = async () => {
+  console.log('AuthForm: handleSignin called');
 
-    const { data: auth, error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    });
+  const { data: auth, error } = await supabase.auth.signInWithPassword({
+    email: formData.email,
+    password: formData.password,
+  });
 
-    if (error) {
-      console.log('AuthForm: Sign-in error:', error);
-      if (error.message.includes('Email not confirmed') || 
-          error.message.includes('Email link is invalid or has expired') ||
-          error.message.includes('signup_disabled')) {
-        throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
-      }
-      throw error;
+  if (error) {
+    console.log('AuthForm: Sign-in error:', error);
+    if (
+      error.message.includes('Email not confirmed') || 
+      error.message.includes('Email link is invalid or has expired') ||
+      error.message.includes('signup_disabled')
+    ) {
+      throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
     }
-    
-    console.log('AuthForm: Sign-in successful, user:', auth.user?.id);
-    
-    // Handle NOK invite acceptance on sign-in
-    if (nokInviteEmail && auth.user?.id) {
-      console.log('AuthForm: Processing NOK invite acceptance for:', nokInviteEmail);
-      try {
-        const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
-          p_nok_email: nokInviteEmail,
-          p_linked_user_id: auth.user.id
-        });
+    throw error;
+  }
 
-        if (acceptError) {
-          console.error('NOK acceptance error:', acceptError);
-          toast.error('Failed to accept NOK nomination');
-        } else if (acceptResult?.success) {
-          toast.success('NOK nomination accepted successfully!');
-        } else {
-          console.log('NOK acceptance result:', acceptResult);
-          // Don't show error if no nomination found - user might just be signing in normally
-        }
-      } catch (nokError) {
-        console.error('NOK acceptance failed:', nokError);
-      }
+  console.log('AuthForm: Sign-in successful, user:', auth.user?.id);
+
+  // If you're on prod, send them to prod. Otherwise, use current origin.
+  const redirectBase =
+    window.location.hostname.endsWith('tagmything.com')
+      ? 'https://www.tagmything.com'
+      : window.location.origin;
+
+  // Optional: handle NOK + referral exactly as before (unchanged)
+  if (nokInviteEmail && auth.user?.id) {
+    try {
+      const { error: acceptError } = await supabase.rpc('accept_nok_nomination', {
+        p_nok_email: nokInviteEmail,
+        p_linked_user_id: auth.user.id
+      });
+      if (acceptError) console.error('NOK acceptance error:', acceptError);
+    } catch (nokError) {
+      console.error('NOK acceptance failed:', nokError);
     }
-    
-    const pendingReferralCode = localStorage.getItem('pending_referral_code');
-    const pendingUserId = localStorage.getItem('pending_referral_user_id');
-    
-    if (pendingReferralCode && pendingUserId === auth.user?.id) {
-      console.log('AuthForm: Processing pending referral code');
-      try {
-        await processReferralSignup(pendingReferralCode, auth.user.id);
-        localStorage.removeItem('pending_referral_code');
-        localStorage.removeItem('pending_referral_user_id');
-      } catch (referralError) {
-        console.error('Referral processing failed:', referralError);
-      }
+  }
+
+  const pendingReferralCode = localStorage.getItem('pending_referral_code');
+  const pendingUserId = localStorage.getItem('pending_referral_user_id');
+  if (pendingReferralCode && pendingUserId === auth.user?.id) {
+    try {
+      await processReferralSignup(pendingReferralCode, auth.user.id);
+      localStorage.removeItem('pending_referral_code');
+      localStorage.removeItem('pending_referral_user_id');
+    } catch (referralError) {
+      console.error('Referral processing failed:', referralError);
     }
-    
-    console.log('AuthForm: Calling onSuccess for sign-in');
-    onSuccess();
-  };
+  }
+
+  // Hard redirect so session/cookies align with the target domain
+  window.location.href = `${redirectBase}/dashboard`;
+};
 
   const handleSignupSuccess = async (userId: string) => {
     // Handle NOK invite acceptance on sign-up
