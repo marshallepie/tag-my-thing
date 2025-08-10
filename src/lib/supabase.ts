@@ -17,7 +17,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     flowType: 'pkce',
   },
   global: {
-    headers: { 'X-Client-Info': 'tagmything-web' },
+    headers: {
+       apikey: supabaseAnonKey,
+      'X-Client-Info': 'tagmything-web' },
   },
   db: { schema: 'public' },
 })
