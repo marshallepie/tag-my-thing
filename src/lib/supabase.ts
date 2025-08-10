@@ -18,6 +18,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   },
   global: {
     headers: {
+       // ✅ Ensure these go out on every request
        apikey: supabaseAnonKey,
       'X-Client-Info': 'tagmything-web' },
   },
