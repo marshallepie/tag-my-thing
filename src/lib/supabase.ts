@@ -6,7 +6,11 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+  console.error('Supabase env missing:', {
+    VITE_SUPABASE_URL: !!supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? `present (len ${supabaseAnonKey.length})` : 'missing',
+  })
+  // Optional: export a dummy client or a function that throws when used.
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -72,3 +76,13 @@ export const clearAuthData = async () => {
     sessionStorage.clear()
   }
 }
+export const logAuthSnapshot = async () => {
+  const { data, error } = await supabase.auth.getSession()
+  const token = data?.session?.access_token
+  console.log('[supabase] session:', {
+    userId: data?.session?.user?.id ?? null,
+    accessTokenLen: token ? token.length : 0,
+    error: error?.message ?? null,
+  })
+}
+

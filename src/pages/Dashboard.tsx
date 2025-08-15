@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Wallet, Package, Users, TrendingUp, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
+import { Camera, Wallet, Package, Users, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
 import { useNOKAssignments } from '../hooks/useNOKAssignments';
@@ -10,55 +10,106 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
 
+const log = (...args: any[]) => console.log('%cDashboard', 'color:#0ea5e9', ...args);
+const warn = (...args: any[]) => console.warn('%cDashboard', 'color:#f59e0b', ...args);
+const err  = (...args: any[]) => console.error('%cDashboard', 'color:#ef4444;font-weight:bold', ...args);
+
 export const Dashboard: React.FC = () => {
   const { profile, user } = useAuth();
   const { balance, transactions } = useTokens();
-  const { stats: nokStats, loading: nokLoading } = useNOKAssignments();
+  const { stats: _nokStatsRaw, loading: nokLoading } = useNOKAssignments();
 
-  const [totalAssets, setTotalAssets] = useState(0);
+  // Defensive defaulting to avoid undefined access during first render
+  const nokStats = useMemo(() => _nokStatsRaw ?? { incoming_count: 0, outgoing_count: 0, upcoming_dms_count: 0 }, [_nokStatsRaw]);
+
+  const [totalAssets, setTotalAssets] = useState<number>(0);
   const [assetsLoading, setAssetsLoading] = useState(true);
+  const [rpcError, setRpcError] = useState<string | null>(null);
+  const [rpcDuration, setRpcDuration] = useState<string | null>(null);
+  const [fallbackCount, setFallbackCount] = useState<number | null>(null);
+  const [tokenLen, setTokenLen] = useState<number | null>(null);
 
-  // Fetch total assets when component mounts or user changes
+  // Log key auth bits so we can compare dev vs prod
+  useEffect(() => {
+    log('Auth snapshot:', {
+      userId: user?.id ?? null,
+      email: user?.email ?? null,
+      hasProfile: !!profile,
+      profileRole: profile?.role ?? null,
+    });
+  }, [user, profile]);
+
+  // Fetch total assets, with deep logging + fallback query
   useEffect(() => {
     const fetchTotalAssets = async () => {
       if (!user) {
-        console.log('Dashboard - fetchTotalAssets - No user found, skipping asset fetch');
+        log('fetchTotalAssets: No user → skip.');
         setAssetsLoading(false);
         return;
       }
       try {
         setAssetsLoading(true);
-        console.log('Dashboard - fetchTotalAssets - Starting for user:', user.id);
-        console.log('Dashboard - fetchTotalAssets - About to call get_user_asset_count RPC...');
-        
-        const { data, error } = await supabase.rpc('get_user_asset_count');
-        
-        console.log('Dashboard - fetchTotalAssets - get_user_asset_count RPC response:', { 
-          data, 
-          error, 
-          dataType: typeof data,
-          hasError: !!error,
-          errorMessage: error?.message,
-          errorCode: error?.code,
-          errorDetails: error?.details
-        });
+        setRpcError(null);
+        setRpcDuration(null);
 
-        if (error) {
-          console.error('Dashboard - fetchTotalAssets - RPC call failed with error:', error);
-          throw error;
+        // 0) What does Supabase think our session is?
+        const sessionStart = performance.now();
+        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+        const sessionDur = (performance.now() - sessionStart).toFixed(1);
+        if (sessionErr) {
+          err('auth.getSession error:', sessionErr, `duration=${sessionDur}ms`);
+        } else {
+          const accessToken = sessionData.session?.access_token ?? null;
+          const len = accessToken ? accessToken.length : 0;
+          setTokenLen(len || null);
+          log('auth.getSession OK', { userId: sessionData.session?.user?.id ?? null, accessTokenLen: len, duration: `${sessionDur}ms` });
         }
-        
-        console.log('Dashboard - fetchTotalAssets - Setting totalAssets to:', data || 0);
-        setTotalAssets(data || 0);
-      } catch (error) {
-        console.error('Dashboard - fetchTotalAssets - Unexpected error:', {
-          error,
-          message: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        });
-        setTotalAssets(0); // Default to 0 on error
+
+        // 1) Primary path: RPC
+        log('RPC get_user_asset_count → start');
+        const rpcStart = performance.now();
+        const { data, error, status } = await supabase.rpc('get_user_asset_count');
+        const rpcDur = (performance.now() - rpcStart).toFixed(1);
+        setRpcDuration(`${rpcDur}ms`);
+
+        log('RPC response:', { data, status, hasError: !!error, duration: `${rpcDur}ms` });
+        if (error) {
+          // RLS/permission often 401/403; PostgREST errors have codes/details
+          setRpcError(`${status ?? '?'} ${error.code ?? ''} ${error.message}${error.details ? ` | ${error.details}` : ''}`);
+          err('RPC failed:', { status, code: error.code, message: error.message, details: error.details, hint: error.hint });
+          // Don’t throw; continue to fallback to help diagnose.
+        } else {
+          setTotalAssets((typeof data === 'number' ? data : Number(data)) || 0);
+        }
+
+        // 2) Fallback cross‑check: regular COUNT(*) with RLS (should equal RPC if both allowed)
+        const fbStart = performance.now();
+        const { data: fbData, error: fbErr, count: fbCount } = await supabase
+          .from('assets')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        const fbDur = (performance.now() - fbStart).toFixed(1);
+
+        if (fbErr) {
+          err('Fallback COUNT failed:', fbErr, `duration=${fbDur}ms`);
+          setFallbackCount(null);
+        } else {
+          log('Fallback COUNT OK:', { count: fbCount, duration: `${fbDur}ms` });
+          setFallbackCount(fbCount ?? null);
+
+          // If RPC failed but fallback worked, it’s probably RPC definition/SECURITY/definer problem.
+          // If both fail, likely RLS or env/anon key mismatch.
+          if (!error && typeof fbCount === 'number') {
+            // If RPC returned zero but fallback > 0, surface that difference
+            if ((typeof data === 'number' ? data : Number(data) || 0) !== fbCount) {
+              warn('RPC vs Fallback mismatch:', { rpc: data, fallback: fbCount });
+            }
+          }
+        }
+      } catch (e: any) {
+        err('fetchTotalAssets unexpected error:', e?.message ?? e);
+        setTotalAssets(0);
       } finally {
-        console.log('Dashboard - fetchTotalAssets - Completed, setting assetsLoading to false');
         setAssetsLoading(false);
       }
     };
@@ -66,61 +117,31 @@ export const Dashboard: React.FC = () => {
     fetchTotalAssets();
   }, [user]);
 
-  // Log nokStats for debugging
-  useEffect(() => {
-    console.log('NOK Stats:', nokStats);
-  }, [nokStats]);
-
-  const quickActions = [
-    {
-      title: 'Tag New Asset',
-      description: 'Capture and tag a new asset',
-      icon: <Camera className="h-8 w-8" />,
-      link: '/tag',
-      color: 'bg-primary-600',
-    },
-    {
-      title: 'View Assets',
-      description: 'Browse your tagged assets',
-      icon: <Package className="h-8 w-8" />,
-      link: '/assets',
-      color: 'bg-secondary-600',
-    },
-    {
-      title: 'Next of Kin',
-      description: 'Manage your digital legacy',
-      icon: <Shield className="h-8 w-8" />,
-      link: '/nok',
-      color: 'bg-accent-600',
-    },
-  ];
-
   const recentTransactions = transactions.slice(0, 5);
 
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome back, {profile?.full_name || user?.email || 'User'}!
           </h1>
-          <p className="text-gray-600">
-            Manage your assets and track your digital legacy.
-          </p>
+          <p className="text-gray-600">Manage your assets and track your digital legacy.</p>
         </motion.div>
+
+        {/* Debug Panel (dev-only; comment out for prod if you like) */}
+        <Card className="mb-6">
+          <div className="text-sm text-gray-700">
+            <div><strong>Auth:</strong> userId: {user?.id ?? '—'} | email: {user?.email ?? '—'} | profile: {profile ? 'yes' : 'no'} | role: {profile?.role ?? '—'}</div>
+            <div><strong>Token length:</strong> {tokenLen ?? '—'} | <strong>RPC:</strong> {rpcDuration ?? '—'} | <strong>RPC error:</strong> {rpcError ?? '—'}</div>
+            <div><strong>RPC totalAssets:</strong> {assetsLoading ? '…' : totalAssets} | <strong>Fallback COUNT:</strong> {fallbackCount ?? '—'}</div>
+          </div>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Card>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -134,11 +155,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -154,11 +171,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Card>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -174,11 +187,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
             <Card>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -197,12 +206,7 @@ export const Dashboard: React.FC = () => {
 
         {/* NOK Overview Section */}
         {!nokLoading && (nokStats.incoming_count > 0 || nokStats.outgoing_count > 0 || nokStats.upcoming_dms_count > 0) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-8"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-8">
             <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 border-primary-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -246,13 +250,12 @@ export const Dashboard: React.FC = () => {
           <div className="lg:col-span-2">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              {quickActions.map((action, index) => (
-                <motion.div
-                  key={action.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                >
+              {[
+                { title: 'Tag New Asset', description: 'Capture and tag a new asset', icon: <Camera className="h-8 w-8" />, link: '/tag', color: 'bg-primary-600' },
+                { title: 'View Assets', description: 'Browse your tagged assets', icon: <Package className="h-8 w-8" />, link: '/assets', color: 'bg-secondary-600' },
+                { title: 'Next of Kin', description: 'Manage your digital legacy', icon: <Shield className="h-8 w-8" />, link: '/nok', color: 'bg-accent-600' },
+              ].map((action, index) => (
+                <motion.div key={action.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + index * 0.1 }}>
                   <Link to={action.link}>
                     <Card hover className="text-center p-6 h-full">
                       <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${action.color} text-white mb-4`}>
@@ -267,16 +270,10 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Get Started Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
               <Card className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
                 <h3 className="text-xl font-semibold mb-2">Ready to start tagging?</h3>
-                <p className="text-primary-100 mb-4">
-                  Capture your first asset and experience the power of TagMyThing.
-                </p>
+                <p className="text-primary-100 mb-4">Capture your first asset and experience the power of TagMyThing.</p>
                 <Link to="/tag">
                   <Button variant="secondary" size="lg">
                     <Plus className="h-5 w-5 mr-2" />
@@ -303,9 +300,7 @@ export const Dashboard: React.FC = () => {
                           {new Date(transaction.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className={`font-semibold ${
-                        transaction.type === 'earned' ? 'text-success-600' : 'text-error-600'
-                      }`}>
+                      <span className={`font-semibold ${transaction.type === 'earned' ? 'text-success-600' : 'text-error-600'}`}>
                         {transaction.type === 'earned' ? '+' : '-'}{Math.abs(transaction.amount)} TMT
                       </span>
                     </div>
@@ -320,9 +315,7 @@ export const Dashboard: React.FC = () => {
                 <div className="text-center py-8">
                   <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No transactions yet</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Start tagging assets to see your activity
-                  </p>
+                  <p className="text-sm text-gray-500 mt-1">Start tagging assets to see your activity</p>
                 </div>
               )}
             </Card>
