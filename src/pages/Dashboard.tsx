@@ -15,7 +15,11 @@ const warn = (...args: any[]) => console.warn('%cDashboard', 'color:#f59e0b', ..
 const err  = (...args: any[]) => console.error('%cDashboard', 'color:#ef4444;font-weight:bold', ...args);
 
 export const Dashboard: React.FC = () => {
+  console.log('🚀 Dashboard: Component mounting...');
+  
   const { profile, user } = useAuth();
+  console.log(' Dashboard: useAuth hook completed, profile:', !!profile, 'user:', !!user);
+  
   const { balance, transactions } = useTokens();
   const { stats: _nokStatsRaw, loading: nokLoading } = useNOKAssignments();
 
@@ -31,6 +35,7 @@ export const Dashboard: React.FC = () => {
 
   // Log key auth bits so we can compare dev vs prod
   useEffect(() => {
+    console.log('🚀 Dashboard: Auth useEffect triggered');
     log('Auth snapshot:', {
       userId: user?.id ?? null,
       email: user?.email ?? null,
@@ -41,6 +46,7 @@ export const Dashboard: React.FC = () => {
 
   // Fetch total assets, with deep logging + fallback query
   useEffect(() => {
+    console.log('🚀 Dashboard: Assets useEffect triggered, user:', !!user);
     const fetchTotalAssets = async () => {
       if (!user) {
         log('fetchTotalAssets: No user → skip.');
@@ -117,6 +123,8 @@ export const Dashboard: React.FC = () => {
     fetchTotalAssets();
   }, [user]);
 
+  console.log('🚀 Dashboard: About to render component');
+  
   const recentTransactions = transactions.slice(0, 5);
 
   return (

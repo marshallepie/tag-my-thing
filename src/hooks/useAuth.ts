@@ -32,25 +32,37 @@ export const useAuth = () => {
 
   // Fetch user profile
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+    console.log('🔍 fetchProfile: Starting for userId:', userId);
+    const startTime = performance.now();
+    
     try {
+      console.log('🔍 fetchProfile: Making Supabase query...');
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
+      const duration = (performance.now() - startTime).toFixed(1);
+      console.log('🔍 fetchProfile: Query completed in', duration + 'ms');
+
       if (error) {
-        console.error('Profile fetch error:', error);
+        console.error('❌ fetchProfile: Supabase error:', error);
         return null;
       }
 
+      console.log(' fetchProfile: Data received:', data ? 'Profile found' : 'No profile');
+      
       if (data && mountedRef.current) {
+        console.log('🔍 fetchProfile: Updating user activity...');
         updateUserActivity();
       }
 
+      console.log('🔍 fetchProfile: Returning profile:', data?.email || 'null');
       return data;
     } catch (error) {
-      console.error('Profile fetch exception:', error);
+      const duration = (performance.now() - startTime).toFixed(1);
+      console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
       return null;
     }
   }, [updateUserActivity]);
@@ -123,20 +135,27 @@ export const useAuth = () => {
         }
 
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          console.log('useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
+          console.log('🔍 useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
+          const profileStartTime = performance.now();
+          
           setAuthState(prev => ({ ...prev, loading: true }));
+          console.log('🔍 useAuth: Set loading state to true');
 
+          console.log('🔍 useAuth: About to call fetchProfile...');
           const profile = await fetchProfile(session.user.id);
+          const profileDuration = (performance.now() - profileStartTime).toFixed(1);
           
-          console.log('useAuth: Profile fetched:', profile?.email, 'Role:', profile?.role);
+          console.log('🔍 useAuth: fetchProfile completed in', profileDuration + 'ms');
+          console.log('🔍 useAuth: Profile result:', profile ? `Email: ${profile.email}, Role: ${profile.role}` : 'null');
           
+          console.log('🔍 useAuth: About to update auth state...');
           setAuthState({
             user: session.user,
             profile,
             loading: false,
             initialized: true,
           });
-          console.log('useAuth: Auth state updated after sign-in');
+          console.log('🔍 useAuth: Auth state updated after sign-in');
         }
       }
     );
