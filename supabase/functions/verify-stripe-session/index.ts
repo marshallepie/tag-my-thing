@@ -2,23 +2,12 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import Stripe from 'npm:stripe@12.18.0';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
-};
-
 serve(async (req) => {
-  // Handle CORS preflight request
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
   try {
     if (req.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -27,7 +16,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'No authorization header' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -47,7 +36,7 @@ serve(async (req) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -56,7 +45,7 @@ serve(async (req) => {
     if (!sessionId) {
       return new Response(JSON.stringify({ error: 'Missing sessionId' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -65,7 +54,7 @@ serve(async (req) => {
     if (!stripeSecretKey) {
       return new Response(JSON.stringify({ error: 'Stripe secret key not configured' }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -79,7 +68,7 @@ serve(async (req) => {
     if (!session) {
       return new Response(JSON.stringify({ error: 'Session not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -87,7 +76,7 @@ serve(async (req) => {
     if (session.client_reference_id !== user.id) {
       return new Response(JSON.stringify({ error: 'Session does not belong to user' }), {
         status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -98,7 +87,7 @@ serve(async (req) => {
         payment_status: session.payment_status 
       }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -116,7 +105,7 @@ serve(async (req) => {
         already_processed: true
       }), {
         status: 409,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -135,7 +124,7 @@ serve(async (req) => {
           metadata: session.metadata
         }), {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' }
         });
       }
     } else {
@@ -156,7 +145,7 @@ serve(async (req) => {
           amount: amountInPounds
         }), {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' }
         });
       }
     }
@@ -183,7 +172,7 @@ serve(async (req) => {
       console.error('Error recording payment:', paymentError);
       return new Response(JSON.stringify({ error: 'Failed to record payment' }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -197,7 +186,7 @@ serve(async (req) => {
     if (walletError || !wallet) {
       return new Response(JSON.stringify({ error: 'User wallet not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -210,7 +199,7 @@ serve(async (req) => {
     if (updateWalletError) {
       return new Response(JSON.stringify({ error: 'Failed to update wallet balance' }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -228,7 +217,7 @@ serve(async (req) => {
     if (transactionError) {
       return new Response(JSON.stringify({ error: 'Failed to create transaction record' }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -240,7 +229,7 @@ serve(async (req) => {
       currency: session.currency
     }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
@@ -249,7 +238,7 @@ serve(async (req) => {
       error: error.message || 'Internal server error'
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 });

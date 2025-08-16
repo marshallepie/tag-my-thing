@@ -4,13 +4,6 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 type Json = Record<string, unknown>;
 
-const corsHeaders: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*", // tighten to your domains if you want
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 interface BugReportData {
   screenshotBase64: string;  // data URL (e.g. "data:image/png;base64,...") or raw base64
   errorMessage: string;
@@ -39,15 +32,10 @@ function parseBase64Image(data: string): { mime: string; bytes: Uint8Array } {
 }
 
 serve(async (req: Request) => {
-  // Preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -59,7 +47,7 @@ serve(async (req: Request) => {
     if (!supabaseUrl || !supabaseAnonKey) {
       return new Response(
         JSON.stringify({ error: "Missing SUPABASE_URL/ANON_KEY env" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -76,7 +64,7 @@ serve(async (req: Request) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -96,7 +84,7 @@ serve(async (req: Request) => {
         JSON.stringify({
           error: "Missing required fields: screenshotBase64 and errorMessage",
         }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -160,7 +148,7 @@ serve(async (req: Request) => {
       console.error("DB insert error:", insertError);
       return new Response(
         JSON.stringify({ error: "Failed to save bug report" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -170,7 +158,7 @@ serve(async (req: Request) => {
         bugReportId: bugReport.id,
         message: "Bug report submitted successfully",
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
     console.error("Edge Function error:", error);
@@ -179,7 +167,7 @@ serve(async (req: Request) => {
         error: (error as Error)?.message ?? "Internal server error",
         details: "An unexpected error occurred while processing the bug report",
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 });

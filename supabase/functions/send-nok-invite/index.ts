@@ -4,12 +4,6 @@ import { serve } from "https://deno.land/std@0.203.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { Resend } from "npm:resend";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
-};
-
 interface NOKInviteRequest {
   nokId: string;
   nokEmail: string;
@@ -19,14 +13,10 @@ interface NOKInviteRequest {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 
@@ -43,7 +33,7 @@ serve(async (req) => {
         error: 'Missing required parameters: nokId, nokEmail, nokName, nominatorName' 
       }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -59,7 +49,7 @@ serve(async (req) => {
         error: 'NOK record not found or not in invited status' 
       }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -183,7 +173,7 @@ TagMyThing - Secure Asset Management & Digital Legacy Planning
       inviteUrl
     }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
@@ -193,7 +183,7 @@ TagMyThing - Secure Asset Management & Digital Legacy Planning
       details: 'Failed to process NOK invitation'
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 });
