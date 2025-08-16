@@ -79,3 +79,30 @@ export function generateRandomString(length: number): string {
   }
   return result;
 }
+
+/**
+ * Development-only logging utility
+ * Only logs when in development mode to reduce console clutter in production
+ */
+export const devLog = {
+  log: (...args: any[]) => {
+    if (import.meta.env.DEV) {
+      console.log(...args);
+    }
+  },
+  warn: (...args: any[]) => {
+    if (import.meta.env.DEV) {
+      console.warn(...args);
+    }
+  },
+  error: (...args: any[]) => {
+    if (import.meta.env.DEV) {
+      console.error(...args);
+    }
+  },
+  info: (...args: any[]) => {
+    if (import.meta.env.DEV) {
+      console.info(...args);
+    }
+  }
+};
