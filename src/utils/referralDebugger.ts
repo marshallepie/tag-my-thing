@@ -243,16 +243,16 @@ export class ReferralDebugger {
 
 // Export convenience functions
 export const debugReferralFlow = async (referralCode: string, newUserEmail: string) => {
-  const debugger = new ReferralDebugger();
-  const results = await debugger.debugReferralFlow(referralCode, newUserEmail);
-  debugger.printSummary();
+  const debuggerInstance = new ReferralDebugger();
+  const results = await debuggerInstance.debugReferralFlow(referralCode, newUserEmail);
+  debuggerInstance.printSummary();
   return results;
 };
 
 export const testReferralFunction = async (newUserEmail: string) => {
-  const debugger = new ReferralDebugger();
-  const results = await debugger.testReferralFunction(newUserEmail);
-  debugger.printSummary();
+  const debuggerInstance = new ReferralDebugger();
+  const results = await debuggerInstance.testReferralFunction(newUserEmail);
+  debuggerInstance.printSummary();
   return results;
 };
 
