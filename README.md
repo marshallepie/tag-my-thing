@@ -230,7 +230,7 @@ All tables implement Row Level Security (RLS) for data protection.
 
 The application is deployed on Netlify with automatic builds from the main branch.
 
-**Live URL:** [https://tag-my-thing.netlify.app](https://tag-my-thing.netlify.app)
+**Live URL:** [https://tagmything.com)
 
 ### Build Commands
 ```bash
@@ -288,14 +288,10 @@ For support, email tagmything_support@marshallepie.com or join our community dis
 
 ## 🎯 Roadmap
 
-- [ ] Mobile app development (iOS/Android)
+
 - [ ] Advanced blockchain integration
-- [ ] AI-powered asset categorization
 - [ ] Multi-language support
-- [ ] API for third-party integrations
-- [ ] Advanced NOK verification system
-- [ ] Bulk NOK management tools
-- [ ] Legacy planning templates
+- [ ] Modular Design linked with REST api
 
 ---
 
