@@ -252,6 +252,11 @@ const handleSignin = async () => {
     if (pendingReferralCode && pendingUserId !== auth.user?.id) {
       console.log('⚠️ REFERRAL DEBUG - User ID mismatch, clearing stale data');
       localStorage.removeItem('pending_referral_code');
+    // Add delay before processing pending referrals to ensure session is fully established
+    console.log('🔍 REFERRAL DEBUG - Waiting 2 seconds for session to stabilize...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('✅ REFERRAL DEBUG - Session stabilization complete');
+
       localStorage.removeItem('pending_referral_user_id');
     }
   }
@@ -265,6 +270,11 @@ const handleSignin = async () => {
     if (nokInviteEmail && userId) {
       console.log('AuthForm: Processing NOK invite acceptance after signup for:', nokInviteEmail);
       try {
+        console.log('🔍 REFERRAL DEBUG - About to call processReferralSignup with:', {
+          referralCode: pendingReferralCode,
+          userId: auth.user.id,
+          timestamp: new Date().toISOString()
+        });
         const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
           p_nok_email: nokInviteEmail,
           p_linked_user_id: userId
@@ -274,9 +284,13 @@ const handleSignin = async () => {
           console.error('NOK acceptance error:', acceptError);
         // Don't clear localStorage on error - allow retry
         toast.error('Referral processing failed - will retry on next login');
+        localStorage.removeItem('pending_referral_timestamp');
+        localStorage.removeItem('pending_referral_email');
           toast.error('Account created but failed to accept NOK nomination');
         } else if (acceptResult?.success) {
           toast.success('Account created and NOK nomination accepted!');
+        // Don't clear localStorage on error - allow retry
+        toast.error('Referral processing failed - will retry on next login');
         } else {
           console.log('NOK acceptance result:', acceptResult);
           toast.success('Account created successfully!');
@@ -284,6 +298,8 @@ const handleSignin = async () => {
       } catch (nokError) {
         console.error('NOK acceptance failed:', nokError);
         toast.success('Account created successfully!');
+        localStorage.removeItem('pending_referral_timestamp');
+        localStorage.removeItem('pending_referral_email');
       }
     }
   };

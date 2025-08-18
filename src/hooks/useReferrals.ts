@@ -354,6 +354,11 @@ export const useReferrals = () => {
     });
     
     try {
+      // Add initial delay to ensure database session is fully established
+      console.log('🔍 STEP 0: Waiting 1 second for database session to stabilize...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('✅ STEP 0 COMPLETE - Database session stabilized');
+
       // Log the referral code being used for lookup
       console.log('🔍 STEP 1: Looking up referrer with code:', referralCode);
       
@@ -383,10 +388,10 @@ export const useReferrals = () => {
 
       console.log('✅ STEP 1 SUCCESS - Found referrer:', referrer.id);
 
-      // Add a delay to ensure the new user's profile is fully committed
-      console.log('🔍 STEP 1.5: Waiting 1000ms for user profile to be fully committed...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('✅ STEP 1.5 COMPLETE - Wait finished');
+      // Add a longer delay to ensure the new user's profile is fully committed
+      console.log('🔍 STEP 1.5: Waiting 3000ms for user profile to be fully committed...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log('✅ STEP 1.5 COMPLETE - Extended wait finished');
 
       // Verify the new user exists before creating referral record
       console.log('🔍 STEP 1.6: Verifying new user exists in database');
@@ -409,8 +414,8 @@ export const useReferrals = () => {
         console.log('❌ This might be a timing issue - user profile not yet committed');
         
         // Try one more time with a longer delay
-        console.log('🔍 STEP 1.7: Retrying after additional 2000ms delay...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('🔍 STEP 1.7: Retrying after additional 5000ms delay...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
         
         const { data: retryUserProfile, error: retryUserError } = await supabase
           .from('user_profiles')
@@ -444,6 +449,11 @@ export const useReferrals = () => {
         completed_at: new Date().toISOString()
       };
       console.log('🔍 STEP 2: About to insert referral record:', referralData);
+      console.log('🔍 STEP 2: Current auth context before insert:', {
+        authUid: (await supabase.auth.getUser()).data.user?.id,
+        sessionValid: !!(await supabase.auth.getSession()).data.session,
+        timestamp: new Date().toISOString()
+      });
 
       // Create referral record
       const { error: referralError } = await supabase
@@ -494,9 +504,33 @@ export const useReferrals = () => {
         console.log('✅ STEP 2 SUCCESS - Referral record created successfully');
       }
 
+      // Immediate verification that the referral record was created
+      console.log('🔍 STEP 2.5: Verifying referral record was actually inserted');
+      const { data: verifyReferral, error: verifyError } = await supabase
+        .from('referrals')
+        .select('*')
+        .eq('referred_id', newUserId)
+        .maybeSingle();
+      
+      console.log('🔍 STEP 2.5 RESULT - Referral verification:', {
+        verifyReferral,
+        verifyError,
+        recordExists: !!verifyReferral,
+        recordStatus: verifyReferral?.status,
+        recordId: verifyReferral?.id
+      });
+      
+      if (!verifyReferral) {
+        console.error('❌ STEP 2.5 FAILED - Referral record not found after insertion');
+        console.error('❌ This indicates a serious database consistency issue');
+        return;
+      }
+      
+      console.log('✅ STEP 2.5 SUCCESS - Referral record verified in database');
+
       // Add a longer delay to ensure the referral record is committed
-      console.log('🔍 STEP 3: Waiting 3000ms for database commit...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log('🔍 STEP 3: Waiting 2000ms for database commit...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       console.log('✅ STEP 3 COMPLETE - Database commit wait finished');
 
       // Process rewards for the referral chain using multiple approaches
@@ -506,6 +540,11 @@ export const useReferrals = () => {
       let rewardProcessed = false;
       try {
         console.log('🔍 STEP 4A: Calling process_referral_rewards RPC with userId:', newUserId);
+        console.log('🔍 STEP 4A: Current session before RPC call:', {
+          sessionExists: !!(await supabase.auth.getSession()).data.session,
+          userIdFromSession: (await supabase.auth.getUser()).data.user?.id
+        });
+        
         const { data: rpcData, error: rewardError } = await supabase.rpc('process_referral_rewards_v2', {
           referred_user_id: newUserId
         });
@@ -558,27 +597,15 @@ export const useReferrals = () => {
             console.log('🔍 STEP 4B-2 RESULT:', { existingReward });
             
             if (!existingReward) {
-              // Get the referral ID for the reward record
-              console.log('🔍 STEP 4B-2.5: Getting referral ID for reward record');
-              const { data: referralRecord } = await supabase
-                .from('referrals')
-                .select('id')
-                .eq('referred_id', newUserId)
-                .single();
-              
-              console.log('🔍 STEP 4B-2.5 RESULT:', { referralRecord });
-              
-              if (!referralRecord) {
-                console.log('❌ STEP 4B-2.5 FAILED - Could not find referral record for reward creation');
-                return;
-              }
+              // Use the verified referral record from step 2.5
+              console.log('🔍 STEP 4B-2.5: Using verified referral record:', verifyReferral.id);
               
               console.log('🔍 STEP 4B-3: Creating manual reward record');
               // Create reward record
               const { error: rewardInsertError } = await supabase
                 .from('referral_rewards')
                 .insert({
-                  referral_id: referralRecord.id,
+                  referral_id: verifyReferral.id,
                   referrer_id: referrer.id,
                   referred_id: newUserId,
                   referral_level: 1,
@@ -591,36 +618,30 @@ export const useReferrals = () => {
               
               if (!rewardInsertError) {
                 console.log('🔍 STEP 4B-4: Updating wallet balance');
-                // Update wallet balance
-                const { error: walletError } = await supabase
+                // Get current wallet balance first
+                const { data: currentWallet, error: walletFetchError } = await supabase
                   .from('user_wallets')
-                  .rpc('increment_wallet_balance', {
-                    user_id: referrer.id,
-                    amount: rewardSetting.token_reward
-                  });
+                  .select('balance')
+                  .eq('user_id', referrer.id)
+                  .single();
                 
-                console.log('🔍 STEP 4B-4 RESULT:', { walletError });
+                console.log('🔍 STEP 4B-4 WALLET FETCH:', { currentWallet, walletFetchError });
                 
-                // If RPC doesn't exist, fall back to direct update
-                if (walletError && walletError.message?.includes('function increment_wallet_balance')) {
-                  console.log('🔍 STEP 4B-4 FALLBACK: Using direct wallet update');
-                  const { data: currentWallet } = await supabase
-                    .from('user_wallets')
-                    .select('balance')
-                    .eq('user_id', referrer.id)
-                    .single();
+                if (currentWallet && !walletFetchError) {
+                  const newBalance = currentWallet.balance + rewardSetting.token_reward;
+                  console.log('🔍 STEP 4B-4: Updating wallet from', currentWallet.balance, 'to', newBalance);
                   
-                  if (currentWallet) {
-                    const { error: directWalletError } = await supabase
-                      .from('user_wallets')
-                      .update({ 
-                        balance: currentWallet.balance + rewardSetting.token_reward,
-                        updated_at: new Date().toISOString()
-                      })
-                      .eq('user_id', referrer.id);
-                    
-                    console.log('🔍 STEP 4B-4 FALLBACK RESULT:', { directWalletError });
-                  }
+                  const { error: walletUpdateError } = await supabase
+                    .from('user_wallets')
+                    .update({ 
+                      balance: newBalance,
+                      updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', referrer.id);
+                  
+                  console.log('🔍 STEP 4B-4 RESULT:', { walletUpdateError });
+                } else {
+                  console.error('❌ STEP 4B-4 FAILED - Could not fetch current wallet balance');
                 }
                 
                 // Create transaction record
@@ -669,14 +690,14 @@ export const useReferrals = () => {
       console.log('✅ REFERRAL DEBUG - processReferralSignup COMPLETED');
       
       // Force refresh of referral data for all influencers
-      console.log('🔍 FINAL STEP: Triggering data refresh in 3 seconds...');
+      console.log('🔍 FINAL STEP: Triggering data refresh in 2 seconds...');
       setTimeout(() => {
         if (user?.id && profile) {
           fetchReferralData(user.id, profile).catch(error => {
             console.error('❌ Data refresh failed:', error);
           });
         }
-      }, 3000); // Longer delay to ensure all database operations complete
+      }, 2000);
       
     } catch (error: any) {
       console.error('❌ REFERRAL DEBUG - FATAL ERROR in processReferralSignup:', {
