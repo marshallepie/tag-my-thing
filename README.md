@@ -124,10 +124,10 @@ src/
 
 ### Signup Paths
 
-TagMyThing offers different signup paths for different user types:
+TagMyThing offers different signup paths for different user types Minimum user starts as Influencer:
 
-- **Regular Users**: Visit `/auth` for standard signup (50 TMT tokens)
-- **Influencers**: Visit `/influencer-signup` for enhanced features (100 TMT tokens + referral system)
+- **HIDDEN temporarily; Regular Users**: Visit `/auth` for standard signup (50 TMT tokens)
+- **All users start here; Influencers**: Visit `/influencer-signup` for enhanced features (100 TMT tokens + referral system)
 - **Business Users**: Visit `/business-auth` for business features (50 TMT tokens + product verification tools)
 - **Referred Users**: Any signup with `?ref=code` automatically gets enhanced benefits
 ---
@@ -167,15 +167,18 @@ TagMyThing features an advanced Next-of-Kin (NOK) management system with Dead Ma
 - **Upcoming DMS** - Assignments approaching their DMS date
 
 ### Token Economy
-- **50 TMT** - Free signup bonus for regular users
-- **100 TMT** - Free signup bonus for influencers
-- **5 TMT** - Cost per photo tag
-- **7 TMT** - Cost per video tag
-- **Additional tokens** - Available for purchase or monthly allocations with business plans
+
+- **100 TMT** - Free signup bonus for everyone.
+- **25 TMT** - Cost per photo tag
+- **60 TMT** - Cost per video tag
+- **Additional tokens** - Available for purchase on pay as you go.
 
 ### User Roles
-- **User** - Standard account with asset tagging
-- **NOK** - Next-of-kin with limited asset access
+- Any user can be nominated as NOK.
+- Any user can nominate a next of kin.
+- Any user can nominate multiple next of kins. (outgoing Noks)
+- Any user can be nominated as next of kin by different users. (incomming NOKs)
+- **NOK** - Next-of-kin with limited asset access set by visibility switch and by Dead Mans Switch.
 - **Moderator** - Content moderation capabilities
 - **Admin** - Full platform administration
 - **Influencer** - Enhanced referral capabilities, higher signup bonus (100 TMT)
