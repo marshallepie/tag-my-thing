@@ -21,7 +21,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Loader
+  Loader,
+  Bug
 } from 'lucide-react';
 import { useReferrals } from '../hooks/useReferrals';
 import { useAuth } from '../hooks/useAuth';
@@ -54,7 +55,7 @@ export const InfluencerReferrals: React.FC = () => {
     refreshData,
     forceRefresh
   } = useReferrals();
-  const { user, profile, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, profile, isAuthenticated, loading: authLoading, isAdminInfluencer } = useAuth();
 
   
   // Define landing page options for the dropdown
@@ -243,27 +244,6 @@ export const InfluencerReferrals: React.FC = () => {
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            <Button
-              onClick={async () => {
-                const email = prompt('Enter email of referred user to debug:');
-                if (email && profile?.referral_code) {
-                  console.log('🔍 Starting manual referral debug...');
-                  await debugReferralFlow(profile.referral_code, email);
-                }
-              }}
-              variant="outline"
-              className="mt-4 sm:mt-0"
-            >
-              Debug Referral
-            </Button>
-            <Button
-              onClick={() => setShowDebugPanel(true)}
-              variant="outline"
-              className="mt-4 sm:mt-0"
-            >
-              <Bug className="h-4 w-4 mr-2" />
-              Debug Panel
-            </Button>
           </div>
         </div>
       </Layout>
@@ -298,15 +278,41 @@ export const InfluencerReferrals: React.FC = () => {
               Earn tokens by referring new users to TagMyThing
             </p>
           </div>
-          <Button
-            onClick={refreshData}
-            variant="outline"
-            className="mt-4 sm:mt-0"
-            disabled={dataLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${dataLoading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </Button>
+          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+            <Button
+              onClick={refreshData}
+              variant="outline"
+              disabled={dataLoading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${dataLoading ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </Button>
+            
+            {/* Debug buttons for admin_influencer only */}
+            {isAdminInfluencer && (
+              <>
+                <Button
+                  onClick={async () => {
+                    const email = prompt('Enter email of referred user to debug:');
+                    if (email && profile?.referral_code) {
+                      console.log('🔍 Starting manual referral debug...');
+                      await debugReferralFlow(profile.referral_code, email);
+                    }
+                  }}
+                  variant="outline"
+                >
+                  Debug Referral
+                </Button>
+                <Button
+                  onClick={() => setShowDebugPanel(true)}
+                  variant="outline"
+                >
+                  <Bug className="h-4 w-4 mr-2" />
+                  Debug Panel
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Stats Cards */}
