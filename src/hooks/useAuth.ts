@@ -37,11 +37,21 @@ export const useAuth = () => {
     
     try {
       console.log('🔍 fetchProfile: Making Supabase query...');
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+      
+      // Create timeout promise (10 seconds)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout after 10 seconds')), 10000);
+      });
+      
+      // Race the Supabase query against the timeout
+      const { data, error } = await Promise.race([
+        supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle(),
+        timeoutPromise
+      ]) as any;
 
       const duration = (performance.now() - startTime).toFixed(1);
       console.log('🔍 fetchProfile: Query completed in', duration + 'ms');
@@ -55,14 +65,28 @@ export const useAuth = () => {
       
       if (data && mountedRef.current) {
         console.log('🔍 fetchProfile: Updating user activity...');
-        updateUserActivity();
+        // Wrap updateUserActivity in try-catch to prevent blocking
+        try {
+          await updateUserActivity();
+          console.log('🔍 fetchProfile: User activity updated successfully');
+        } catch (activityError) {
+          console.warn('⚠️ fetchProfile: Failed to update user activity:', activityError);
+          // Don't fail the profile fetch if activity update fails
+        }
       }
 
       console.log('🔍 fetchProfile: Returning profile:', data?.email || 'null');
       return data;
     } catch (error) {
       const duration = (performance.now() - startTime).toFixed(1);
-      console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
+      
+      // Enhanced error logging for production debugging
+      if (error instanceof Error && error.message.includes('timeout')) {
+        console.error('⏰ fetchProfile: Query timed out after', duration + 'ms');
+        console.error('⏰ This suggests network or database performance issues in production');
+      } else {
+        console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
+      }
       return null;
     }
   }, [updateUserActivity]);
