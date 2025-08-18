@@ -617,7 +617,7 @@ export const useReferrals = () => {
                         balance: currentWallet.balance + rewardSetting.token_reward,
                         updated_at: new Date().toISOString()
                       })
-                  .eq('user_id', referrer.id);
+                      .eq('user_id', referrer.id);
                     
                     console.log('🔍 STEP 4B-4 FALLBACK RESULT:', { directWalletError });
                   }
@@ -698,22 +698,6 @@ export const useReferrals = () => {
         toast.error('Failed to process referral - please contact support');
       }
       
-      console.error('❌ REFERRAL DEBUG - processReferralSignup FAILED');
-    }
-  };
-          console.error('❌ Data refresh failed:', error);
-        });
-      }, 2000); // Longer delay to ensure database operations complete
-      
-    } catch (error: any) {
-      console.error('❌ REFERRAL DEBUG - FATAL ERROR in processReferralSignup:', {
-        error,
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        stack: error?.stack
-      });
-      toast.error('Failed to process referral');
       console.error('❌ REFERRAL DEBUG - processReferralSignup FAILED');
     }
   };
