@@ -132,11 +132,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     const { data: auth, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
-    // Enhanced referral processing for sign-in
       options: {
         emailRedirectTo: `${window.location.origin}/auth`, // Redirect to auth page after email confirmation
         data: {
-    console.log('🔍 REFERRAL DEBUG - Checking for pending referral after signin');
           role: isBusinessUserSignup ? 'user' : initialRole,
           is_business_user: isBusinessUserSignup
         }
@@ -184,11 +182,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     
     // Redirect to check email page
     navigate('/check-email', { state: { email: formData.email } });
-      
-      // Add delay to ensure user profile is fully loaded after sign-in
-      console.log('🔍 REFERRAL DEBUG - Waiting 2000ms for profile to be ready...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
     console.log('AuthForm - Finished handleSignup');
   };
 
