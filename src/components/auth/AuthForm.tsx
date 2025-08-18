@@ -120,15 +120,23 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
   const handleSignup = async () => {
     console.log('AuthForm - Starting handleSignup');
+    console.log('AuthForm - Signup context:', {
+      email: formData.email,
+      hasReferralCode: !!referralCode,
+      referralCode: referralCode,
+      initialRole: initialRole,
+      isBusinessUserSignup: isBusinessUserSignup
+    });
 
     // Sign up user with Supabase Auth with email confirmation
     const { data: auth, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
+    // Enhanced referral processing for sign-in
       options: {
         emailRedirectTo: `${window.location.origin}/auth`, // Redirect to auth page after email confirmation
         data: {
-          full_name: formData.fullName,
+    console.log('🔍 REFERRAL DEBUG - Checking for pending referral after signin');
           role: isBusinessUserSignup ? 'user' : initialRole,
           is_business_user: isBusinessUserSignup
         }
@@ -144,6 +152,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw new Error('No user returned from signup');
     }
 
+    console.log('AuthForm - User created successfully:', {
+      userId: auth.user.id,
+      email: auth.user.email,
+      needsEmailConfirmation: !auth.user.email_confirmed_at
+    });
+
     // Handle NOK invite acceptance for new signups
     await handleSignupSuccess(auth.user.id);
 
@@ -153,16 +167,28 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     if (referralCode) {
       console.log('🔍 REFERRAL DEBUG - Storing referral code for post-confirmation processing');
       console.log('🔍 Storing:', { referralCode, userId: auth.user.id });
+      
       // Store referral code in localStorage to process after confirmation
       localStorage.setItem('pending_referral_code', referralCode);
       localStorage.setItem('pending_referral_user_id', auth.user.id);
+      
+      // Also store additional context for debugging
+      localStorage.setItem('pending_referral_timestamp', new Date().toISOString());
+      localStorage.setItem('pending_referral_email', formData.email);
+      
       console.log('✅ REFERRAL DEBUG - Referral code stored in localStorage');
+      console.log('✅ REFERRAL DEBUG - Additional context stored for debugging');
     }
 
     toast.success('Account created! Please check your email to confirm your signup.');
     
     // Redirect to check email page
     navigate('/check-email', { state: { email: formData.email } });
+      
+      // Add delay to ensure user profile is fully loaded after sign-in
+      console.log('🔍 REFERRAL DEBUG - Waiting 2000ms for profile to be ready...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
     console.log('AuthForm - Finished handleSignup');
   };
 
@@ -253,6 +279,8 @@ const handleSignin = async () => {
 
         if (acceptError) {
           console.error('NOK acceptance error:', acceptError);
+        // Don't clear localStorage on error - allow retry
+        toast.error('Referral processing failed - will retry on next login');
           toast.error('Account created but failed to accept NOK nomination');
         } else if (acceptResult?.success) {
           toast.success('Account created and NOK nomination accepted!');

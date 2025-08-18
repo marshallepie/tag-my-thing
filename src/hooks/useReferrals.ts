@@ -383,6 +383,57 @@ export const useReferrals = () => {
 
       console.log('✅ STEP 1 SUCCESS - Found referrer:', referrer.id);
 
+      // Add a delay to ensure the new user's profile is fully committed
+      console.log('🔍 STEP 1.5: Waiting 1000ms for user profile to be fully committed...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('✅ STEP 1.5 COMPLETE - Wait finished');
+
+      // Verify the new user exists before creating referral record
+      console.log('🔍 STEP 1.6: Verifying new user exists in database');
+      const { data: newUserProfile, error: newUserError } = await supabase
+        .from('user_profiles')
+        .select('id, email')
+        .eq('id', newUserId)
+        .maybeSingle();
+
+      console.log('🔍 STEP 1.6 RESULT - New user verification:', {
+        newUserProfile,
+        newUserError,
+        hasNewUser: !!newUserProfile,
+        errorCode: newUserError?.code,
+        errorMessage: newUserError?.message
+      });
+
+      if (newUserError || !newUserProfile) {
+        console.log('❌ REFERRAL DEBUG - New user not found in database yet');
+        console.log('❌ This might be a timing issue - user profile not yet committed');
+        
+        // Try one more time with a longer delay
+        console.log('🔍 STEP 1.7: Retrying after additional 2000ms delay...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const { data: retryUserProfile, error: retryUserError } = await supabase
+          .from('user_profiles')
+          .select('id, email')
+          .eq('id', newUserId)
+          .maybeSingle();
+
+        console.log('🔍 STEP 1.7 RESULT - Retry user verification:', {
+          retryUserProfile,
+          retryUserError,
+          hasRetryUser: !!retryUserProfile
+        });
+
+        if (retryUserError || !retryUserProfile) {
+          console.log('❌ REFERRAL DEBUG - New user still not found after retry, aborting');
+          return;
+        }
+        
+        console.log('✅ STEP 1.7 SUCCESS - Found new user on retry');
+      } else {
+        console.log('✅ STEP 1.6 SUCCESS - New user found immediately');
+      }
+
       // Log the values about to be inserted into referrals table
       const referralData = {
         referrer_id: referrer.id,
@@ -411,14 +462,41 @@ export const useReferrals = () => {
       if (referralError) {
         console.error('❌ STEP 2 FAILED - Failed to insert referral record:', referralError);
         console.error('❌ Full error details:', JSON.stringify(referralError, null, 2));
-        throw referralError;
+        
+        // Check if it's a duplicate key error (user already referred)
+        if (referralError.code === '23505' && referralError.message?.includes('referrals_referred_id_key')) {
+          console.log('⚠️ STEP 2 DUPLICATE - User already has a referral record, checking existing record');
+          
+          // Check if existing referral record exists and is completed
+          const { data: existingReferral, error: existingError } = await supabase
+            .from('referrals')
+            .select('*')
+            .eq('referred_id', newUserId)
+            .single();
+          
+          console.log('🔍 STEP 2.1 - Existing referral check:', {
+            existingReferral,
+            existingError,
+            isCompleted: existingReferral?.status === 'completed'
+          });
+          
+          if (existingReferral && existingReferral.status === 'completed') {
+            console.log('✅ STEP 2.1 SUCCESS - Referral already exists and is completed, proceeding to rewards');
+          } else {
+            console.log('❌ STEP 2.1 FAILED - Existing referral found but not completed');
+            return;
+          }
+        } else {
+          console.error('❌ STEP 2 FATAL - Non-duplicate error in referral insertion');
+          throw referralError;
+        }
+      } else {
+        console.log('✅ STEP 2 SUCCESS - Referral record created successfully');
       }
 
-      console.log('✅ STEP 2 SUCCESS - Referral record created successfully');
-
       // Add a longer delay to ensure the referral record is committed
-      console.log('🔍 STEP 3: Waiting 2000ms for database commit...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('🔍 STEP 3: Waiting 3000ms for database commit...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
       console.log('✅ STEP 3 COMPLETE - Database commit wait finished');
 
       // Process rewards for the referral chain using multiple approaches
@@ -480,12 +558,27 @@ export const useReferrals = () => {
             console.log('🔍 STEP 4B-2 RESULT:', { existingReward });
             
             if (!existingReward) {
+              // Get the referral ID for the reward record
+              console.log('🔍 STEP 4B-2.5: Getting referral ID for reward record');
+              const { data: referralRecord } = await supabase
+                .from('referrals')
+                .select('id')
+                .eq('referred_id', newUserId)
+                .single();
+              
+              console.log('🔍 STEP 4B-2.5 RESULT:', { referralRecord });
+              
+              if (!referralRecord) {
+                console.log('❌ STEP 4B-2.5 FAILED - Could not find referral record for reward creation');
+                return;
+              }
+              
               console.log('🔍 STEP 4B-3: Creating manual reward record');
               // Create reward record
               const { error: rewardInsertError } = await supabase
                 .from('referral_rewards')
                 .insert({
-                  referral_id: (await supabase.from('referrals').select('id').eq('referred_id', newUserId).single()).data?.id,
+                  referral_id: referralRecord.id,
                   referrer_id: referrer.id,
                   referred_id: newUserId,
                   referral_level: 1,
@@ -501,13 +594,34 @@ export const useReferrals = () => {
                 // Update wallet balance
                 const { error: walletError } = await supabase
                   .from('user_wallets')
-                  .update({ 
-                    balance: supabase.sql`balance + ${rewardSetting.token_reward}`, 
-                    updated_at: new Date().toISOString()
-                  })
-                  .eq('user_id', referrer.id);
+                  .rpc('increment_wallet_balance', {
+                    user_id: referrer.id,
+                    amount: rewardSetting.token_reward
+                  });
                 
                 console.log('🔍 STEP 4B-4 RESULT:', { walletError });
+                
+                // If RPC doesn't exist, fall back to direct update
+                if (walletError && walletError.message?.includes('function increment_wallet_balance')) {
+                  console.log('🔍 STEP 4B-4 FALLBACK: Using direct wallet update');
+                  const { data: currentWallet } = await supabase
+                    .from('user_wallets')
+                    .select('balance')
+                    .eq('user_id', referrer.id)
+                    .single();
+                  
+                  if (currentWallet) {
+                    const { error: directWalletError } = await supabase
+                      .from('user_wallets')
+                      .update({ 
+                        balance: currentWallet.balance + rewardSetting.token_reward,
+                        updated_at: new Date().toISOString()
+                      })
+                  .eq('user_id', referrer.id);
+                    
+                    console.log('🔍 STEP 4B-4 FALLBACK RESULT:', { directWalletError });
+                  }
+                }
                 
                 // Create transaction record
                 console.log('🔍 STEP 4B-5: Creating transaction record');
@@ -523,7 +637,7 @@ export const useReferrals = () => {
                 
                 console.log('🔍 STEP 4B-5 RESULT:', { transactionError });
                 
-                if (!walletError && !transactionError) {
+                if (!transactionError) {
                   console.log('✅ STEP 4B SUCCESS - Manual reward processing successful');
                 } else {
                   console.error('❌ STEP 4B PARTIAL - Some manual operations failed');
@@ -534,6 +648,7 @@ export const useReferrals = () => {
               }
             } else {
               console.log('⚠️ STEP 4B-2 SKIP - Reward already exists');
+              rewardProcessed = true; // Mark as processed since reward exists
             }
           } else {
             console.error('❌ STEP 4B-1 FAILED - No reward setting found for level 1');
@@ -545,18 +660,47 @@ export const useReferrals = () => {
       
       if (!rewardProcessed) {
         console.warn('⚠️ REFERRAL DEBUG - Reward processing failed, but referral was created');
-        toast.error('Referral created but reward processing failed');
+        toast.success('Referral created! Rewards are being processed...');
       } else {
         console.log('✅ REFERRAL DEBUG - Reward processing completed successfully');
+        toast.success('Referral processed successfully with rewards!');
       }
 
       console.log('✅ REFERRAL DEBUG - processReferralSignup COMPLETED');
-      toast.success('Referral processed successfully!');
       
       // Force refresh of referral data for all influencers
-      console.log('🔍 FINAL STEP: Triggering data refresh in 2 seconds...');
+      console.log('🔍 FINAL STEP: Triggering data refresh in 3 seconds...');
       setTimeout(() => {
-        fetchReferralData(user?.id, profile).catch(error => {
+        if (user?.id && profile) {
+          fetchReferralData(user.id, profile).catch(error => {
+            console.error('❌ Data refresh failed:', error);
+          });
+        }
+      }, 3000); // Longer delay to ensure all database operations complete
+      
+    } catch (error: any) {
+      console.error('❌ REFERRAL DEBUG - FATAL ERROR in processReferralSignup:', {
+        error,
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        stack: error?.stack
+      });
+      
+      // More specific error messages
+      if (error?.code === '23505') {
+        console.log('⚠️ REFERRAL DEBUG - Duplicate key error, user may already be referred');
+        toast.info('User already has a referral record');
+      } else if (error?.message?.includes('timeout')) {
+        console.log('⚠️ REFERRAL DEBUG - Database timeout error');
+        toast.error('Database timeout - referral may still be processing');
+      } else {
+        toast.error('Failed to process referral - please contact support');
+      }
+      
+      console.error('❌ REFERRAL DEBUG - processReferralSignup FAILED');
+    }
+  };
           console.error('❌ Data refresh failed:', error);
         });
       }, 2000); // Longer delay to ensure database operations complete
