@@ -345,11 +345,17 @@ export const useReferrals = () => {
   };
 
   const processReferralSignup = async (referralCode: string, newUserId: string) => {
-    console.log('processReferralSignup - Starting with code:', referralCode, 'newUserId:', newUserId);
+    console.log('🔍 REFERRAL DEBUG - processReferralSignup STARTED');
+    console.log('🔍 Input params:', { referralCode, newUserId });
+    console.log('🔍 Current user context:', { 
+      authUserId: user?.id, 
+      profileEmail: profile?.email,
+      isAuthenticated 
+    });
     
     try {
       // Log the referral code being used for lookup
-      console.log('processReferralSignup - Looking up referrer with code:', referralCode);
+      console.log('🔍 STEP 1: Looking up referrer with code:', referralCode);
       
       // Find referrer by code with better error handling
       const { data: referrer, error: referrerError } = await supabase
@@ -359,20 +365,23 @@ export const useReferrals = () => {
         .maybeSingle(); // Use maybeSingle to avoid errors when no rows found
 
       // Log detailed referrer lookup result
-      console.log('processReferralSignup - Referrer lookup result:', { 
+      console.log('🔍 STEP 1 RESULT - Referrer lookup:', { 
         referrer, 
         referrerError,
         hasReferrer: !!referrer,
-        referrerId: referrer?.id 
+        referrerId: referrer?.id,
+        errorCode: referrerError?.code,
+        errorMessage: referrerError?.message
       });
 
       if (referrerError || !referrer) {
-        console.log('processReferralSignup - Invalid referral code or referrer not found:', referralCode, 'Error:', referrerError);
+        console.log('❌ REFERRAL DEBUG - Invalid referral code or referrer not found');
+        console.log('❌ Code:', referralCode, 'Error:', referrerError);
         // Don't throw error, just log and return - this is not a critical failure
         return;
       }
 
-      console.log('processReferralSignup - Found referrer:', referrer.id);
+      console.log('✅ STEP 1 SUCCESS - Found referrer:', referrer.id);
 
       // Log the values about to be inserted into referrals table
       const referralData = {
@@ -383,7 +392,7 @@ export const useReferrals = () => {
         status: 'completed',
         completed_at: new Date().toISOString()
       };
-      console.log('processReferralSignup - About to insert referral record:', referralData);
+      console.log('🔍 STEP 2: About to insert referral record:', referralData);
 
       // Create referral record
       const { error: referralError } = await supabase
@@ -391,7 +400,7 @@ export const useReferrals = () => {
         .insert(referralData);
 
       // Log detailed referral insertion result
-      console.log('processReferralSignup - Referral record insertion result:', { 
+      console.log('🔍 STEP 2 RESULT - Referral record insertion:', { 
         referralError,
         success: !referralError,
         errorCode: referralError?.code,
@@ -400,45 +409,54 @@ export const useReferrals = () => {
       });
       
       if (referralError) {
-        console.error('processReferralSignup - Failed to insert referral record:', referralError);
+        console.error('❌ STEP 2 FAILED - Failed to insert referral record:', referralError);
+        console.error('❌ Full error details:', JSON.stringify(referralError, null, 2));
         throw referralError;
       }
 
-      console.log('processReferralSignup - Referral record created successfully');
+      console.log('✅ STEP 2 SUCCESS - Referral record created successfully');
 
       // Add a longer delay to ensure the referral record is committed
-      console.log('processReferralSignup - Waiting 2000ms for database commit');
+      console.log('🔍 STEP 3: Waiting 2000ms for database commit...');
       await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('✅ STEP 3 COMPLETE - Database commit wait finished');
 
       // Process rewards for the referral chain using multiple approaches
-      console.log('processReferralSignup - Processing referral rewards');
+      console.log('🔍 STEP 4: Processing referral rewards via RPC function');
       
       // Approach 1: Try the RPC function
       let rewardProcessed = false;
       try {
-        const { error: rewardError } = await supabase.rpc('process_referral_rewards', {
+        console.log('🔍 STEP 4A: Calling process_referral_rewards RPC with userId:', newUserId);
+        const { data: rpcData, error: rewardError } = await supabase.rpc('process_referral_rewards_v2', {
           referred_user_id: newUserId
         });
 
-        console.log('processReferralSignup - RPC reward processing result:', { 
+        console.log('🔍 STEP 4A RESULT - RPC reward processing:', { 
+          rpcData,
           rewardError,
           success: !rewardError,
-          errorMessage: rewardError?.message
+          errorMessage: rewardError?.message,
+          errorCode: rewardError?.code
         });
         
         if (!rewardError) {
-          console.log('processReferralSignup - RPC rewards processed successfully');
+          console.log('✅ STEP 4A SUCCESS - RPC rewards processed successfully');
+          console.log('✅ RPC Response Data:', rpcData);
           rewardProcessed = true;
+        } else {
+          console.error('❌ STEP 4A FAILED - RPC error:', rewardError);
         }
       } catch (rewardProcessingError) {
-        console.error('processReferralSignup - RPC reward processing exception:', rewardProcessingError);
+        console.error('❌ STEP 4A EXCEPTION - RPC reward processing exception:', rewardProcessingError);
       }
       
       // Approach 2: Manual reward processing if RPC failed
       if (!rewardProcessed) {
-        console.log('processReferralSignup - Attempting manual reward processing');
+        console.log('🔍 STEP 4B: Attempting manual reward processing (RPC failed)');
         try {
           // Get reward amount for level 1
+          console.log('🔍 STEP 4B-1: Getting reward setting for level 1');
           const { data: rewardSetting } = await supabase
             .from('referral_settings')
             .select('token_reward')
@@ -446,8 +464,11 @@ export const useReferrals = () => {
             .eq('active', true)
             .single();
           
+          console.log('🔍 STEP 4B-1 RESULT:', { rewardSetting });
+          
           if (rewardSetting?.token_reward) {
             // Check if reward already exists
+            console.log('🔍 STEP 4B-2: Checking for existing reward');
             const { data: existingReward } = await supabase
               .from('referral_rewards')
               .select('id')
@@ -456,7 +477,10 @@ export const useReferrals = () => {
               .eq('referral_level', 1)
               .maybeSingle();
             
+            console.log('🔍 STEP 4B-2 RESULT:', { existingReward });
+            
             if (!existingReward) {
+              console.log('🔍 STEP 4B-3: Creating manual reward record');
               // Create reward record
               const { error: rewardInsertError } = await supabase
                 .from('referral_rewards')
@@ -470,18 +494,24 @@ export const useReferrals = () => {
                   paid_at: new Date().toISOString()
                 });
               
+              console.log('🔍 STEP 4B-3 RESULT:', { rewardInsertError });
+              
               if (!rewardInsertError) {
+                console.log('🔍 STEP 4B-4: Updating wallet balance');
                 // Update wallet balance
-                await supabase
+                const { error: walletError } = await supabase
                   .from('user_wallets')
                   .update({ 
-                    balance: supabase.sql`balance + ${rewardSetting.token_reward}`,
+                    balance: supabase.sql`balance + ${rewardSetting.token_reward}`, 
                     updated_at: new Date().toISOString()
                   })
                   .eq('user_id', referrer.id);
                 
+                console.log('🔍 STEP 4B-4 RESULT:', { walletError });
+                
                 // Create transaction record
-                await supabase
+                console.log('🔍 STEP 4B-5: Creating transaction record');
+                const { error: transactionError } = await supabase
                   .from('token_transactions')
                   .insert({
                     user_id: referrer.id,
@@ -491,34 +521,48 @@ export const useReferrals = () => {
                     description: `Level 1 referral reward for user: ${newUserId}`
                   });
                 
-                console.log('processReferralSignup - Manual reward processing successful');
+                console.log('🔍 STEP 4B-5 RESULT:', { transactionError });
+                
+                if (!walletError && !transactionError) {
+                  console.log('✅ STEP 4B SUCCESS - Manual reward processing successful');
+                } else {
+                  console.error('❌ STEP 4B PARTIAL - Some manual operations failed');
+                }
                 rewardProcessed = true;
+              } else {
+                console.error('❌ STEP 4B-3 FAILED - Reward insert error:', rewardInsertError);
               }
+            } else {
+              console.log('⚠️ STEP 4B-2 SKIP - Reward already exists');
             }
+          } else {
+            console.error('❌ STEP 4B-1 FAILED - No reward setting found for level 1');
           }
         } catch (manualError) {
-          console.error('processReferralSignup - Manual reward processing failed:', manualError);
+          console.error('❌ STEP 4B EXCEPTION - Manual reward processing failed:', manualError);
         }
       }
       
       if (!rewardProcessed) {
-        console.warn('processReferralSignup - Reward processing failed, but referral was created');
+        console.warn('⚠️ REFERRAL DEBUG - Reward processing failed, but referral was created');
         toast.error('Referral created but reward processing failed');
+      } else {
+        console.log('✅ REFERRAL DEBUG - Reward processing completed successfully');
       }
 
-      console.log('processReferralSignup - Successfully processed referral');
+      console.log('✅ REFERRAL DEBUG - processReferralSignup COMPLETED');
       toast.success('Referral processed successfully!');
       
       // Force refresh of referral data for all influencers
-      console.log('processReferralSignup - Triggering data refresh');
+      console.log('🔍 FINAL STEP: Triggering data refresh in 2 seconds...');
       setTimeout(() => {
-        fetchReferralData().catch(error => {
-          console.error('processReferralSignup - Data refresh failed:', error);
+        fetchReferralData(user?.id, profile).catch(error => {
+          console.error('❌ Data refresh failed:', error);
         });
       }, 2000); // Longer delay to ensure database operations complete
       
     } catch (error: any) {
-      console.error('processReferralSignup - Caught error:', {
+      console.error('❌ REFERRAL DEBUG - FATAL ERROR in processReferralSignup:', {
         error,
         message: error?.message,
         code: error?.code,
@@ -526,6 +570,7 @@ export const useReferrals = () => {
         stack: error?.stack
       });
       toast.error('Failed to process referral');
+      console.error('❌ REFERRAL DEBUG - processReferralSignup FAILED');
     }
   };
 

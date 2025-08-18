@@ -151,10 +151,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
     // Store referral code for processing after email confirmation
     if (referralCode) {
-      console.log('AuthForm - Referral code will be processed after email confirmation');
+      console.log('🔍 REFERRAL DEBUG - Storing referral code for post-confirmation processing');
+      console.log('🔍 Storing:', { referralCode, userId: auth.user.id });
       // Store referral code in localStorage to process after confirmation
       localStorage.setItem('pending_referral_code', referralCode);
       localStorage.setItem('pending_referral_user_id', auth.user.id);
+      console.log('✅ REFERRAL DEBUG - Referral code stored in localStorage');
     }
 
     toast.success('Account created! Please check your email to confirm your signup.');
@@ -207,13 +209,31 @@ const handleSignin = async () => {
 
   const pendingReferralCode = localStorage.getItem('pending_referral_code');
   const pendingUserId = localStorage.getItem('pending_referral_user_id');
+  
+  console.log('🔍 REFERRAL DEBUG - Checking for pending referral after signin');
+  console.log('🔍 Retrieved from localStorage:', { 
+    pendingReferralCode, 
+    pendingUserId, 
+    currentUserId: auth.user?.id 
+  });
+  
   if (pendingReferralCode && pendingUserId === auth.user?.id) {
+    console.log('✅ REFERRAL DEBUG - Found matching pending referral, processing...');
     try {
       await processReferralSignup(pendingReferralCode, auth.user.id);
+      console.log('✅ REFERRAL DEBUG - processReferralSignup completed, cleaning localStorage');
       localStorage.removeItem('pending_referral_code');
       localStorage.removeItem('pending_referral_user_id');
+      console.log('✅ REFERRAL DEBUG - localStorage cleaned');
     } catch (referralError) {
-      console.error('Referral processing failed:', referralError);
+      console.error('❌ REFERRAL DEBUG - Referral processing failed in handleSignin:', referralError);
+    }
+  } else {
+    console.log('ℹ️ REFERRAL DEBUG - No matching pending referral found');
+    if (pendingReferralCode && pendingUserId !== auth.user?.id) {
+      console.log('⚠️ REFERRAL DEBUG - User ID mismatch, clearing stale data');
+      localStorage.removeItem('pending_referral_code');
+      localStorage.removeItem('pending_referral_user_id');
     }
   }
 

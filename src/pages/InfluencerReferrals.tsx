@@ -26,8 +26,10 @@ import {
 import { useReferrals } from '../hooks/useReferrals';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
+import { debugReferralFlow, testReferralFunction } from '../utils/referralDebugger';
 import { debounce } from '../lib/utils';
 import { Layout } from '../components/layout/Layout';
+import { ReferralDebugPanel } from '../components/debug/ReferralDebugPanel';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -39,6 +41,7 @@ export const InfluencerReferrals: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/influencer-signup');
   const { 
     stats, 
@@ -239,6 +242,27 @@ export const InfluencerReferrals: React.FC = () => {
             <Button onClick={refreshData}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
+            </Button>
+            <Button
+              onClick={async () => {
+                const email = prompt('Enter email of referred user to debug:');
+                if (email && profile?.referral_code) {
+                  console.log('🔍 Starting manual referral debug...');
+                  await debugReferralFlow(profile.referral_code, email);
+                }
+              }}
+              variant="outline"
+              className="mt-4 sm:mt-0"
+            >
+              Debug Referral
+            </Button>
+            <Button
+              onClick={() => setShowDebugPanel(true)}
+              variant="outline"
+              className="mt-4 sm:mt-0"
+            >
+              <Bug className="h-4 w-4 mr-2" />
+              Debug Panel
             </Button>
           </div>
         </div>
@@ -529,6 +553,13 @@ export const InfluencerReferrals: React.FC = () => {
             </Card>
           </div>
         </div>
+
+        {/* Debug Panel */}
+        <ReferralDebugPanel
+          isOpen={showDebugPanel}
+          onClose={() => setShowDebugPanel(false)}
+          defaultReferralCode={profile?.referral_code || 'marshallepie'}
+        />
       </div>
     </Layout>
   );
