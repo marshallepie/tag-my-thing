@@ -395,7 +395,17 @@ export const TagAsset: React.FC = () => {
     return (
       <CameraCapture
         onCapture={handleCapture}
-        onCancel={() => navigate('/')}
+        onCancel={() => {
+          console.log('TagAsset: Camera capture cancelled');
+          // If user is authenticated, go to dashboard; otherwise go to home
+          if (isAuthenticated) {
+            console.log('TagAsset: User authenticated, navigating to dashboard');
+            navigate('/dashboard');
+          } else {
+            console.log('TagAsset: User not authenticated, navigating to home');
+            navigate('/');
+          }
+        }}
       />
     );
   }
@@ -406,7 +416,25 @@ export const TagAsset: React.FC = () => {
         <TagAssetForm
           mediaFiles={mediaFiles}
           onSubmit={handleFormSubmit}
-          onCancel={() => navigate('/dashboard')}
+          onCancel={() => {
+            console.log('TagAsset: Form cancelled');
+            // Clean up preview URLs to prevent memory leaks
+            mediaFiles.forEach(file => {
+              if (file.preview) {
+                URL.revokeObjectURL(file.preview);
+              }
+            });
+            setMediaFiles([]);
+            
+            // Navigate based on auth status
+            if (isAuthenticated) {
+              console.log('TagAsset: User authenticated, navigating to dashboard');
+              navigate('/dashboard');
+            } else {
+              console.log('TagAsset: User not authenticated, navigating to home');
+              navigate('/');
+            }
+          }}
           loading={loading || waitingForTokens}
         />
       </div>

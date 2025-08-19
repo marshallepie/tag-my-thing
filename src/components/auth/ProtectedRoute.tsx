@@ -31,6 +31,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Show loading while auth is being determined
   if (!initialized || loading) {
+    console.log('ProtectedRoute: Showing loading state', { initialized, loading });
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -43,11 +44,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to auth if not authenticated
   if (!isAuthenticated) {
+    console.log('ProtectedRoute: User not authenticated, redirecting to:', redirectTo);
     return <Navigate to={redirectTo} replace />;
   }
 
   // Wait for profile to load for role-based checks
   if (!hasProfile && (requiredRole || requiredBusinessUser)) {
+    console.log('ProtectedRoute: Waiting for profile to load for role checks');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

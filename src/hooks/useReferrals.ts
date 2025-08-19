@@ -397,7 +397,7 @@ export const useReferrals = () => {
         console.log('⚠️ REFERRAL DEBUG - Primary referrer not found, trying fallback');
         console.log('⚠️ Code:', referralCode, 'Error:', referrerError);
         
-        // Fallback to Marshall Epie as default referrer
+        // Fallback to Marshall Epie as default referrer using email marshallepie@marshallepie.com
         console.log('🔍 STEP 1.1: Looking up fallback referrer (Marshall Epie)');
         const { data: fallbackReferrer, error: fallbackError } = await supabase
           .from('user_profiles')

@@ -46,6 +46,7 @@ function App() {
 
   // Show loading screen while auth is being determined
   if (!initialized || loading) {
+    console.log('App: Showing loading screen', { initialized, loading });
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

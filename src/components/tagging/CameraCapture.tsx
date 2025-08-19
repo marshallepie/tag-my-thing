@@ -469,6 +469,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
             <Button
               variant="outline"
               onClick={() => {
+                console.log('CameraCapture: Cancel button clicked');
                 // Clean up preview URLs
                 mediaFiles.forEach(file => {
                   if (file.preview) {

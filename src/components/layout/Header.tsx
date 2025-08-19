@@ -171,7 +171,15 @@ export const Header: React.FC = () => {
                         )}
                         <button
                           onClick={() => {
-                            signOut();
+                            console.log('Header: Logout button clicked');
+                            signOut().then(() => {
+                              console.log('Header: Sign out completed, navigating to home');
+                              handleNavigation('/');
+                            }).catch((error) => {
+                              console.error('Header: Sign out error:', error);
+                              // Force navigation even if sign out fails
+                              handleNavigation('/');
+                            });
                             setIsMenuOpen(false);
                           }}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"

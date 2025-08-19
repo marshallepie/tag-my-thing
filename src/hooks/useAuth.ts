@@ -204,16 +204,20 @@ export const useAuth = () => {
   // Sign out function
   const signOut = useCallback(async () => {
     try {
+      console.log('useAuth: Starting sign out process');
       await supabase.auth.signOut();
       localStorage.clear();
       sessionStorage.clear();
       
+      // Immediately clear auth state to prevent stale UI
       setAuthState({
         user: null,
         profile: null,
         loading: false,
         initialized: true,
       });
+      
+      console.log('useAuth: Sign out completed, state cleared');
     } catch (error) {
       console.error('Sign out error:', error);
       // Force clear state
