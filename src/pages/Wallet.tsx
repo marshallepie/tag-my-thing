@@ -99,6 +99,8 @@ export const Wallet: React.FC = () => {
             await refreshWallet();
           } else if (result.already_processed) {
             toast.info('This payment has already been processed.');
+            // Still refresh wallet in case the balance wasn't updated in the UI
+            await refreshWallet();
           } else {
             toast.error(result.error || 'Payment verification failed. Please contact support.');
           }

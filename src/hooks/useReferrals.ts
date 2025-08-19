@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
+import { fetchWalletData } from './useTokens';
 import toast from 'react-hot-toast';
 
 interface ReferralStats {
@@ -596,6 +597,19 @@ export const useReferrals = () => {
           console.log('✅ STEP 4A SUCCESS - RPC rewards processed successfully');
           console.log('✅ RPC Response Data:', rpcData);
           rewardProcessed = true;
+          
+          // Refresh wallet data to reflect the new balance immediately
+          console.log('🔄 STEP 4A-REFRESH: Refreshing wallet data after successful reward processing');
+          try {
+            // Force refresh wallet data for the referrer to show updated balance
+            const referrerWalletData = await fetchWalletData(finalReferrer.id);
+            console.log('✅ STEP 4A-REFRESH SUCCESS: Wallet data refreshed for referrer', {
+              referrerId: finalReferrer.id,
+              newBalance: referrerWalletData.balance
+            });
+          } catch (walletRefreshError) {
+            console.warn('⚠️ STEP 4A-REFRESH WARNING: Failed to refresh wallet data:', walletRefreshError);
+          }
         } else {
           console.error('❌ STEP 4A FAILED - RPC error:', rewardError);
         }
@@ -695,6 +709,18 @@ export const useReferrals = () => {
                 
                 if (!transactionError) {
                   console.log('✅ STEP 4B SUCCESS - Manual reward processing successful');
+                  
+                  // Refresh wallet data to reflect the new balance immediately
+                  console.log('🔄 STEP 4B-REFRESH: Refreshing wallet data after manual reward processing');
+                  try {
+                    const referrerWalletData = await fetchWalletData(finalReferrer.id);
+                    console.log('✅ STEP 4B-REFRESH SUCCESS: Wallet data refreshed for referrer', {
+                      referrerId: finalReferrer.id,
+                      newBalance: referrerWalletData.balance
+                    });
+                  } catch (walletRefreshError) {
+                    console.warn('⚠️ STEP 4B-REFRESH WARNING: Failed to refresh wallet data:', walletRefreshError);
+                  }
                 } else {
                   console.error('❌ STEP 4B PARTIAL - Some manual operations failed');
                 }
@@ -724,13 +750,20 @@ export const useReferrals = () => {
 
       console.log('✅ REFERRAL DEBUG - processReferralSignup COMPLETED');
       
-      // Force refresh of referral data for all influencers
+      // Force refresh of referral data and wallet data
       console.log('🔍 FINAL STEP: Triggering data refresh in 2 seconds...');
       setTimeout(() => {
         if (user?.id && profile) {
           fetchReferralData(user.id, profile).catch(error => {
             console.error('❌ Data refresh failed:', error);
           });
+          
+          // Also refresh wallet data if this is the referrer
+          if (user.id === finalReferrer.id) {
+            fetchWalletData(user.id).catch(error => {
+              console.error('❌ Wallet refresh failed:', error);
+            });
+          }
         }
       }, 2000);
       

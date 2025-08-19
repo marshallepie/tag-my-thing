@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User, Crown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useReferrals } from '../../hooks/useReferrals';
+import { fetchWalletData } from '../../hooks/useTokens';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
@@ -241,6 +242,16 @@ const handleSignin = async () => {
     try {
       await processReferralSignup(pendingReferralCode, auth.user.id);
       console.log('✅ REFERRAL DEBUG - processReferralSignup completed, cleaning localStorage');
+      
+      // Refresh wallet data to ensure any referral rewards are reflected
+      console.log('🔄 REFERRAL DEBUG - Refreshing wallet data after referral processing');
+      try {
+        await fetchWalletData(auth.user.id);
+        console.log('✅ REFERRAL DEBUG - Wallet data refreshed successfully');
+      } catch (walletError) {
+        console.warn('⚠️ REFERRAL DEBUG - Wallet refresh failed:', walletError);
+      }
+      
       localStorage.removeItem('pending_referral_code');
       localStorage.removeItem('pending_referral_user_id');
       console.log('✅ REFERRAL DEBUG - localStorage cleaned');

@@ -3,6 +3,37 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
 import toast from 'react-hot-toast';
 
+// Standalone function to fetch wallet data - can be called from anywhere
+export const fetchWalletData = async (userId: string) => {
+  try {
+    // Fetch wallet balance
+    const { data: wallet } = await supabase
+      .from('user_wallets')
+      .select('balance')
+      .eq('user_id', userId)
+      .single();
+
+    // Fetch recent transactions
+    const { data: transactionData } = await supabase
+      .from('token_transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    return {
+      balance: wallet?.balance || 0,
+      transactions: transactionData || []
+    };
+  } catch (error) {
+    console.error('Error fetching wallet data:', error);
+    return {
+      balance: 0,
+      transactions: []
+    };
+  }
+};
+
 export const useTokens = () => {
   const { user } = useAuth();
   const [balance, setBalance] = useState(0);
@@ -11,41 +42,18 @@ export const useTokens = () => {
 
   useEffect(() => {
     if (user) {
-      fetchWalletData();
+      refreshWallet();
     }
   }, [user]);
 
-  const fetchWalletData = async () => {
+  const refreshWallet = async () => {
     if (!user) return;
 
-    try {
-      // Fetch wallet balance
-      const { data: wallet } = await supabase
-        .from('user_wallets')
-        .select('balance')
-        .eq('user_id', user.id)
-        .single();
-
-      if (wallet) {
-        setBalance(wallet.balance);
-      }
-
-      // Fetch recent transactions
-      const { data: transactionData } = await supabase
-        .from('token_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (transactionData) {
-        setTransactions(transactionData);
-      }
-    } catch (error) {
-      console.error('Error fetching wallet data:', error);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const walletData = await fetchWalletData(user.id);
+    setBalance(walletData.balance);
+    setTransactions(walletData.transactions);
+    setLoading(false);
   };
 
   const spendTokens = async (amount: number, source: string, description?: string) => {
@@ -77,7 +85,7 @@ export const useTokens = () => {
       if (walletError) throw walletError;
 
       setBalance(prev => prev - amount);
-      await fetchWalletData(); // Refresh data
+      await refreshWallet(); // Refresh data
       return true;
     } catch (error) {
       console.error('Error spending tokens:', error);
@@ -112,7 +120,7 @@ export const useTokens = () => {
       if (walletError) throw walletError;
 
       setBalance(prev => prev + amount);
-      await fetchWalletData(); // Refresh data
+      await refreshWallet(); // Refresh data
       return true;
     } catch (error) {
       console.error('Error earning tokens:', error);
@@ -126,6 +134,6 @@ export const useTokens = () => {
     loading,
     spendTokens,
     earnTokens,
-    refreshWallet: fetchWalletData,
+    refreshWallet,
   };
 };
