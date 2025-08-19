@@ -44,6 +44,16 @@ export const FAQ: React.FC = () => {
           a: 'Yes. You can assign a tag to another user (such as a NOK or business partner) directly from your asset dashboard.',
           icon: <Users className="h-5 w-5 text-primary-600" />,
         },
+        {
+          q: 'What are your charges to customers (details of freebies only supplied)?',
+          a: 'TagMyThing operates a token-based pay-as-you-go model using its native token TMT. Signup Bonus: Every new user gets 100 TMT tokens for free upon registration. Usage Costs: 25 TMT per photo-tagged asset, 60 TMT per video-tagged asset. Additional fees may apply for advanced services (e.g., business verification tools, DMS configuration). Token Purchase Options: Users can buy more tokens via Stripe, Mobile Money (e.g., MTN MoMo), or Fiat onramps. Referral Rewards: Users earn bonus TMT tokens for referring others, incentivizing organic growth. So charges are usage-based, not subscription-based. If a user doesn\'t use the service, they don\'t pay. This model avoids upfront costs and encourages adoption.',
+          icon: <DollarSign className="h-5 w-5 text-primary-600" />,
+        },
+        {
+          q: 'What guarantees/safeguards are in place against abuse of information on, say, Bitcoin ownership data lodged with you?',
+          a: 'TagMyThing is built around privacy, encryption, and decentralization. Here are the safeguards: 🔒 User-Controlled Encryption: Sensitive data (like Bitcoin ownership proofs, private messages, or secrets) are encrypted client-side before being uploaded. Only the user (or their next of kin, if a Deadman Switch is triggered) can decrypt the data. 🧱 Immutable Storage via Arweave: Data is stored on Arweave, a decentralized, permanent blockchain-based storage layer. Once stored, it cannot be altered or deleted — even by us. This means no one, not even the platform operators, can tamper with the records. 🧠 AO (Autonomous Oracle) Logic: Access conditions (like when to reveal sensitive data to next of kin) are handled by autonomous smart contract-like agents. These agents enforce rules automatically — no human intervention, no backdoors. 🧍 No Human Access: TagMyThing staff cannot view, extract, or modify user-submitted data. The system is built to eliminate insider access risk. 📜 Transparency: Every interaction (e.g., tag, transfer, verification, DMS trigger) is logged immutably on-chain. This provides a complete audit trail for the user, the platform, and in legal contexts if needed.',
+          icon: <Shield className="h-5 w-5 text-primary-600" />,
+        },
       ],
     },
     {
