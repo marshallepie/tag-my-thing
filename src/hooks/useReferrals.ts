@@ -163,7 +163,10 @@ export const useReferrals = () => {
             created_at: r.referred.created_at || new Date().toISOString(),
             referral_level: r.referral_level || 1,
             status: r.status || 'pending',
-            reward_amount: matchingReward?.token_amount || 0
+            reward_amount: (rewards.find(rw =>
+              rw?.referred_id === r.referred?.id &&
+              rw?.referral_level === (r.referral_level || 1)
+            )?.token_amount) || 0
           };
         });
 
