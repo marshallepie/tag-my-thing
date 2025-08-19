@@ -262,6 +262,8 @@ TagMyThing features a comprehensive referral system available to all users:
 - **Universal Access** - All users can generate and share referral codes
 - **Flexible Targeting** - Direct referrals to specific use cases (General, NFT, MyWill, Business)
 - **Automatic Processing** - Rewards are processed automatically upon successful referrals
+- Added fallback logic when the primary referrer lookup fails
+If no referrer is found with the provided referralCode, the system now attempts to find Marshall Epie using email marshallepie@marshallepie.com
 
 ### Referral Reward Structure
 - Level 1: 50 TMT
