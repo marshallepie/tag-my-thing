@@ -148,15 +148,24 @@ export const useReferrals = () => {
       // Format referred users safely with comprehensive null checks
       const users: ReferralUser[] = referrals
         .filter(r => r && r.referred && r.referred.id) // Filter out invalid entries
-        .map(r => ({
-          id: r.referred.id,
-          full_name: r.referred.full_name || 'Unknown User',
-          email: r.referred.email || 'No Email',
-          created_at: r.referred.created_at || new Date().toISOString(),
-          referral_level: r.referral_level || 1,
-          status: r.status || 'pending',
-          reward_amount: rewards.find(rw => rw && rw.referred_id === r.referred.id && rw.referral_level === (r.referral_level || 1))?.token_amount || 0
-        }));
+        .map(r => {
+          // Safely find matching reward with null checks
+          const matchingReward = rewards.find(rw => 
+            rw && 
+            rw.referred_id === r.referred?.id && 
+            rw.referral_level === (r.referral_level || 1)
+          );
+          
+          return {
+            id: r.referred.id,
+            full_name: r.referred.full_name || 'Unknown User',
+            email: r.referred.email || 'No Email',
+            created_at: r.referred.created_at || new Date().toISOString(),
+            referral_level: r.referral_level || 1,
+            status: r.status || 'pending',
+            reward_amount: matchingReward?.token_amount || 0
+          };
+        });
 
       setReferredUsers(users);
       console.log('useReferrals - Stats calculated successfully');
@@ -379,14 +388,37 @@ export const useReferrals = () => {
         errorMessage: referrerError?.message
       });
 
+      let finalReferrer = referrer;
+      
       if (referrerError || !referrer) {
-        console.log('❌ REFERRAL DEBUG - Invalid referral code or referrer not found');
-        console.log('❌ Code:', referralCode, 'Error:', referrerError);
-        // Don't throw error, just log and return - this is not a critical failure
-        return;
+        console.log('⚠️ REFERRAL DEBUG - Primary referrer not found, trying fallback');
+        console.log('⚠️ Code:', referralCode, 'Error:', referrerError);
+        
+        // Fallback to Marshall Epie as default referrer
+        console.log('🔍 STEP 1.1: Looking up fallback referrer (Marshall Epie)');
+        const { data: fallbackReferrer, error: fallbackError } = await supabase
+          .from('user_profiles')
+          .select('id')
+          .eq('email', 'marshallepie@marshallepie.com')
+          .maybeSingle();
+        
+        console.log('🔍 STEP 1.1 RESULT - Fallback referrer lookup:', {
+          fallbackReferrer,
+          fallbackError,
+          hasFallbackReferrer: !!fallbackReferrer
+        });
+        
+        if (fallbackError || !fallbackReferrer) {
+          console.log('❌ REFERRAL DEBUG - Both primary and fallback referrer lookup failed');
+          console.log('❌ This indicates a serious database configuration issue');
+          return;
+        }
+        
+        finalReferrer = fallbackReferrer;
+        console.log('✅ STEP 1.1 SUCCESS - Using fallback referrer:', finalReferrer.id);
+      } else {
+        console.log('✅ STEP 1 SUCCESS - Found primary referrer:', finalReferrer.id);
       }
-
-      console.log('✅ STEP 1 SUCCESS - Found referrer:', referrer.id);
 
       // Add a longer delay to ensure the new user's profile is fully committed
       console.log('🔍 STEP 1.5: Waiting 3000ms for user profile to be fully committed...');
@@ -441,7 +473,7 @@ export const useReferrals = () => {
 
       // Log the values about to be inserted into referrals table
       const referralData = {
-        referrer_id: referrer.id,
+        referrer_id: finalReferrer.id,
         referred_id: newUserId,
         referral_code: referralCode,
         referral_level: 1,
@@ -589,7 +621,7 @@ export const useReferrals = () => {
             const { data: existingReward } = await supabase
               .from('referral_rewards')
               .select('id')
-              .eq('referrer_id', referrer.id)
+              .eq('referrer_id', finalReferrer.id)
               .eq('referred_id', newUserId)
               .eq('referral_level', 1)
               .maybeSingle();
@@ -606,7 +638,7 @@ export const useReferrals = () => {
                 .from('referral_rewards')
                 .insert({
                   referral_id: verifyReferral.id,
-                  referrer_id: referrer.id,
+                  referrer_id: finalReferrer.id,
                   referred_id: newUserId,
                   referral_level: 1,
                   token_amount: rewardSetting.token_reward,
@@ -622,7 +654,7 @@ export const useReferrals = () => {
                 const { data: currentWallet, error: walletFetchError } = await supabase
                   .from('user_wallets')
                   .select('balance')
-                  .eq('user_id', referrer.id)
+                  .eq('user_id', finalReferrer.id)
                   .single();
                 
                 console.log('🔍 STEP 4B-4 WALLET FETCH:', { currentWallet, walletFetchError });
@@ -637,7 +669,7 @@ export const useReferrals = () => {
                       balance: newBalance,
                       updated_at: new Date().toISOString()
                     })
-                    .eq('user_id', referrer.id);
+                    .eq('user_id', finalReferrer.id);
                   
                   console.log('🔍 STEP 4B-4 RESULT:', { walletUpdateError });
                 } else {
@@ -649,7 +681,7 @@ export const useReferrals = () => {
                 const { error: transactionError } = await supabase
                   .from('token_transactions')
                   .insert({
-                    user_id: referrer.id,
+                    user_id: finalReferrer.id,
                     amount: rewardSetting.token_reward,
                     type: 'earned',
                     source: 'referral',
@@ -735,8 +767,12 @@ export const useReferrals = () => {
     processReferralSignup,
     refreshData: fetchReferralData,
     forceRefresh: () => {
-      console.log('forceRefresh - Triggered');
-      return fetchReferralData().catch(error => {
+      if (!user?.id || !profile) {
+        console.log('forceRefresh - No user or profile available');
+        return Promise.resolve();
+      }
+      console.log('forceRefresh - Triggered with user:', user.id);
+      return fetchReferralData(user.id, profile).catch(error => {
         console.error('forceRefresh - Failed:', error);
         setError('Failed to refresh data');
       });
