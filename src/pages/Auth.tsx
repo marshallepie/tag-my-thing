@@ -22,27 +22,12 @@ export const Auth: React.FC = () => {
     return 'signin'; // default
   };
   
-  const [mode, setMode] = useState<'signin' | 'signup'>(getInitialMode);
 
   // Get referral code from URL or cookie
   React.useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const urlRefCode = urlParams.get('ref');
-    
-    if (urlRefCode) {
-      // URL parameter takes precedence
-      console.log('Auth: Using referral code from URL:', urlRefCode);
-      setReferralCode(urlRefCode);
-      // Update cookie with fresh referral code
-      cookieUtils.set('tmt_referral_code', urlRefCode, 30);
-    } else {
-      // Check for stored referral code in cookie
-      const cookieRefCode = cookieUtils.get('tmt_referral_code');
-      if (cookieRefCode) {
-        console.log('Auth: Using referral code from cookie:', cookieRefCode);
-        setReferralCode(cookieRefCode);
-      }
-    }
+    const refCode = urlParams.get('ref');
+    console.log('Auth: Referral code from URL:', refCode);
   }, [location.search]);
 
   const handleSuccess = () => {
@@ -66,7 +51,6 @@ export const Auth: React.FC = () => {
           <AuthForm 
             mode={mode} 
             onSuccess={handleSuccess}
-            referralCode={referralCode}
             initialEmail={nokInviteEmail || ''}
             emailReadOnly={!!nokInviteEmail}
             nokInviteEmail={nokInviteEmail || undefined}

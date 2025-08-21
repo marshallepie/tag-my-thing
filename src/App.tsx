@@ -53,9 +53,7 @@ function App() {
     
     if (refCode) {
       console.log('App: Referral code detected in URL:', refCode);
-      // Store referral code in cookie for 30 days
-      cookieUtils.set('tmt_referral_code', refCode, 30);
-      console.log('App: Referral code stored in cookie');
+      // Note: Referral code will be handled by Auth components
     }
   }, [location.search]);
 
