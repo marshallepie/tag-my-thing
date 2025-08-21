@@ -33,8 +33,7 @@ export const Launch: React.FC = () => {
 
   // Countdown timer logic
   useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 14);
+    const targetDate = new Date('August 28, 2025 08:00:00 GMT');
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -71,11 +70,11 @@ export const Launch: React.FC = () => {
   };
 
   const socialPosts = {
-    twitter: "🚀 TagMyThing is LIVE! \n\nInstantly tag & prove ownership of your assets with:\n📸 Camera-first tagging\n🔐 Blockchain security\n🪙 Token-based access\n\nGet 50 TMT tokens FREE when you sign up!\n\n#TagMyThing #DigitalOwnership #Blockchain\n\nhttps://tag-my-thing.netlify.app",
+    twitter: "🚀 TagMyThing is LIVE! \n\nInstantly tag & prove ownership of your assets with:\n📸 Camera-first tagging\n🔐 Blockchain security\n🪙 Token-based access\n\nGet 50 TMT tokens FREE when you sign up!\n\n#TagMyThing #DigitalOwnership #Blockchain\n\nhttps://tagmything.com",
     
     instagram: "Own it. Prove it. Share it. 📸✨\n\nTagMyThing is revolutionizing how we manage our valuables! Tag your physical and digital assets with photos/videos and secure them on the blockchain.\n\n🎁 Get 50 TMT tokens FREE with signup\n🔐 Blockchain-secured ownership\n📱 Mobile-first design\n🌍 Access from anywhere\n\nReady to secure your assets? Link in bio!\n\n#TagMyThing #AssetManagement #Blockchain #DigitalOwnership #TechInnovation #Security",
     
-    linkedin: "Excited to announce the launch of TagMyThing - a revolutionary platform for digital asset management! 🚀\n\nKey features:\n• Camera-first asset tagging\n• Blockchain-secured ownership proof\n• Token-based economy (50 TMT free on signup)\n• Mobile-optimized experience\n• Next-of-kin legacy planning\n\nThis represents a significant step forward in how we think about digital ownership and asset security. The combination of intuitive UX with cutting-edge blockchain technology makes asset management accessible to everyone.\n\nTry it today: https://tag-my-thing.netlify.app\n\n#Innovation #Blockchain #AssetManagement #DigitalTransformation #TechLaunch"
+    linkedin: "Excited to announce the launch of TagMyThing - a revolutionary platform for digital asset management! 🚀\n\nKey features:\n• Camera-first asset tagging\n• Blockchain-secured ownership proof\n• Token-based economy (50 TMT free on signup)\n• Mobile-optimized experience\n• Next-of-kin legacy planning\n\nThis represents a significant step forward in how we think about digital ownership and asset security. The combination of intuitive UX with cutting-edge blockchain technology makes asset management accessible to everyone.\n\nTry it today: https://tagmything.com\n\n#Innovation #Blockchain #AssetManagement #DigitalTransformation #TechLaunch"
   };
 
   const copyToClipboard = (text: string, platform: string) => {
@@ -240,11 +239,11 @@ export const Launch: React.FC = () => {
                   <div className="text-primary-100">Free signup bonus</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-6">
-                  <div className="text-2xl font-bold text-white mb-2">5 TMT</div>
+                  <div className="text-2xl font-bold text-white mb-2">25 TMT</div>
                   <div className="text-primary-100">Per photo tag</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-6">
-                  <div className="text-2xl font-bold text-white mb-2">7 TMT</div>
+                  <div className="text-2xl font-bold text-white mb-2">60 TMT</div>
                   <div className="text-primary-100">Per video tag</div>
                 </div>
               </div>
