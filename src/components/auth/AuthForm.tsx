@@ -5,6 +5,7 @@ import { Eye, EyeOff, Mail, Lock, User, Crown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useReferrals } from '../../hooks/useReferrals';
 import { fetchWalletData } from '../../hooks/useTokens';
+import { cookieUtils } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
@@ -13,6 +14,7 @@ import toast from 'react-hot-toast';
 interface AuthFormProps {
   mode: 'signin' | 'signup';
   onSuccess: () => void;
+  referralCode?: string | null;
   initialRole?: 'user' | 'influencer';
   defaultIsBusinessUser?: boolean;
   initialEmail?: string;
@@ -23,6 +25,7 @@ interface AuthFormProps {
 export const AuthForm: React.FC<AuthFormProps> = ({ 
   mode, 
   onSuccess, 
+  referralCode: propReferralCode = null,
   initialRole = 'user', 
   defaultIsBusinessUser = false,
   initialEmail = '',
@@ -37,7 +40,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(propReferralCode);
   const [isBusinessUserSignup, setIsBusinessUserSignup] = useState(defaultIsBusinessUser);
   const { processReferralSignup } = useReferrals();
 
@@ -47,13 +50,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       setFormData(prev => ({ ...prev, email: initialEmail }));
     }
 
-    // Check for referral code in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref');
-    if (ref) {
-      setReferralCode(ref);
+    // Update referral code when prop changes
+    if (propReferralCode !== referralCode) {
+      setReferralCode(propReferralCode);
     }
-  }, [initialEmail]);
+  }, [initialEmail, propReferralCode, referralCode]);
 
   const createUserProfile = async (userId: string, email: string, fullName: string) => {
     console.log('AuthForm - Creating user profile for:', userId);
@@ -167,7 +168,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       console.log('🔍 REFERRAL DEBUG - Storing referral code for post-confirmation processing');
       console.log('🔍 Storing:', { referralCode, userId: auth.user.id });
       
-      // Store referral code in localStorage to process after confirmation
+      // Store referral code in localStorage to process after confirmation (cookie already set by App.tsx)
       localStorage.setItem('pending_referral_code', referralCode);
       localStorage.setItem('pending_referral_user_id', auth.user.id);
       
@@ -227,7 +228,9 @@ const handleSignin = async () => {
     }
   }
 
-  const pendingReferralCode = localStorage.getItem('pending_referral_code');
+  // Check for referral code from cookie or localStorage (for backward compatibility)
+  const cookieReferralCode = cookieUtils.get('tmt_referral_code');
+  const pendingReferralCode = localStorage.getItem('pending_referral_code') || cookieReferralCode;
   const pendingUserId = localStorage.getItem('pending_referral_user_id');
   
   console.log('🔍 REFERRAL DEBUG - Checking for pending referral after signin');
@@ -236,8 +239,9 @@ const handleSignin = async () => {
     pendingUserId, 
     currentUserId: auth.user?.id 
   });
+  console.log('🔍 Retrieved from cookie:', { cookieReferralCode });
   
-  if (pendingReferralCode && pendingUserId === auth.user?.id) {
+  if (pendingReferralCode && (pendingUserId === auth.user?.id || cookieReferralCode)) {
     console.log('✅ REFERRAL DEBUG - Found matching pending referral, processing...');
     try {
       await processReferralSignup(pendingReferralCode, auth.user.id);
@@ -252,9 +256,14 @@ const handleSignin = async () => {
         console.warn('⚠️ REFERRAL DEBUG - Wallet refresh failed:', walletError);
       }
       
+      // Clear both localStorage and cookie after successful processing
       localStorage.removeItem('pending_referral_code');
       localStorage.removeItem('pending_referral_user_id');
+      localStorage.removeItem('pending_referral_timestamp');
+      localStorage.removeItem('pending_referral_email');
+      cookieUtils.delete('tmt_referral_code');
       console.log('✅ REFERRAL DEBUG - localStorage cleaned');
+      console.log('✅ REFERRAL DEBUG - Cookie cleaned');
     } catch (referralError) {
       console.error('❌ REFERRAL DEBUG - Referral processing failed in handleSignin:', referralError);
     }
@@ -269,6 +278,8 @@ const handleSignin = async () => {
     console.log('✅ REFERRAL DEBUG - Session stabilization complete');
 
       localStorage.removeItem('pending_referral_user_id');
+      localStorage.removeItem('pending_referral_timestamp');
+      localStorage.removeItem('pending_referral_email');
     }
   }
 

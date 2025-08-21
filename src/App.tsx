@@ -1,8 +1,9 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import { cookieUtils } from './lib/utils';
 
 // Lazy load all page components for better performance
 const Auth = React.lazy(() => import('./pages/Auth').then(module => ({ default: module.default || module.Auth })));
@@ -43,6 +44,20 @@ const Documentation = React.lazy(() => import('./pages/Documentation').then(modu
 
 function App() {
   const { initialized, loading } = useAuth();
+  const location = useLocation();
+
+  // Capture referral code from URL and store in cookie
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const refCode = urlParams.get('ref');
+    
+    if (refCode) {
+      console.log('App: Referral code detected in URL:', refCode);
+      // Store referral code in cookie for 30 days
+      cookieUtils.set('tmt_referral_code', refCode, 30);
+      console.log('App: Referral code stored in cookie');
+    }
+  }, [location.search]);
 
   // Show loading screen while auth is being determined
   if (!initialized || loading) {
