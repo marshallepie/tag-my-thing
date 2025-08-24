@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User, Crown } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useReferrals } from '../../hooks/useReferrals';
 import { fetchWalletData } from '../../hooks/useTokens';
-import { cookieUtils } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
@@ -14,33 +13,32 @@ import toast from 'react-hot-toast';
 interface AuthFormProps {
   mode: 'signin' | 'signup';
   onSuccess: () => void;
-  initialRole?: 'user' | 'influencer';
-  defaultIsBusinessUser?: boolean;
   initialEmail?: string;
   emailReadOnly?: boolean;
   nokInviteEmail?: string;
+  isBusinessSignup?: boolean;
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ 
   mode, 
   onSuccess, 
-  initialRole = 'user', 
-  defaultIsBusinessUser = false,
   initialEmail = '',
   emailReadOnly = false,
-  nokInviteEmail = null
+  nokInviteEmail = null,
+  isBusinessSignup = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  
   const [formData, setFormData] = useState({
     email: initialEmail,
     password: '',
     fullName: '',
   });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [isBusinessUserSignup, setIsBusinessUserSignup] = useState(defaultIsBusinessUser);
   const { processReferralSignup } = useReferrals();
 
   useEffect(() => {
@@ -53,21 +51,24 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     const urlParams = new URLSearchParams(location.search);
     const refCode = urlParams.get('ref');
     if (refCode) {
-      console.log('AuthForm: Referral code detected in URL:', refCode);
+      console.log('AuthForm: Referral code detected:', refCode);
       setReferralCode(refCode);
     }
   }, [initialEmail, location.search]);
 
   const createUserProfile = async (userId: string, email: string, fullName: string) => {
-    console.log('AuthForm - Creating user profile for:', userId);
+    console.log('Creating unified user profile for:', userId);
     
+    // UNIFIED PROFILE: All users get same base permissions
     const profileData = {
       id: userId,
       email: email,
       full_name: fullName,
-      role: isBusinessUserSignup ? 'user' : initialRole,
+      role: 'standard', // Single unified role
       subscription_plan: 'freemium',
-      is_business_user: isBusinessUserSignup,
+      is_business_user: isBusinessSignup, // Optional upgrade flag
+      referral_enabled: true, // Everyone can refer
+      max_referral_depth: 5, // Everyone gets full referral privileges
     };
 
     const { error } = await supabase
@@ -75,16 +76,19 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       .insert(profileData);
 
     if (error) {
-      console.error('AuthForm - Profile creation error:', error);
+      console.error('Profile creation error:', error);
       throw new Error(`Failed to create user profile: ${error.message}`);
     }
 
-    console.log('AuthForm - Profile created successfully');
+    console.log('Unified profile created successfully');
     return profileData;
   };
 
-  const createUserWallet = async (userId: string, signupBonus: number) => {
-    console.log('AuthForm - Creating user wallet with bonus:', signupBonus);
+  const createUserWallet = async (userId: string) => {
+    // Standard signup bonus - same for everyone
+    const signupBonus = 50;
+    
+    console.log('Creating wallet with standard bonus:', signupBonus);
     
     const { error } = await supabase
       .from('user_wallets')
@@ -94,16 +98,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       });
 
     if (error) {
-      console.error('AuthForm - Wallet creation error:', error);
+      console.error('Wallet creation error:', error);
       throw new Error(`Failed to create user wallet: ${error.message}`);
     }
 
-    console.log('AuthForm - Wallet created successfully');
+    return signupBonus;
   };
 
   const createSignupTransaction = async (userId: string, signupBonus: number) => {
-    console.log('AuthForm - Creating signup transaction');
-    
     const { error } = await supabase
       .from('token_transactions')
       .insert({
@@ -111,42 +113,39 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         amount: signupBonus,
         type: 'earned',
         source: 'signup',
-        description: `Welcome bonus${initialRole === 'influencer' ? ' (Influencer)' : ''}`,
+        description: `Welcome bonus${isBusinessSignup ? ' (Business)' : ''}`,
       });
 
     if (error) {
-      console.error('AuthForm - Transaction creation error:', error);
+      console.error('Transaction creation error:', error);
       throw new Error(`Failed to create signup transaction: ${error.message}`);
     }
-
-    console.log('AuthForm - Transaction created successfully');
   };
 
   const handleSignup = async () => {
-    console.log('AuthForm - Starting handleSignup');
-    console.log('AuthForm - Signup context:', {
+    console.log('Starting unified signup process');
+    console.log('Signup context:', {
       email: formData.email,
       hasReferralCode: !!referralCode,
-      referralCode: referralCode,
-      initialRole: initialRole,
-      isBusinessUserSignup: isBusinessUserSignup
+      referralCode,
+      isBusinessSignup
     });
 
-    // Sign up user with Supabase Auth with email confirmation
+    // Create auth user with email confirmation
     const { data: auth, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth`, // Redirect to auth page after email confirmation
+        emailRedirectTo: `${window.location.origin}/auth`,
         data: {
-          role: isBusinessUserSignup ? 'user' : initialRole,
-          is_business_user: isBusinessUserSignup
+          full_name: formData.fullName,
+          is_business_user: isBusinessSignup
         }
       }
     });
 
     if (authError) {
-      console.error('AuthForm - Signup auth error:', authError);
+      console.error('Signup auth error:', authError);
       throw authError;
     }
 
@@ -154,166 +153,139 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       throw new Error('No user returned from signup');
     }
 
-    console.log('AuthForm - User created successfully:', {
+    console.log('User created successfully:', {
       userId: auth.user.id,
       email: auth.user.email,
       needsEmailConfirmation: !auth.user.email_confirmed_at
     });
 
-    // Handle NOK invite acceptance for new signups
-    await handleSignupSuccess(auth.user.id);
+    // Handle NOK invite if present
+    if (nokInviteEmail) {
+      await handleNokInvite(auth.user.id);
+    }
 
-    console.log('AuthForm - User created in auth, email confirmation required');
-
-    // Store referral code for processing after email confirmation
+    // Store referral code for post-confirmation processing
     if (referralCode) {
-      console.log('AuthForm: Storing referral code for post-confirmation processing');
-      
-      // Store referral code in localStorage to process after confirmation
+      console.log('Storing referral code for post-confirmation processing');
       localStorage.setItem('pending_referral_code', referralCode);
       localStorage.setItem('pending_referral_user_id', auth.user.id);
       localStorage.setItem('pending_referral_timestamp', new Date().toISOString());
       localStorage.setItem('pending_referral_email', formData.email);
-      
-      console.log('AuthForm: Referral code stored in localStorage');
     }
 
     toast.success('Account created! Please check your email to confirm your signup.');
-    
-    // Redirect to check email page
     navigate('/check-email', { state: { email: formData.email } });
-    console.log('AuthForm - Finished handleSignup');
   };
 
-const handleSignin = async () => {
-  console.log('AuthForm: handleSignin called');
+  const handleSignin = async () => {
+    console.log('Starting signin process');
 
-  const { data: auth, error } = await supabase.auth.signInWithPassword({
-    email: formData.email,
-    password: formData.password,
-  });
+    const { data: auth, error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
 
-  if (error) {
-    console.log('AuthForm: Sign-in error:', error);
-    if (
-      error.message.includes('Email not confirmed') || 
-      error.message.includes('Email link is invalid or has expired') ||
-      error.message.includes('signup_disabled')
-    ) {
-      throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
+    if (error) {
+      console.log('Sign-in error:', error);
+      if (
+        error.message.includes('Email not confirmed') || 
+        error.message.includes('Email link is invalid or has expired') ||
+        error.message.includes('signup_disabled')
+      ) {
+        throw new Error('Please confirm your email before signing in. Check your inbox for the confirmation link.');
+      }
+      throw error;
     }
-    throw error;
-  }
 
-  console.log('AuthForm: Sign-in successful, user:', auth.user?.id);
+    console.log('Sign-in successful, user:', auth.user?.id);
 
-  // If you're on prod, send them to prod. Otherwise, use current origin.
-  const redirectBase =
-    window.location.hostname.endsWith('tagmything.com')
+    // Determine redirect base
+    const redirectBase = window.location.hostname.endsWith('tagmything.com')
       ? 'https://www.tagmything.com'
       : window.location.origin;
 
-  // Optional: handle NOK + referral exactly as before (unchanged)
-  if (nokInviteEmail && auth.user?.id) {
+    // Handle NOK invite on signin if present
+    if (nokInviteEmail && auth.user?.id) {
+      await handleNokInvite(auth.user.id);
+    }
+
+    // Process any pending referrals
+    await processPendingReferrals(auth.user!.id);
+
+    // Hard redirect to ensure clean session
+    window.location.href = `${redirectBase}/dashboard`;
+  };
+
+  const handleNokInvite = async (userId: string) => {
+    if (!nokInviteEmail) return;
+    
+    console.log('Processing NOK invite for:', nokInviteEmail);
     try {
-      const { error: acceptError } = await supabase.rpc('accept_nok_nomination', {
+      const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
         p_nok_email: nokInviteEmail,
-        p_linked_user_id: auth.user.id
+        p_linked_user_id: userId
       });
-      if (acceptError) console.error('NOK acceptance error:', acceptError);
+
+      if (acceptError) {
+        console.error('NOK acceptance error:', acceptError);
+        toast.error('Account created but failed to accept NOK nomination');
+      } else if (acceptResult?.success) {
+        toast.success('Account created and NOK nomination accepted!');
+      } else {
+        console.log('NOK acceptance result:', acceptResult);
+        toast.success('Account created successfully!');
+      }
     } catch (nokError) {
       console.error('NOK acceptance failed:', nokError);
-    }
-  }
-
-  // Check for referral code from cookie or localStorage (for backward compatibility)
-  const pendingReferralCode = localStorage.getItem('pending_referral_code');
-  const pendingUserId = localStorage.getItem('pending_referral_user_id');
-  
-  console.log('AuthForm: Checking for pending referral after signin');
-  console.log('AuthForm: Retrieved from localStorage:', { 
-    pendingReferralCode, 
-    pendingUserId, 
-    currentUserId: auth.user?.id 
-  });
-  
-  if (pendingReferralCode && pendingUserId === auth.user?.id) {
-    console.log('AuthForm: Found matching pending referral, processing...');
-    try {
-      await processReferralSignup(pendingReferralCode, auth.user.id);
-      console.log('AuthForm: processReferralSignup completed, cleaning localStorage');
-      
-      // Refresh wallet data to ensure any referral rewards are reflected
-      console.log('AuthForm: Refreshing wallet data after referral processing');
-      try {
-        await fetchWalletData(auth.user.id);
-        console.log('AuthForm: Wallet data refreshed successfully');
-      } catch (walletError) {
-        console.warn('AuthForm: Wallet refresh failed:', walletError);
-      }
-      
-      // Clear localStorage after successful processing
-      localStorage.removeItem('pending_referral_code');
-      localStorage.removeItem('pending_referral_user_id');
-      localStorage.removeItem('pending_referral_timestamp');
-      localStorage.removeItem('pending_referral_email');
-      console.log('AuthForm: localStorage cleaned');
-    } catch (referralError) {
-      console.error('AuthForm: Referral processing failed in handleSignin:', referralError);
-    }
-  } else {
-    console.log('AuthForm: No matching pending referral found');
-    if (pendingReferralCode && pendingUserId !== auth.user?.id) {
-      console.log('AuthForm: User ID mismatch, clearing stale data');
-      localStorage.removeItem('pending_referral_code');
-      localStorage.removeItem('pending_referral_user_id');
-      localStorage.removeItem('pending_referral_timestamp');
-      localStorage.removeItem('pending_referral_email');
-    }
-  }
-
-  // Hard redirect so session/cookies align with the target domain
-  window.location.href = `${redirectBase}/dashboard`;
-};
-
-  const handleSignupSuccess = async (userId: string) => {
-    // Handle NOK invite acceptance on sign-up
-    if (nokInviteEmail && userId) {
-      console.log('AuthForm: Processing NOK invite acceptance after signup for:', nokInviteEmail);
-      try {
-        console.log('🔍 REFERRAL DEBUG - About to call processReferralSignup with:', {
-          referralCode: pendingReferralCode,
-          userId: auth.user.id,
-          timestamp: new Date().toISOString()
-        });
-        const { data: acceptResult, error: acceptError } = await supabase.rpc('accept_nok_nomination', {
-          p_nok_email: nokInviteEmail,
-          p_linked_user_id: userId
-        });
-
-        if (acceptError) {
-          console.error('NOK acceptance error:', acceptError);
-        // Don't clear localStorage on error - allow retry
-        toast.error('Referral processing failed - will retry on next login');
-        localStorage.removeItem('pending_referral_timestamp');
-        localStorage.removeItem('pending_referral_email');
-          toast.error('Account created but failed to accept NOK nomination');
-        } else if (acceptResult?.success) {
-          toast.success('Account created and NOK nomination accepted!');
-        // Don't clear localStorage on error - allow retry
-        toast.error('Referral processing failed - will retry on next login');
-        } else {
-          console.log('NOK acceptance result:', acceptResult);
-          toast.success('Account created successfully!');
-        }
-      } catch (nokError) {
-        console.error('NOK acceptance failed:', nokError);
-        toast.success('Account created successfully!');
-        localStorage.removeItem('pending_referral_timestamp');
-        localStorage.removeItem('pending_referral_email');
-      }
+      toast.success('Account created successfully!');
     }
   };
+
+  const processPendingReferrals = async (userId: string) => {
+    const pendingReferralCode = localStorage.getItem('pending_referral_code');
+    const pendingUserId = localStorage.getItem('pending_referral_user_id');
+    
+    console.log('Checking for pending referrals:', { 
+      pendingReferralCode, 
+      pendingUserId, 
+      currentUserId: userId 
+    });
+    
+    if (pendingReferralCode && pendingUserId === userId) {
+      console.log('Processing pending referral...');
+      try {
+        await processReferralSignup(pendingReferralCode, userId);
+        console.log('Referral processed successfully');
+        
+        // Refresh wallet data
+        try {
+          await fetchWalletData(userId);
+          console.log('Wallet data refreshed');
+        } catch (walletError) {
+          console.warn('Wallet refresh failed:', walletError);
+        }
+        
+        // Clear localStorage
+        localStorage.removeItem('pending_referral_code');
+        localStorage.removeItem('pending_referral_user_id');
+        localStorage.removeItem('pending_referral_timestamp');
+        localStorage.removeItem('pending_referral_email');
+        console.log('Referral localStorage cleared');
+        
+      } catch (referralError) {
+        console.error('Referral processing failed:', referralError);
+        toast.error('Referral processing failed - will retry on next login');
+      }
+    } else if (pendingReferralCode && pendingUserId !== userId) {
+      // Clean up stale data
+      console.log('Clearing stale referral data');
+      localStorage.removeItem('pending_referral_code');
+      localStorage.removeItem('pending_referral_user_id');
+      localStorage.removeItem('pending_referral_timestamp');
+      localStorage.removeItem('pending_referral_email');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -332,7 +304,7 @@ const handleSignin = async () => {
           errorMessage = error.message;
         } else if (error.message.includes('Invalid login credentials') || 
             error.message.includes('Invalid email or password')) {
-          errorMessage = 'Invalid email or password. Please check your credentials and try again. If you don\'t have an account, please sign up first.';
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Please confirm your email before signing in. Check your inbox for the confirmation link.';
         } else if (error.message.includes('User already registered')) {
@@ -347,9 +319,8 @@ const handleSignin = async () => {
           errorMessage = error.message;
         }
       } else if (error?.code) {
-        // Handle Supabase error codes directly
         if (error.code === 'invalid_credentials') {
-          errorMessage = 'Invalid email or password. Please check your credentials and try again. If you don\'t have an account, please sign up first.';
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
         } else if (error.code === 'email_address_invalid') {
           errorMessage = 'Please enter a valid email address.';
         } else {
@@ -405,6 +376,19 @@ const handleSignin = async () => {
           >
             <p className="text-sm text-secondary-700">
               🛡️ You're accepting a Next-of-Kin nomination! You'll be able to manage someone's digital legacy.
+            </p>
+          </motion.div>
+        )}
+        
+        {/* Business Signup Notice */}
+        {isBusinessSignup && mode === 'signup' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+          >
+            <p className="text-sm text-blue-700">
+              🏢 Business Account - You'll have access to business features after signup.
             </p>
           </motion.div>
         )}
@@ -476,7 +460,11 @@ const handleSignin = async () => {
           className="mt-4 p-3 bg-primary-50 rounded-lg"
         >
           <p className="text-sm text-primary-700 text-center">
-            🎉 Get {initialRole === 'influencer' ? '100' : '50'} TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!{isBusinessUserSignup ? ' Plus access to business features!' : ''}{nokInviteEmail ? ' Plus Next-of-Kin access!' : ''}
+            🎉 Get 50 TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!
+            {isBusinessSignup ? ' Plus business features access!' : ''}
+            {nokInviteEmail ? ' Plus Next-of-Kin access!' : ''}
+            <br />
+            <span className="text-xs opacity-75">Everyone gets full referral privileges to earn from friend referrals!</span>
           </p>
         </motion.div>
       )}

@@ -21,37 +21,35 @@ export const useAuth = () => {
   });
   const mountedRef = useRef(true);
 
-  // Update user activity
+  // Update user activity - simplified
   const updateUserActivity = useCallback(async () => {
     try {
       await supabase.rpc('update_user_activity');
     } catch (error) {
       console.error('Error updating user activity:', error);
+      // Don't throw - this is not critical
     }
   }, []);
 
-  // Fetch user profile
+  // Fetch user profile with timeout and error handling
   const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     console.log('🔍 fetchProfile: Starting for userId:', userId);
     const startTime = performance.now();
     
     try {
-      console.log('🔍 fetchProfile: Making Supabase query...');
-      
-      // Create timeout promise (10 seconds)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout after 10 seconds')), 10000);
+      // Create timeout promise (8 seconds - shorter timeout)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 8000);
       });
       
       // Race the Supabase query against the timeout
-      const { data, error } = await Promise.race([
-        supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle(),
-        timeoutPromise
-      ]) as any;
+      const queryPromise = supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       const duration = (performance.now() - startTime).toFixed(1);
       console.log('🔍 fetchProfile: Query completed in', duration + 'ms');
@@ -61,29 +59,21 @@ export const useAuth = () => {
         return null;
       }
 
-      console.log(' fetchProfile: Data received:', data ? 'Profile found' : 'No profile');
-      
       if (data && mountedRef.current) {
-        console.log('🔍 fetchProfile: Updating user activity...');
-        // Wrap updateUserActivity in try-catch to prevent blocking
-        try {
-          await updateUserActivity();
-          console.log('🔍 fetchProfile: User activity updated successfully');
-        } catch (activityError) {
-          console.warn('⚠️ fetchProfile: Failed to update user activity:', activityError);
-          // Don't fail the profile fetch if activity update fails
-        }
+        console.log('✅ fetchProfile: Profile loaded for:', data.email);
+        
+        // Update activity in background - don't await
+        updateUserActivity().catch(err => 
+          console.warn('⚠️ Background activity update failed:', err)
+        );
       }
 
-      console.log('🔍 fetchProfile: Returning profile:', data?.email || 'null');
       return data;
     } catch (error) {
       const duration = (performance.now() - startTime).toFixed(1);
       
-      // Enhanced error logging for production debugging
       if (error instanceof Error && error.message.includes('timeout')) {
         console.error('⏰ fetchProfile: Query timed out after', duration + 'ms');
-        console.error('⏰ This suggests network or database performance issues in production');
       } else {
         console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
       }
@@ -91,17 +81,21 @@ export const useAuth = () => {
     }
   }, [updateUserActivity]);
 
-  // Initialize auth
+  // Initialize auth system
   useEffect(() => {
     if (!mountedRef.current) return;
 
+    let authSubscription: any;
+
     const initializeAuth = async () => {
       try {
+        console.log('🚀 useAuth: Initializing auth system');
+        
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Initial session error:', error);
+          console.error('❌ Initial session error:', error);
           setAuthState({
             user: null,
             profile: null,
@@ -112,6 +106,7 @@ export const useAuth = () => {
         }
 
         if (session?.user) {
+          console.log('👤 Initial session found for user:', session.user.id);
           const profile = await fetchProfile(session.user.id);
           
           setAuthState({
@@ -121,6 +116,7 @@ export const useAuth = () => {
             initialized: true,
           });
         } else {
+          console.log('🚫 No initial session found');
           setAuthState({
             user: null,
             profile: null,
@@ -129,7 +125,7 @@ export const useAuth = () => {
           });
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('❌ Auth initialization error:', error);
         setAuthState({
           user: null,
           profile: null,
@@ -140,76 +136,87 @@ export const useAuth = () => {
     };
 
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('useAuth: Auth state change detected. Event:', event, 'Session user:', session?.user?.id);
-        if (!mountedRef.current) return;
+    const setupAuthListener = () => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('🔄 Auth state change:', event, 'User ID:', session?.user?.id);
+          
+          if (!mountedRef.current) return;
 
-        console.log('Auth state change:', event);
+          if (event === 'SIGNED_OUT' || !session?.user) {
+            console.log('🚪 Processing sign out');
+            setAuthState({
+              user: null,
+              profile: null,
+              loading: false,
+              initialized: true,
+            });
+            return;
+          }
 
-        if (event === 'SIGNED_OUT' || !session?.user) {
-          console.log('useAuth: Processing SIGNED_OUT event');
-          setAuthState({
-            user: null,
-            profile: null,
-            loading: false,
-            initialized: true,
-          });
-          return;
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            console.log('🔑 Processing sign in/token refresh for:', session.user.id);
+            
+            // Set loading state
+            setAuthState(prev => ({ ...prev, loading: true }));
+            
+            // Fetch profile
+            const profile = await fetchProfile(session.user.id);
+            
+            // Update state
+            setAuthState({
+              user: session.user,
+              profile,
+              loading: false,
+              initialized: true,
+            });
+            
+            console.log('✅ Auth state updated after', event);
+          }
         }
+      );
+      
+      return subscription;
+    };
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          console.log('🔍 useAuth: Processing SIGNED_IN or TOKEN_REFRESHED event. Fetching profile...');
-          const profileStartTime = performance.now();
-          
-          setAuthState(prev => ({ ...prev, loading: true }));
-          console.log('🔍 useAuth: Set loading state to true');
-
-          console.log('🔍 useAuth: About to call fetchProfile...');
-          const profile = await fetchProfile(session.user.id);
-          const profileDuration = (performance.now() - profileStartTime).toFixed(1);
-          
-          console.log('🔍 useAuth: fetchProfile completed in', profileDuration + 'ms');
-          console.log('🔍 useAuth: Profile result:', profile ? `Email: ${profile.email}, Role: ${profile.role}` : 'null');
-          
-          console.log('🔍 useAuth: About to update auth state...');
-          setAuthState({
-            user: session.user,
-            profile,
-            loading: false,
-            initialized: true,
-          });
-          console.log('🔍 useAuth: Auth state updated after sign-in');
-        }
-      }
-    );
-
+    // Initialize
     initializeAuth();
+    authSubscription = setupAuthListener();
 
+    // Cleanup
     return () => {
       mountedRef.current = false;
-      subscription.unsubscribe();
+      authSubscription?.unsubscribe();
     };
   }, [fetchProfile]);
 
   // Refresh profile function
   const refreshProfile = useCallback(async () => {
-    if (!authState.user?.id) return null;
+    if (!authState.user?.id || !mountedRef.current) return null;
 
+    console.log('🔄 Refreshing profile for user:', authState.user.id);
     const profile = await fetchProfile(authState.user.id);
-    setAuthState(prev => ({ ...prev, profile }));
+    
+    if (mountedRef.current) {
+      setAuthState(prev => ({ ...prev, profile }));
+    }
+    
     return profile;
   }, [authState.user?.id, fetchProfile]);
 
   // Sign out function
   const signOut = useCallback(async () => {
     try {
-      console.log('useAuth: Starting sign out process');
+      console.log('🚪 Starting sign out process');
+      
+      // Sign out from Supabase
       await supabase.auth.signOut();
+      
+      // Clear storage
       localStorage.clear();
       sessionStorage.clear();
       
-      // Immediately clear auth state to prevent stale UI
+      // Immediately clear auth state
       setAuthState({
         user: null,
         profile: null,
@@ -217,10 +224,11 @@ export const useAuth = () => {
         initialized: true,
       });
       
-      console.log('useAuth: Sign out completed, state cleared');
+      console.log('✅ Sign out completed');
     } catch (error) {
-      console.error('Sign out error:', error);
-      // Force clear state
+      console.error('❌ Sign out error:', error);
+      
+      // Force clear everything on error
       localStorage.clear();
       sessionStorage.clear();
       setAuthState({
@@ -232,27 +240,53 @@ export const useAuth = () => {
     }
   }, []);
 
-  // Derived properties
+  // UNIFIED DERIVED PROPERTIES
+  // Simplified role and permission system
   const isAuthenticated = !!authState.user;
   const hasProfile = !!authState.profile;
+  
+  // Role checks - simplified hierarchy
+  const isStandardUser = authState.profile?.role === 'standard' || !authState.profile?.role; // Default to standard
+  const isModerator = authState.profile?.role === 'moderator';
   const isAdmin = authState.profile?.role === 'admin';
-  const isModerator = authState.profile?.role === 'moderator' || authState.profile?.role === 'admin';
-  const isInfluencer = authState.profile?.role === 'influencer';
-  const isAdminInfluencer = authState.profile?.role === 'admin_influencer';
+  
+  // Feature flags instead of complex roles
   const isBusinessUser = authState.profile?.is_business_user || false;
+  const hasReferralAccess = true; // Everyone has referral access in unified system
+  const canModerate = isModerator || isAdmin;
+  const canAdmin = isAdmin;
+  
+  // Legacy compatibility (deprecated but kept for transition)
+  const isInfluencer = hasReferralAccess;
+  const isAdminInfluencer = isAdmin; // Admins have all privileges
 
   return {
+    // Core auth state
     user: authState.user,
     profile: authState.profile,
     loading: authState.loading,
     initialized: authState.initialized,
+    
+    // Authentication status
     isAuthenticated,
     hasProfile,
-    isAdmin,
+    
+    // Simplified role system
+    isStandardUser,
     isModerator,
+    isAdmin,
+    
+    // Feature-based permissions
+    isBusinessUser,
+    hasReferralAccess,
+    canModerate,
+    canAdmin,
+    
+    // Legacy compatibility (deprecated)
     isInfluencer,
     isAdminInfluencer,
-    isBusinessUser,
+    
+    // Actions
     signOut,
     refreshProfile,
   };

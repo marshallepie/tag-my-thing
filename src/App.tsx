@@ -99,8 +99,11 @@ function App() {
           <Route path="/business-tagging" element={<BusinessTaggingLanding />} />
           
           {/* Auth Variants */}
-          <Route path="/influencer-signup" element={<InfluencerAuth />} />
-          <Route path="/business-auth" element={<BusinessAuth />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/business-auth" element={<Auth />} />
+          <Route path="/influencer-signup" element={<Auth />} />  
           
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

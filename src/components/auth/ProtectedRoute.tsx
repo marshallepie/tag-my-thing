@@ -4,15 +4,21 @@ import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'user' | 'nok' | 'moderator' | 'admin' | 'influencer' | 'admin_influencer';
-  requiredBusinessUser?: boolean;
+  // Simplified role checking - most users are 'standard'
+  requiredRole?: 'standard' | 'moderator' | 'admin';
+  // Optional feature flags instead of complex role hierarchy
+  requiresBusinessFeatures?: boolean;
+  requiresModeration?: boolean;
+  requiresAdmin?: boolean;
   redirectTo?: string;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requiredRole,
-  requiredBusinessUser = false,
+  requiredRole = 'standard',
+  requiresBusinessFeatures = false,
+  requiresModeration = false,
+  requiresAdmin = false,
   redirectTo = '/auth'
 }) => {
   const { 
@@ -21,17 +27,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     loading, 
     initialized, 
     isAuthenticated, 
-    hasProfile,
-    isAdmin,
-    isModerator,
-    isInfluencer,
-    isAdminInfluencer,
-    isBusinessUser
+    hasProfile
   } = useAuth();
 
   // Show loading while auth is being determined
   if (!initialized || loading) {
-    console.log('ProtectedRoute: Showing loading state', { initialized, loading });
+    console.log('ProtectedRoute: Loading auth state', { initialized, loading });
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -48,9 +49,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} replace />;
   }
 
-  // Wait for profile to load for role-based checks
-  if (!hasProfile && (requiredRole || requiredBusinessUser)) {
-    console.log('ProtectedRoute: Waiting for profile to load for role checks');
+  // Wait for profile to load for any role/feature checks
+  if (!hasProfile && (requiredRole !== 'standard' || requiresBusinessFeatures || requiresModeration || requiresAdmin)) {
+    console.log('ProtectedRoute: Waiting for profile to load for permission checks');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -61,31 +62,34 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Check role requirements
-  if (requiredRole && profile?.role !== requiredRole) {
-    // Special handling for admin roles
-    if (requiredRole === 'admin' && !isAdmin) {
-      return <Navigate to="/unauthorized" replace />;
-    }
-    if (requiredRole === 'moderator' && !isModerator) {
-      return <Navigate to="/unauthorized" replace />;
-    }
-    if (requiredRole === 'influencer' && !isInfluencer) {
-      return <Navigate to="/unauthorized" replace />;
-    }
-    if (requiredRole === 'admin_influencer' && !isAdminInfluencer) {
-      return <Navigate to="/unauthorized" replace />;
-    }
-    if (requiredRole === 'user' && profile?.role !== 'user') {
-      return <Navigate to="/unauthorized" replace />;
-    }
-  }
-
-  // Check business user requirement
-  if (requiredBusinessUser && !isBusinessUser) {
+  // UNIFIED PERMISSION CHECKING
+  // Most users have 'standard' role and all referral privileges by default
+  
+  // Check admin requirements
+  if (requiresAdmin && profile?.role !== 'admin') {
+    console.log('ProtectedRoute: Admin access required but user role is:', profile?.role);
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // All checks passed, render the protected component
+  // Check moderation requirements (admins can also moderate)
+  if (requiresModeration && !['moderator', 'admin'].includes(profile?.role || '')) {
+    console.log('ProtectedRoute: Moderation access required but user role is:', profile?.role);
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  // Check business features (flag-based, not role-based)
+  if (requiresBusinessFeatures && !profile?.is_business_user) {
+    console.log('ProtectedRoute: Business features required but user is not business user');
+    return <Navigate to="/business-upgrade" replace />;
+  }
+
+  // Check specific role requirement (fallback)
+  if (requiredRole !== 'standard' && profile?.role !== requiredRole) {
+    console.log('ProtectedRoute: Required role', requiredRole, 'but user role is:', profile?.role);
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  // All checks passed - render the protected component
+  console.log('ProtectedRoute: Access granted for user:', user?.id, 'with role:', profile?.role);
   return <>{children}</>;
 };
