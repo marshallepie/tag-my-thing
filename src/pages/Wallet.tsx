@@ -230,39 +230,42 @@ export const Wallet: React.FC = () => {
   // Debug log to check processing payment state
   console.log('Processing Payment State:', processingPayment);
 
-  // Quick actions - now includes referrals for all users
-  const quickActions = [
-    {
-      title: 'Refer a Friend',
-      description: 'Earn tokens by referring new users',
-      icon: <Gift className="h-4 w-4" />,
-      action: () => toast.info('Referral system coming soon!')
-    },
-    {
-      title: 'Daily Check-in',
-      description: 'Get daily bonus tokens',
-      icon: <Calendar className="h-4 w-4" />,
-      action: () => toast.info('Daily check-in coming soon!')
-    },
-    {
-      title: 'View Rewards',
-      description: 'See all available rewards',
-      icon: <Award className="h-4 w-4" />,
-      action: () => toast.info('Rewards page coming soon!')
+// ✅ FIXED: Remove role-based referral quick action - everyone gets referrals
+const quickActions = [
+  // ✅ NEW: Referral program available to ALL users
+  {
+    title: 'Referral Program',
+    description: 'Earn tokens by referring friends',
+    icon: <Share2 className="h-4 w-4" />,
+    action: () => {
+      window.location.href = '/referrals';
     }
-  ];
-
-  // Add referral program for all users
-  if (profile && (profile.role === 'influencer' || profile.role === 'admin_influencer')) {
-    quickActions.unshift({
-      title: 'Referral Program',
-      description: 'Earn tokens by referring friends',
-      icon: <Crown className="h-4 w-4" />,
-      action: () => {
-        window.location.href = '/referrals';
-      }
-    });
+  },
+  {
+    title: 'Daily Check-in',
+    description: 'Get daily bonus tokens',
+    icon: <Calendar className="h-4 w-4" />,
+    action: () => toast.info('Daily check-in coming soon!')
+  },
+  {
+    title: 'View Rewards',
+    description: 'See all available rewards',
+    icon: <Award className="h-4 w-4" />,
+    action: () => toast.info('Rewards page coming soon!')
   }
+];
+// ✅ FIXED: Remove the role-based conditional logic entirely
+// OLD CODE TO REMOVE:
+// if (profile && (profile.role === 'influencer' || profile.role === 'admin_influencer')) {
+//   quickActions.unshift({
+//     title: 'Referral Program',
+//     description: 'Earn tokens by referring friends',
+//     icon: <Crown className="h-4 w-4" />,
+//     action: () => {
+//       window.location.href = '/referrals';
+//     }
+//   });
+// }
 
   if (loading || tokensLoading) {
     return (
@@ -547,28 +550,26 @@ export const Wallet: React.FC = () => {
               </div>
             </Card>
 
-            {/* Quick Actions */}
-            {(profile?.role === 'influencer' || profile?.role === 'admin_influencer') && (
-              <Card className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  {quickActions.map((action, index) => (
-                    <Button 
-                      key={index}
-                      variant="outline" 
-                      className="w-full justify-start"
-                      onClick={action.action}
-                    >
-                      {action.icon}
-                      <div className="ml-2 text-left">
-                        <div className="font-medium">{action.title}</div>
-                        <div className="text-xs text-gray-600">{action.description}</div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </Card>
-            )}
+            {/* Quick Actions - Available to ALL users now */}
+<Card className="mt-6">
+  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+  <div className="space-y-3">
+    {quickActions.map((action, index) => (
+      <Button 
+        key={index}
+        variant="outline" 
+        className="w-full justify-start"
+        onClick={action.action}
+      >
+        {action.icon}
+        <div className="ml-2 text-left">
+          <div className="font-medium">{action.title}</div>
+          <div className="text-xs text-gray-600">{action.description}</div>
+        </div>
+      </Button>
+    ))}
+  </div>
+</Card>
           </div>
         </div>
       </div>

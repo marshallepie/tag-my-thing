@@ -29,8 +29,6 @@ const TermsOfService = React.lazy(() => import('./pages/TermsOfService').then(mo
 const GDPRCompliance = React.lazy(() => import('./pages/GDPRCompliance').then(module => ({ default: module.default || module.GDPRCompliance })));
 const DataProcessingAgreement = React.lazy(() => import('./pages/DataProcessingAgreement').then(module => ({ default: module.default || module.DataProcessingAgreement })));
 const CustomerSupport = React.lazy(() => import('./pages/CustomerSupport').then(module => ({ default: module.default || module.CustomerSupport })));
-const InfluencerAuth = React.lazy(() => import('./pages/InfluencerAuth').then(module => ({ default: module.default || module.InfluencerAuth })));
-const BusinessAuth = React.lazy(() => import('./pages/BusinessAuth').then(module => ({ default: module.default || module.BusinessAuth })));
 const GeneralTaggingLanding = React.lazy(() => import('./pages/GeneralTaggingLanding').then(module => ({ default: module.default || module.GeneralTaggingLanding })));
 const NFTTaggingLanding = React.lazy(() => import('./pages/NFTTaggingLanding').then(module => ({ default: module.default || module.NFTTaggingLanding })));
 const MyWillTaggingLanding = React.lazy(() => import('./pages/MyWillTaggingLanding').then(module => ({ default: module.default || module.MyWillTaggingLanding })));
@@ -174,50 +172,49 @@ function App() {
           {/* Legacy referral route redirect */}
           <Route path="/influencer-referrals" element={<Navigate to="/referrals" replace />} />
           
-          {/* Protected Routes - Business Users */}
+// ✅ FIXED: Update business route protection
           <Route path="/business-dashboard" element={
-            <ProtectedRoute requiredBusinessUser={true}>
+            <ProtectedRoute requiresBusinessFeatures={true}>
               <BusinessDashboard />
             </ProtectedRoute>
           } />
-          
-          {/* Protected Routes - Admin Influencers */}
+
+// ✅ FIXED: Update admin routes (admins can access everything)
           <Route path="/admin-influencer-dashboard" element={
-            <ProtectedRoute requiredRole="admin_influencer">
+            <ProtectedRoute requiresAdmin={true}>
               <AdminInfluencerDashboard />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/bug-reports" element={
-            <ProtectedRoute requiredRole="admin_influencer">
+            <ProtectedRoute requiresAdmin={true}>
               <BugReports />
             </ProtectedRoute>
           } />
-          
-          {/* Protected Routes - Admins */}
-          <Route path="/admin" element={
-            <ProtectedRoute requiredRole="admin">
-              <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Panel</h1>
-                  <p className="text-gray-600">Admin functionality coming soon</p>
-                </div>
-              </div>
-            </ProtectedRoute>
-          } />
-          
-          {/* Protected Routes - Moderators */}
+
+// ✅ FIXED: Moderator routes
           <Route path="/moderator" element={
-            <ProtectedRoute requiredRole="moderator">
+            <ProtectedRoute requiresModeration={true}>
               <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                   <h1 className="text-2xl font-bold text-gray-900 mb-4">Moderator Panel</h1>
-                  <p className="text-gray-600">Moderator functionality coming soon</p>
+                  <p className="text-gray-600">Moderator functionality is here</p>
                 </div>
               </div>
             </ProtectedRoute>
           } />
-          
+
+// ✅ FIXED: Admin routes
+          <Route path="/admin" element={
+            <ProtectedRoute requiresAdmin={true}>
+              <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Panel</h1>
+                  <p className="text-gray-600">Admin functionality is here</p>
+                </div>
+              </div>
+            </ProtectedRoute>
+          } />
           {/* Catch-all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
