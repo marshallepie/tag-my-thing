@@ -3,10 +3,10 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
-import { cookieUtils } from './lib/utils';
 
 // Lazy load all page components for better performance
 const Auth = React.lazy(() => import('./pages/Auth').then(module => ({ default: module.default || module.Auth })));
+const InfluencerAuth = React.lazy(() => import('./pages/InfluencerAuth').then(module => ({ default: module.default || module.InfluencerAuth })));
 const Dashboard = React.lazy(() => import('./pages/Dashboard').then(module => ({ default: module.default || module.Dashboard })));
 const Assets = React.lazy(() => import('./pages/Assets').then(module => ({ default: module.default || module.Assets })));
 const Wallet = React.lazy(() => import('./pages/Wallet').then(module => ({ default: module.default || module.Wallet })));
@@ -101,7 +101,7 @@ function App() {
           <Route path="/signup" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/business-auth" element={<Auth />} />
-          <Route path="/influencer-signup" element={<Auth />} />  
+          <Route path="/influencer-signup" element={<InfluencerAuth />} />
           
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

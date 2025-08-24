@@ -1,186 +1,274 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Crown } from 'lucide-react';
-import { AuthForm } from '../components/auth/AuthForm';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
 export const InfluencerAuth: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const { isAuthenticated, hasProfile } = useAuth();
 
   const urlParams = new URLSearchParams(location.search);
-  const redirectParam = urlParams.get('redirect');
-  const fromParam = urlParams.get('from');
-  const nokInviteEmail = urlParams.get('nok_invite_email');
+  const redirectParam = urlParams.get('redirect') || '';
+  const fromParam = urlParams.get('from') || '';
+  const nokInviteEmail = urlParams.get('nok_invite_email') || '';
 
-  // Navigation handler
-  const handleNavigation = (path: string) => {
-    try {
-      if (path.startsWith('http')) {
-        window.open(path, '_blank');
-      } else {
-        navigate(path);
-      }
-    } catch (error) {
-      console.error('Navigation error:', error);
-      window.location.href = path;
+  // capture referral (from URL or cache)
+  const [refCode, setRefCode] = useState<string | null>(null);
+
+  // form state
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState(nokInviteEmail || '');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+
+  useEffect(() => {
+    // name prefill
+    const qName = urlParams.get('name');
+    if (qName) setName(qName);
+    else {
+      try {
+        const cached = localStorage.getItem('tmt_prefill_name');
+        if (cached) setName(cached);
+      } catch {}
     }
-  };
 
-  const handleSuccess = () => {
+    // referral capture
+    const qRef = urlParams.get('ref');
+    try {
+      if (qRef && qRef.trim()) {
+        localStorage.setItem('tmt_ref_code', qRef.trim());
+        setRefCode(qRef.trim());
+      } else {
+        const cachedRef = localStorage.getItem('tmt_ref_code');
+        if (cachedRef) setRefCode(cachedRef);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // already signed in + has profile? route away
+  if (isAuthenticated && hasProfile) {
+    if (nokInviteEmail) return <Navigate to="/nok" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  const goNext = (opts: { toNok?: boolean }) => {
     if (fromParam === 'tagging' && redirectParam) {
       navigate(`${redirectParam}?from=tagging`, { replace: true });
-    } else if (nokInviteEmail) {
-      // If this was a NOK invite, redirect to NOK dashboard
+    } else if (opts.toNok || nokInviteEmail) {
       navigate('/nok', { replace: true });
     } else {
       navigate('/dashboard', { replace: true });
     }
   };
 
+  const validate = () => {
+    if (!name.trim()) return 'Please enter your name.';
+    if (!email.trim()) return 'Please enter your email.';
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Please enter a valid email.';
+    if (password.length < 8) return 'Password must be at least 8 characters.';
+    return null;
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+
+    const v = validate();
+    if (v) { setError(v); return; }
+
+    setSubmitting(true);
+    try {
+      // cache name for later
+      try { localStorage.setItem('tmt_prefill_name', name.trim()); } catch {}
+
+      // include referral in user metadata if present
+      const metadata: Record<string, any> = { full_name: name.trim() };
+      if (refCode) metadata.referral_code = refCode;
+
+      const { data, error: signErr } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: metadata,
+          // emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (signErr) throw signErr;
+
+      // If confirmation required, session may be null
+      const user = data.user ?? (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        setInfo('Check your email to confirm your address. Once confirmed, come back and sign in.');
+        return;
+      }
+
+      // Ensure profile name (if you use a profiles table)
+      try {
+        await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
+      } catch {}
+
+      // OPTIONAL: record referral attribution in your own table or RPC
+      // Adjust table/column names to your schema; failure is non-fatal.
+      if (refCode) {
+        try {
+          // Example table write
+          await supabase.from('referral_attribution').insert({
+            ref_code: refCode,
+            new_user_id: user.id,
+            new_user_email: email.trim(),
+            source: fromParam || 'landing_signup',
+          });
+          // OR, if you have an RPC:
+          // await supabase.rpc('apply_referral_on_signup', { p_ref_code: refCode });
+        } catch {
+          // ignore if table/RLS not set up; metadata already preserves the code
+        }
+      }
+
+      goNext({ toNok: Boolean(nokInviteEmail) });
+    } catch (err: any) {
+      setError(err?.message || 'Failed to create account.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-primary-50">
-      {/* Navigation */}
+      {/* minimal nav */}
       <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <button 
-              onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src="/tagmaithing.png" 
-                alt="TagMyThing" 
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-xl font-bold text-gray-900">Tag<span className="text-primary-600">My</span>Thing</span>
-              <div className="flex items-center space-x-1 ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                <Crown className="h-3 w-3" />
-                <span>Influencer</span>
-              </div>
-            </button>
-
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-3">
-              <button 
-                onClick={() => handleNavigation('/auth')}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
-                Regular Signup
-              </button>
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
+            <img src="/tagmaithing.png" alt="TagMyThing" className="w-10 h-10 object-contain" />
+            <span className="text-xl font-bold text-gray-900">
+              Tag<span className="text-primary-600">My</span>Thing
+            </span>
+          </button>
+          <Button variant="ghost" onClick={() => navigate('/tag')}>
+            Try Tagging
+          </Button>
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* hero + inline signup form */}
       <section className="relative overflow-hidden py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <Crown className="h-12 w-12 text-yellow-600" />              </div>
-              
-              {nokInviteEmail && (
-                <div className="mb-6 p-4 bg-secondary-50 border border-secondary-200 rounded-lg">
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <Shield className="h-6 w-6 text-secondary-600" />
-                    <h2 className="text-xl font-bold text-gray-900">Next-of-Kin Invitation</h2>
-                  </div>
-                  <p className="text-gray-700 text-center">
-                    You've been nominated as a Next-of-Kin. Complete your signup to accept this important responsibility.
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          </div>
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl lg:text-5xl font-semibold text-gray-900 leading-snug">
+              Become a Tag<span className="text-primary-600">My</span>Thing{' '}
+              <span className="text-primary-700 font-medium">Member</span> and take part in a{' '}
+              <span className="text-indigo-600 font-medium">Digital Autonomous Organization</span>
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              TagMyThing lets you digitally store proof — forever.
+            </p>
+          </motion.div>
 
-          <div className="flex justify-center w-full">
-            {/* Auth Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="w-full max-w-md"
-            >
-              <AuthForm 
-                mode={mode} 
-                onSuccess={handleSuccess} 
-                initialRole="influencer"
-                defaultIsBusinessUser={false}
-                initialEmail={nokInviteEmail || ''}
-                emailReadOnly={!!nokInviteEmail}
-                nokInviteEmail={nokInviteEmail || undefined}
+          <motion.form
+            onSubmit={handleSignup}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mt-10 space-y-4"
+          >
+            <div>
+              <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
+                Your name
+              </label>
+              <input
+                id="full_name"
+                name="full_name"
+                type="text"
+                autoComplete="name"
+                placeholder="Jane Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={submitting}
+                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
               />
-              
-              <div className="text-center mt-6">
-                <p className="text-gray-600">
-                  {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
-                </p>
-                <Button
-                  variant="ghost"
-                  onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-                  className="mt-2"
-                >
-                  {mode === 'signin' ? 'Create Account' : 'Sign In'}
-                </Button>
-              </div>
-            </motion.div>
+            </div>
 
-          </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting || Boolean(nokInviteEmail)}
+                readOnly={Boolean(nokInviteEmail)}
+                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
+              />
+              {nokInviteEmail && (
+                <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={submitting}
+                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+
+            {refCode && (
+              <p className="text-xs text-gray-500">
+                Applying referral code: <span className="font-medium">{refCode}</span>
+              </p>
+            )}
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {info && <p className="text-sm text-amber-700">{info}</p>}
+
+            <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
+              {submitting ? 'Creating your account…' : (
+                <span className="inline-flex items-center">
+                  Create account <ArrowRight className="h-4 w-4 ml-2" />
+                </span>
+              )}
+            </Button>
+
+            <p className="text-center text-xs text-gray-500">
+              By continuing you agree to our Terms and acknowledge our Privacy Policy.
+            </p>
+          </motion.form>
         </div>
 
-        {/* Background Elements */}
+        {/* soft background blobs */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-200 rounded-full opacity-20 blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-200 rounded-full opacity-20 blur-3xl" />
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-yellow-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Crown className="h-16 w-16 text-white mx-auto mb-6" />
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Ready to Become an Influencer?
-            </h2>
-            <p className="text-xl text-primary-100 mb-8">
-              Join thousands of influencers earning tokens through TagMyThing's referral program
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                variant="secondary" 
-                size="lg" 
-                onClick={() => {
-                  const form = document.querySelector('form');
-                  if (form) {
-                    form.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    // Fallback: scroll to top of page
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }}
-              >
-                <Crown className="h-5 w-5 mr-2" />
-                Start Your Influencer Journey
-              </Button>
-            </div>
-          </motion.div>
         </div>
       </section>
     </div>
