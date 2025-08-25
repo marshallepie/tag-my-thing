@@ -183,9 +183,10 @@ export const GeneralTaggingLanding: React.FC = () => {
       try {
         await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
       } catch {}
-
+      
+      console.log('refCode:', refCode);
       // Apply referral via RPC (server-side attribution)
-      if (referralCode) {
+      if (refCode) {
         try {
           const { error: rpcErr } = await supabase.rpc('apply_referral_on_signup', {
             p_new_user_id: user.id,
