@@ -180,11 +180,25 @@ export const GeneralTaggingLanding: React.FC = () => {
       if (signErr) throw signErr;
 
       // Session may be null if email confirmation is on
-      const user = data.user ?? (await supabase.auth.getUser()).data.user;
+      // const user = data.user ?? (await supabase.auth.getUser()).data.user;
+      // if (!user) {
+      //   setInfo('Check your email to confirm your address. Once confirmed, come back and sign in.');
+      //   return;
+      // }
+
+      // Always redirect to check email page after signup
+      const user = data.user;
       if (!user) {
-        setInfo('Check your email to confirm your address. Once confirmed, come back and sign in.');
+        setError('Failed to create account');
         return;
       }
+
+      // Don't try to apply referral here - it will be handled in AuthCallback
+      // after email verification
+
+      // Always redirect to check email page
+      navigate('/check-email', { replace: true });
+      return;
 
       // Ensure profile full_name if you maintain a profiles table
       try {
