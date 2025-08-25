@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import { AuthCallback } from './pages/AuthCallback';
 
 // Lazy load all page components for better performance
 const Auth = React.lazy(() => import('./pages/Auth').then(module => ({ default: module.default || module.Auth })));
@@ -102,6 +103,7 @@ function App() {
           <Route path="/login" element={<Auth />} />
           <Route path="/business-auth" element={<Auth />} />
           <Route path="/influencer-signup" element={<InfluencerAuth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

@@ -162,14 +162,21 @@ export const GeneralTaggingLanding: React.FC = () => {
       const metadata: Record<string, any> = { full_name: name.trim() };
       if (refCode) metadata.referral_code = refCode;
 
-      const { data, error: signErr } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: metadata,
-          // emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+
+        // Build redirect URL with referral preserved
+        const baseRedirectUrl = `${window.location.origin}/auth/callback`;
+        const redirectUrl = refCode
+          ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'general_tagging_landing')}`
+          : baseRedirectUrl;
+
+        const { data, error: signErr } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            data: metadata,
+            emailRedirectTo: redirectUrl,  // ← Now includes referral info
+          },
+        });
       if (signErr) throw signErr;
 
       // Session may be null if email confirmation is on
@@ -183,7 +190,7 @@ export const GeneralTaggingLanding: React.FC = () => {
       try {
         await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
       } catch {}
-      
+
       console.log('refCode:', refCode);
       // Apply referral via RPC (server-side attribution)
       if (refCode) {
