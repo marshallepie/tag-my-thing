@@ -12,73 +12,89 @@ export const AuthCallback: React.FC = () => {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+  console.log('=== AUTH CALLBACK START ===');
+  console.log('Full URL:', window.location.href);
+  console.log('Search params:', location.search);
+  
+  try {
+    // Handle the auth callback
+    const { data, error } = await supabase.auth.getSession();
+    console.log('Session data:', data?.session?.user?.id);
+    
+    if (error) {
+      console.error('Auth callback error:', error);
+      setMessage('Email verification failed. Please try again.');
+      setTimeout(() => navigate('/auth'), 3000);
+      return;
+    }
+
+    const user = data.session?.user;
+    if (!user) {
+      console.log('No user found in session');
+      setMessage('No user session found. Redirecting...');
+      setTimeout(() => navigate('/auth'), 2000);
+      return;
+    }
+
+    console.log('User found:', user.id);
+
+    // Extract referral code from URL
+    const urlParams = new URLSearchParams(location.search);
+    const refCode = urlParams.get('ref');
+    const fromParam = urlParams.get('from');
+    
+    console.log('Extracted refCode:', refCode);
+    console.log('Extracted fromParam:', fromParam);
+
+    // Apply referral if present
+    if (refCode) {
+      console.log('About to apply referral:', refCode);
+      setMessage('Email verified! Processing your referral...');
+      
       try {
-        // Handle the auth callback
-        const { data, error } = await supabase.auth.getSession();
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('apply_referral_on_signup', {
+          p_new_user_id: user.id,
+          p_referral_code: refCode,
+          p_source: fromParam || 'email_verification',
+        });
         
-        if (error) {
-          console.error('Auth callback error:', error);
-          setMessage('Email verification failed. Please try again.');
-          setTimeout(() => navigate('/auth'), 3000);
-          return;
-        }
-
-        const user = data.session?.user;
-        if (!user) {
-          setMessage('No user session found. Redirecting...');
-          setTimeout(() => navigate('/auth'), 2000);
-          return;
-        }
-
-        // Extract referral code from URL
-        const urlParams = new URLSearchParams(location.search);
-        const refCode = urlParams.get('ref');
-        const fromParam = urlParams.get('from');
-
-        // Apply referral if present
-        if (refCode) {
-          console.log('Processing referral from email verification:', refCode);
-          setMessage('Email verified! Processing your referral...');
-          
-          try {
-            const { error: rpcErr } = await supabase.rpc('apply_referral_on_signup', {
-              p_new_user_id: user.id,
-              p_referral_code: refCode,
-              p_source: fromParam || 'email_verification',
-            });
-            
-            if (rpcErr) {
-              console.warn('Referral application failed:', rpcErr.message);
-              setMessage('Email verified! Redirecting to your dashboard...');
-            } else {
-              console.log('✅ Referral applied successfully from email verification');
-              setMessage('Email verified and referral applied! Redirecting...');
-            }
-          } catch (ex) {
-            console.warn('Referral application exception:', ex);
-            setMessage('Email verified! Redirecting to your dashboard...');
-          }
-        } else {
+        console.log('RPC response data:', rpcData);
+        console.log('RPC response error:', rpcErr);
+        
+        if (rpcErr) {
+          console.warn('Referral application failed:', rpcErr.message);
           setMessage('Email verified! Redirecting to your dashboard...');
+        } else {
+          console.log('✅ Referral applied successfully from email verification');
+          setMessage('Email verified and referral applied! Redirecting...');
         }
-
-        // Redirect to appropriate page after brief delay
-        setTimeout(() => {
-          if (fromParam && fromParam.includes('tagging')) {
-            navigate('/tag', { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        }, 2000);
-
-      } catch (error) {
-        console.error('Callback processing error:', error);
-        setMessage('Something went wrong. Redirecting...');
-        setTimeout(() => navigate('/auth'), 3000);
-      } finally {
-        setProcessing(false);
+      } catch (ex) {
+        console.error('Referral RPC exception:', ex);
+        setMessage('Email verified! Redirecting to your dashboard...');
       }
-    };
+    } else {
+      console.log('No refCode found - skipping referral');
+      setMessage('Email verified! Redirecting to your dashboard...');
+    }
+
+    // Redirect to appropriate page after brief delay
+    setTimeout(() => {
+      if (fromParam && fromParam.includes('tagging')) {
+        navigate('/tag', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }, 2000);
+
+  } catch (error) {
+    console.error('Callback processing error:', error);
+    setMessage('Something went wrong. Redirecting...');
+    setTimeout(() => navigate('/auth'), 3000);
+  } finally {
+    setProcessing(false);
+  }
+};
+
 
     handleAuthCallback();
   }, [location, navigate]);
