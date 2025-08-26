@@ -192,15 +192,12 @@ export const NFTTaggingLanding: React.FC = () => {
     const metadata: Record<string, any> = { full_name: name.trim() };
     if (refCode) metadata.referral_code = refCode;
     
-    // Add account_type for business landing
-    if (/* this is business landing */) {
-      metadata.account_type = 'business';
-    }
+    // This is NFT tagging landing, not business - remove invalid business logic
 
     // Build redirect URL with referral preserved
     const baseRedirectUrl = `${window.location.origin}/auth/callback`;
     const redirectUrl = refCode
-      ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'landing_page_name')}`
+      ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'nft_tagging_landing')}`
       : baseRedirectUrl;
 
     const { data, error: signErr } = await supabase.auth.signUp({
