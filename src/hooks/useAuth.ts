@@ -3,13 +3,13 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
 
-// Add this at the top of useAuth
-const [instanceId] = useState(() => Math.random().toString(36).slice(2));
+// // Add this at the top of useAuth
+// const [instanceId] = useState(() => Math.random().toString(36).slice(2));
 
-useEffect(() => {
-  console.log(`🚀 useAuth: Initializing instance ${instanceId}`);
-  // ... rest of initialization
-}, []);
+// useEffect(() => {
+//   console.log(`🚀 useAuth: Initializing instance ${instanceId}`);
+//   // ... rest of initialization
+// }, []);
 
 type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
 
