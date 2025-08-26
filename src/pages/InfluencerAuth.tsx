@@ -76,70 +76,123 @@ export const InfluencerAuth: React.FC = () => {
     return null;
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setInfo(null);
+  // const handleSignup = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError(null);
+  //   setInfo(null);
 
-    const v = validate();
-    if (v) { setError(v); return; }
+  //   const v = validate();
+  //   if (v) { setError(v); return; }
 
-    setSubmitting(true);
-    try {
-      // cache name for later
-      try { localStorage.setItem('tmt_prefill_name', name.trim()); } catch {}
+  //   setSubmitting(true);
+  //   try {
+  //     // cache name for later
+  //     try { localStorage.setItem('tmt_prefill_name', name.trim()); } catch {}
 
-      // include referral in user metadata if present
-      const metadata: Record<string, any> = { full_name: name.trim() };
-      if (refCode) metadata.referral_code = refCode;
+  //     // include referral in user metadata if present
+  //     const metadata: Record<string, any> = { full_name: name.trim() };
+  //     if (refCode) metadata.referral_code = refCode;
 
-      const { data, error: signErr } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: metadata,
-          // emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (signErr) throw signErr;
+  //     const { data, error: signErr } = await supabase.auth.signUp({
+  //       email: email.trim(),
+  //       password,
+  //       options: {
+  //         data: metadata,
+  //         // emailRedirectTo: `${window.location.origin}/auth/callback`,
+  //       },
+  //     });
+  //     if (signErr) throw signErr;
 
-      // If confirmation required, session may be null
-      const user = data.user ?? (await supabase.auth.getUser()).data.user;
-      if (!user) {
-        setInfo('Check your email to confirm your address. Once confirmed, come back and sign in.');
-        return;
-      }
+  //     // If confirmation required, session may be null
+  //     const user = data.user ?? (await supabase.auth.getUser()).data.user;
+  //     if (!user) {
+  //       setInfo('Check your email to confirm your address. Once confirmed, come back and sign in.');
+  //       return;
+  //     }
 
-      // Ensure profile name (if you use a profiles table)
-      try {
-        await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
-      } catch {}
+  //     // Ensure profile name (if you use a profiles table)
+  //     try {
+  //       await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
+  //     } catch {}
 
-      // OPTIONAL: record referral attribution in your own table or RPC
-      // Adjust table/column names to your schema; failure is non-fatal.
-      if (refCode) {
-        try {
-          // Example table write
-          await supabase.from('referral_attribution').insert({
-            ref_code: refCode,
-            new_user_id: user.id,
-            new_user_email: email.trim(),
-            source: fromParam || 'landing_signup',
-          });
-          // OR, if you have an RPC:
-          // await supabase.rpc('apply_referral_on_signup', { p_ref_code: refCode });
-        } catch {
-          // ignore if table/RLS not set up; metadata already preserves the code
-        }
-      }
+  //     // OPTIONAL: record referral attribution in your own table or RPC
+  //     // Adjust table/column names to your schema; failure is non-fatal.
+  //     if (refCode) {
+  //       try {
+  //         // Example table write
+  //         await supabase.from('referral_attribution').insert({
+  //           ref_code: refCode,
+  //           new_user_id: user.id,
+  //           new_user_email: email.trim(),
+  //           source: fromParam || 'landing_signup',
+  //         });
+  //         // OR, if you have an RPC:
+  //         // await supabase.rpc('apply_referral_on_signup', { p_ref_code: refCode });
+  //       } catch {
+  //         // ignore if table/RLS not set up; metadata already preserves the code
+  //       }
+  //     }
 
-      goNext({ toNok: Boolean(nokInviteEmail) });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to create account.');
-    } finally {
-      setSubmitting(false);
+  //     goNext({ toNok: Boolean(nokInviteEmail) });
+  //   } catch (err: any) {
+  //     setError(err?.message || 'Failed to create account.');
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
+const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setInfo(null);
+  const v = validate();
+  if (v) { setError(v); return; }
+
+  setSubmitting(true);
+  try {
+    try { localStorage.setItem('tmt_prefill_name', name.trim()); } catch {}
+
+    const metadata: Record<string, any> = { full_name: name.trim() };
+    if (refCode) metadata.referral_code = refCode;
+    
+    // Add account_type for business landing
+    if (/* this is business landing */) {
+      metadata.account_type = 'business';
     }
-  };
+
+    // Build redirect URL with referral preserved
+    const baseRedirectUrl = `${window.location.origin}/auth/callback`;
+    const redirectUrl = refCode
+      ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'landing_page_name')}`
+      : baseRedirectUrl;
+
+    const { data, error: signErr } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: metadata,
+        emailRedirectTo: redirectUrl,  // ← Now includes referral info
+      },
+    });
+    if (signErr) throw signErr;
+
+    // Always redirect to check email page after signup
+    const user = data.user;
+    if (!user) {
+      setError('Failed to create account');
+      return;
+    }
+
+    // Referral processing happens in AuthCallback after email verification
+    navigate('/check-email', { replace: true });
+    return;
+
+  } catch (err: any) {
+    setError(err?.message || 'Failed to create account.');
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-primary-50">

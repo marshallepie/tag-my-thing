@@ -256,7 +256,7 @@ We welcome contributions! Please follow these steps:
 ## 🔗 Referral System
 
 TagMyThing features a comprehensive referral system available to all users:
-
+<!-- 
 - **Multi-Level Rewards** - Earn tokens up to 5 levels deep
 - **Landing Page Selection** - Choose from 5 different landing pages for your referral links
 - **Universal Access** - All users can generate and share referral codes
@@ -272,6 +272,33 @@ If no referrer is found with the provided referralCode, the system now attempts 
 - Level 4: 10 TMT
 - Level 5: 5 TMT
 
+**Total potential per referral chain: 115 TMT**
+ -->
+---
+
+- **Multi-Level Rewards** - Earn tokens up to 5 levels deep
+-
+- **Universal Access** - All users can generate and share referral codes
+-
+- **Automatic Processing** - Rewards are processed automatically upon successful referrals calculations.
+
+### Referral Canculation
+- Level 1: 50 TMT User A refers User B = A gets 50 TMT.
+- Level 2: 30 TMT User B refers User C = A gets 30 TMT, B gets 50 TMT.
+- Level 3: 20 TMT User C refers User D = A gets 20 TMT, B gets 30 TMT. C gets 50 TMT.
+- Level 4: 10 TMT User D refers User E = A gets 10 TMT, B gets 20 TMT. C gets 30 TMT
+- Level 5: 5 TMT  User E refers User F = A gets 05 TMT, B gets 10 TMT. C gets 20 TMT
+
+- Added fallback logic when the primary referrer lookup fails
+If no referrer is found with the provided referralCode, the system now attempts to find Marshall Epie using email marshallepie@marshallepie.com
+
+### Referral Reward Structure
+- Level 1: 50 TMT
+- Level 2: 30 TMT
+- Level 3: 20 TMT
+- Level 4: 10 TMT
+- Level 5: 5 TMT
+Note : Any user can refer any number of users each referal starting a 5 level deepchain and finishing off or continuing a parent chain. Each successfull referal thus traces back 5 levels on the ladder and rewards the parents accordingly.
 **Total potential per referral chain: 115 TMT**
 
 ---

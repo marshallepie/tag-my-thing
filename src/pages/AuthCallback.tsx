@@ -58,7 +58,7 @@ export const AuthCallback: React.FC = () => {
           p_source: fromParam || 'email_verification',
         });
         
-        console.log('RPC response data:', rpcData);
+        console.log('RPC response data:', JSON.stringify(rpcData, null, 2));
         console.log('RPC response error:', rpcErr);
         
         if (rpcErr) {

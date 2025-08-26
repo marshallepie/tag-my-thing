@@ -132,7 +132,7 @@ export const GeneralTaggingLanding: React.FC = () => {
     return null;
   };
 
-  const postSignupRedirect = () => {
+/*   const postSignupRedirect = () => {
     if (fromParam === 'tagging' && redirectParam) {
       navigate(`${redirectParam}?from=tagging`, { replace: true });
     } else if (redirectParam) {
@@ -140,7 +140,7 @@ export const GeneralTaggingLanding: React.FC = () => {
     } else {
       navigate('/tag', { replace: true });
     }
-  };
+  }; */
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,7 +201,7 @@ export const GeneralTaggingLanding: React.FC = () => {
       return;
 
       // Ensure profile full_name if you maintain a profiles table
-      try {
+     /*  try {
         await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id);
       } catch {}
 
@@ -218,9 +218,9 @@ export const GeneralTaggingLanding: React.FC = () => {
         } catch (ex) {
           console.warn('apply_referral_on_signup exception:', ex);
         }
-      }
+      } */
 
-      postSignupRedirect();
+      // postSignupRedirect();
     } catch (err: any) {
       setError(err?.message || 'Failed to create account.');
     } finally {

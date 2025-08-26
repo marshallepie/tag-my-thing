@@ -77,7 +77,10 @@ export const CheckEmail: React.FC = () => {
                 <ul className="space-y-1">
                   <li>• Check your email inbox (and spam folder)</li>
                   <li>• Click the confirmation link</li>
-                  <li>• Then return here to sign in</li>
+                  <li>• You should be automatically signed in.</li>
+                  <li>Please wait while it loads.</li>
+                  <li>As we are still Testing , it may take a few seconds.</li>
+                  <li>Once you've logged in you can close this window</li>
                 </ul>
               </div>
             </div>
