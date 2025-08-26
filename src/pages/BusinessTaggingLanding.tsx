@@ -193,11 +193,6 @@ export const BusinessTaggingLanding: React.FC = () => {
     const metadata: Record<string, any> = { full_name: name.trim() };
     if (refCode) metadata.referral_code = refCode;
     
-    // Add account_type for business landing
-    if (/* this is business landing */) {
-      metadata.account_type = 'business';
-    }
-
     // Build redirect URL with referral preserved
     const baseRedirectUrl = `${window.location.origin}/auth/callback`;
     const redirectUrl = refCode
