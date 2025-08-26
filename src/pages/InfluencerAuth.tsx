@@ -155,15 +155,13 @@ const handleSignup = async (e: React.FormEvent) => {
     const metadata: Record<string, any> = { full_name: name.trim() };
     if (refCode) metadata.referral_code = refCode;
     
-    // Add account_type for business landing
-    if (/* this is business landing */) {
-      metadata.account_type = 'business';
-    }
+    // This is the influencer signup, not business
+    // Remove the business account type logic entirely
 
     // Build redirect URL with referral preserved
     const baseRedirectUrl = `${window.location.origin}/auth/callback`;
     const redirectUrl = refCode
-      ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'landing_page_name')}`
+      ? `${baseRedirectUrl}?ref=${encodeURIComponent(refCode)}&from=${encodeURIComponent(fromParam || 'influencer_auth')}`
       : baseRedirectUrl;
 
     const { data, error: signErr } = await supabase.auth.signUp({
