@@ -3,6 +3,14 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
 
+// Add this at the top of useAuth
+const [instanceId] = useState(() => Math.random().toString(36).slice(2));
+
+useEffect(() => {
+  console.log(`🚀 useAuth: Initializing instance ${instanceId}`);
+  // ... rest of initialization
+}, []);
+
 type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
 
 interface AuthState {
@@ -117,9 +125,9 @@ const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | n
 
       if (data && mountedRef.current) {
         console.log('✅ fetchProfile: Profile loaded for:', data.email);
-        updateUserActivity().catch(err => 
-          console.warn('⚠️ Background activity update failed:', err)
-        );
+       // updateUserActivity().catch(err => 
+         // console.warn('⚠️ Background activity update failed:', err)
+        //);
       }
 
       return data;
