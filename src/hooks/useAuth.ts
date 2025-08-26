@@ -31,18 +31,74 @@ export const useAuth = () => {
     }
   }, []);
 
-  // Fetch user profile with timeout and error handling
-  const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
-    console.log('🔍 fetchProfile: Starting for userId:', userId);
-    const startTime = performance.now();
+  // // Fetch user profile with timeout and error handling
+  // const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+  //   console.log('🔍 fetchProfile: Starting for userId:', userId);
+  //   const startTime = performance.now();
     
+  //   try {
+  //     // Create timeout promise (8 seconds - shorter timeout)
+  //     const timeoutPromise = new Promise<never>((_, reject) => {
+  //       setTimeout(() => reject(new Error('Profile fetch timeout')), 8000);
+  //     });
+      
+  //     // Race the Supabase query against the timeout
+  //     const queryPromise = supabase
+  //       .from('user_profiles')
+  //       .select('*')
+  //       .eq('id', userId)
+  //       .maybeSingle();
+
+  //     const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
+  //     const duration = (performance.now() - startTime).toFixed(1);
+  //     console.log('🔍 fetchProfile: Query completed in', duration + 'ms');
+
+  //     if (error) {
+  //       console.error('❌ fetchProfile: Supabase error:', error);
+  //       return null;
+  //     }
+
+  //     if (data && mountedRef.current) {
+  //       console.log('✅ fetchProfile: Profile loaded for:', data.email);
+        
+  //       // Update activity in background - don't await
+  //       updateUserActivity().catch(err => 
+  //         console.warn('⚠️ Background activity update failed:', err)
+  //       );
+  //     }
+
+  //     return data;
+  //   } catch (error) {
+  //     const duration = (performance.now() - startTime).toFixed(1);
+      
+  //     if (error instanceof Error && error.message.includes('timeout')) {
+  //       console.error('⏰ fetchProfile: Query timed out after', duration + 'ms');
+  //     } else {
+  //       console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
+  //     }
+  //     return null;
+  //   }
+  // }, [updateUserActivity]);
+
+  // In useAuth.ts, add a simple cache/deduplication mechanism
+let profileCache = new Map<string, Promise<UserProfile | null>>();
+
+const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+  // Check if we already have a pending request for this user
+  if (profileCache.has(userId)) {
+    return profileCache.get(userId)!;
+  }
+
+  console.log('🔍 fetchProfile: Starting for userId:', userId);
+  const startTime = performance.now();
+  
+  const profilePromise = (async () => {
     try {
-      // Create timeout promise (8 seconds - shorter timeout)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 8000);
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000); // Reduced to 5s
       });
       
-      // Race the Supabase query against the timeout
       const queryPromise = supabase
         .from('user_profiles')
         .select('*')
@@ -50,7 +106,7 @@ export const useAuth = () => {
         .maybeSingle();
 
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
-
+      
       const duration = (performance.now() - startTime).toFixed(1);
       console.log('🔍 fetchProfile: Query completed in', duration + 'ms');
 
@@ -61,8 +117,6 @@ export const useAuth = () => {
 
       if (data && mountedRef.current) {
         console.log('✅ fetchProfile: Profile loaded for:', data.email);
-        
-        // Update activity in background - don't await
         updateUserActivity().catch(err => 
           console.warn('⚠️ Background activity update failed:', err)
         );
@@ -71,15 +125,17 @@ export const useAuth = () => {
       return data;
     } catch (error) {
       const duration = (performance.now() - startTime).toFixed(1);
-      
-      if (error instanceof Error && error.message.includes('timeout')) {
-        console.error('⏰ fetchProfile: Query timed out after', duration + 'ms');
-      } else {
-        console.error('❌ fetchProfile: Exception after', duration + 'ms:', error);
-      }
+      console.error('⏰ fetchProfile: Query failed after', duration + 'ms:', error);
       return null;
+    } finally {
+      // Clear cache after completion
+      profileCache.delete(userId);
     }
-  }, [updateUserActivity]);
+  })();
+
+  profileCache.set(userId, profilePromise);
+  return profilePromise;
+}, [updateUserActivity]);
 
   // Initialize auth system
   useEffect(() => {
