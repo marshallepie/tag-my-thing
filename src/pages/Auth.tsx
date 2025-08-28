@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building, Crown, Shield } from 'lucide-react';
 import { AuthForm } from '../components/auth/AuthForm';
@@ -258,6 +258,15 @@ export const Auth: React.FC = () => {
             )}
           </div>
         </motion.div>
+      </div>
+     
+      <div className="text-center mt-4">
+        <Link
+          to="/forgot-password"
+          className="text-indigo-600 hover:text-indigo-500 text-sm"
+        >
+          Forgot your password?
+        </Link>
       </div>
 
       {/* Footer note for unified system */}

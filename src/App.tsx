@@ -4,6 +4,9 @@ import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
 import { AuthCallback } from './pages/AuthCallback';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 // Lazy load all page components for better performance
 const Auth = React.lazy(() => import('./pages/Auth').then(module => ({ default: module.default || module.Auth })));
@@ -105,6 +108,9 @@ function App() {
           <Route path="/influencer-signup" element={<InfluencerAuth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
           {/* Legal Pages */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
