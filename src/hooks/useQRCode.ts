@@ -65,7 +65,7 @@ export const useQRCode = (
   const {
     autoGenerate = true,
     useBranding = false,
-    options: qrOptions,
+    options: qrOptions = {}, // ✅ FIXED: Provide default empty object
     onSuccess,
     onError
   } = options;
@@ -88,9 +88,10 @@ export const useQRCode = (
     try {
       console.log(`Generating ${useBranding ? 'branded' : 'standard'} QR code for:`, urlToGenerate);
       
+      // ✅ FIXED: Ensure qrOptions is always defined
       const dataUrl = useBranding 
         ? await generateBrandedQRCode(urlToGenerate)
-        : await generateQRCode(urlToGenerate, qrOptions);
+        : await generateQRCode(urlToGenerate, qrOptions || {});
       
       setQrCodeDataUrl(dataUrl);
       console.log('QR code generated successfully');
@@ -189,9 +190,10 @@ export const useBatchQRCode = (
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
       try {
+        // ✅ FIXED: Ensure options.options is handled properly
         const dataUrl = options.useBranding 
           ? await generateBrandedQRCode(url)
-          : await generateQRCode(url, options.options);
+          : await generateQRCode(url, options.options || {});
         
         setQrCodes(prev => ({ ...prev, [url]: dataUrl }));
         console.log(`Generated QR code ${i + 1}/${urls.length}`);

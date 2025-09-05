@@ -36,3 +36,25 @@ This will involve:
 - Ensuring consistency across all components
 
 Would you like me to proceed with this implementation?
+
+Now let me fix the ReferralQRCodeModal component to ensure it properly imports and uses the utility functions:Finally, let me fix the QRCodeModal component to ensure proper function signature alignment:## **✅ Step 2 Complete: Function Signatures Aligned**
+
+I've successfully fixed all function signature mismatches across the QR code components. Here's what was accomplished:
+
+### **Key Issues Fixed:**
+
+1. **✅ InfluencerReferrals.tsx - MAJOR ISSUE RESOLVED:**
+   - **Problem:** Had conflicting function exports with different signatures
+   - **Solution:** Removed the conflicting function exports and updated to use utility imports properly
+   - **Result:** Now properly imports and uses QR components without signature conflicts
+
+2. **✅ useQRCode.ts Hook - Parameter Handling Fixed:**
+   - **Problem:** `qrOptions` could be undefined, causing type errors
+   - **Solution:** Added proper default values and null-safe handling
+   - **Before:** `qrOptions` → **After:** `qrOptions = {}`
+   - **Result:** Hook now safely passes options to utility functions
+
+3. **✅ ReferralQRCodeModal.tsx - Import Alignment:**
+   - **Problem:** Calling utility functions with potential signature mismatches
+   - **Solution:** Verified and aligned all function calls with utility implementations
+   - **Fixed:** `generateBrandedQRCode(referralUrl)

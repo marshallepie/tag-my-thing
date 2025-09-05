@@ -21,6 +21,15 @@ export interface QRCodeOptions {
 }
 
 /**
+ * QR Code generation result for batch operations
+ */
+export interface QRCodeBatchResult {
+  url: string;
+  qrCode: string | null;
+  error: string | null;
+}
+
+/**
  * Default QR code options
  */
 export const defaultQROptions: Required<QRCodeOptions> = {
@@ -399,7 +408,7 @@ export const shareQRCode = async (
 export const generateBatchQRCodes = async (
   urls: string[],
   options: QRCodeOptions = {}
-): Promise<Array<{ url: string; qrCode: string | null; error: string | null }>> => {
+): Promise<QRCodeBatchResult[]> => {
   console.log(`Generating ${urls.length} QR codes in batch`);
   
   const results = await Promise.allSettled(

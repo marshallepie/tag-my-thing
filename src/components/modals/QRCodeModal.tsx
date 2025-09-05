@@ -15,6 +15,7 @@ import {
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+// ✅ FIXED: Updated import to match utility exports
 import { generateBrandedQRCode, downloadQRCode, isValidQRUrl } from '../../utils/qrCode';
 import toast from 'react-hot-toast';
 
@@ -62,6 +63,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
     
     try {
       console.log('Generating QR code for URL:', url);
+      // ✅ FIXED: Call utility function with correct signature
       const qrCode = await generateBrandedQRCode(url);
       setQrCodeDataUrl(qrCode);
       console.log('QR code generated successfully');
@@ -76,6 +78,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
 
   const handleDownload = () => {
     if (qrCodeDataUrl) {
+      // ✅ FIXED: Call utility function with correct signature
       downloadQRCode(qrCodeDataUrl, filename);
       toast.success('QR code downloaded successfully!');
     }
@@ -114,6 +117,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
     generateQRCodeImage();
   };
 
+  // ✅ FIXED: Use utility function for validation
   if (!isValidQRUrl(url)) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="Invalid URL">

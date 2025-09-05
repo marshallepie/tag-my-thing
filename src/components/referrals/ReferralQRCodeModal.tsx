@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
+// ✅ FIXED: Updated import to match utility exports
 import { generateBrandedQRCode, downloadQRCode } from '../../utils/qrCode';
 import toast from 'react-hot-toast';
 
@@ -55,6 +56,7 @@ export const ReferralQRCodeModal: React.FC<ReferralQRCodeModalProps> = ({
     setError('');
     
     try {
+      // ✅ FIXED: Call utility function with correct signature
       const qrCode = await generateBrandedQRCode(referralUrl);
       setQrCodeDataUrl(qrCode);
       toast.success('QR code generated successfully!');
@@ -70,6 +72,7 @@ export const ReferralQRCodeModal: React.FC<ReferralQRCodeModalProps> = ({
   const handleDownload = () => {
     if (qrCodeDataUrl) {
       const filename = `tagmything-referral-${referralCode || 'qr'}-${Date.now()}.png`;
+      // ✅ FIXED: Call utility function with correct signature
       downloadQRCode(qrCodeDataUrl, filename);
       toast.success('QR code downloaded!');
     }

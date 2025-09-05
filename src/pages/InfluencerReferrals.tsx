@@ -7,7 +7,7 @@ import {
   Copy, 
   Check, 
   Share2, 
-  QrCode, // ADDED: QR Code icon
+  QrCode,
   TrendingUp, 
   Award, 
   Calendar,
@@ -32,7 +32,7 @@ import { debugReferralFlow, testReferralFunction } from '../utils/referralDebugg
 import { debounce } from '../lib/utils';
 import { Layout } from '../components/layout/Layout';
 import { ReferralDebugPanel } from '../components/debug/ReferralDebugPanel';
-import { ReferralQRCodeModal } from '../components/referrals/ReferralQRCodeModal'; // ADDED: QR Code Modal import
+import { ReferralQRCodeModal } from '../components/referrals/ReferralQRCodeModal';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -46,7 +46,7 @@ export const InfluencerReferrals: React.FC = () => {
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/influencer-signup');
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false); // ADDED: QR Modal state
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   
   const { 
     stats, 
@@ -153,7 +153,6 @@ export const InfluencerReferrals: React.FC = () => {
     );
   }
 
-
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -182,12 +181,12 @@ export const InfluencerReferrals: React.FC = () => {
     }
   };
 
-  // ADDED: Function to open QR Code modal
+  // Function to open QR Code modal
   const handleShowQRCode = () => {
     setIsQRModalOpen(true);
   };
 
-  // ADDED: Get selected landing page name for QR modal
+  // Get selected landing page name for QR modal
   const getSelectedLandingPageName = () => {
     const selected = landingPageOptions.find(opt => opt.value === selectedLandingPage);
     return selected?.label || 'Influencer Signup';
@@ -255,7 +254,14 @@ export const InfluencerReferrals: React.FC = () => {
             <AlertCircle className="h-16 w-16 text-error-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-600 mb-4">{dataError}</p>
-            <Button onClick={refreshData}>
+            <Button
+              onClick={() => {
+                // Replace with actual user/profile values if needed
+                if (user && profile) {
+                  refreshData(user.id, profile);
+                }
+              }}
+            >
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
@@ -295,7 +301,12 @@ export const InfluencerReferrals: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
             <Button
-              onClick={refreshData}
+              onClick={() => {
+                // Replace with actual user/profile values if needed
+                if (user && profile) {
+                  refreshData(user.id, profile);
+                }
+              }}
               variant="outline"
               disabled={dataLoading}
             >
@@ -408,7 +419,6 @@ export const InfluencerReferrals: React.FC = () => {
                   </div>
                 </div>
 
-                {/* MODIFIED: Updated button section with QR Code button */}
                 <div className="flex space-x-2">
                   <Button
                     onClick={shareReferralUrl}
@@ -429,7 +439,6 @@ export const InfluencerReferrals: React.FC = () => {
                   </Button>
                 </div>
                 
-                {/* Keep the separate copy button for quick access */}
                 <Button
                   onClick={() => copyToClipboard(referralUrl)}
                   variant="outline"
@@ -601,7 +610,7 @@ export const InfluencerReferrals: React.FC = () => {
           defaultReferralCode={profile?.referral_code || 'marshallepie'}
         />
 
-        {/* ADDED: QR Code Modal */}
+        {/* QR Code Modal */}
         <ReferralQRCodeModal
           isOpen={isQRModalOpen}
           onClose={() => setIsQRModalOpen(false)}
@@ -613,16 +622,3 @@ export const InfluencerReferrals: React.FC = () => {
     </Layout>
   );
 };
-
-// ADDED: QR Code generation functions
-export function generateQRCode(referralUrl: string, size: number = 256): string {
-  const baseUrl = 'https://api.qrserver.com/v1/create-qr-code/';
-  const qrCodeUrl = `${baseUrl}?data=${encodeURIComponent(referralUrl)}&size=${size}x${size}`;
-  return qrCodeUrl;
-}
-
-export function generateBrandedQRCode(referralUrl: string, logoUrl: string, size: number = 256): string {
-  const baseUrl = 'https://api.qrserver.com/v1/create-qr-code/';
-  const qrCodeUrl = `${baseUrl}?data=${encodeURIComponent(referralUrl)}&size=${size}x${size}&logo=${encodeURIComponent(logoUrl)}`;
-  return qrCodeUrl;
-}
