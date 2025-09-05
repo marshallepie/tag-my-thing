@@ -7,6 +7,7 @@ import {
   Copy, 
   Check, 
   Share2, 
+  QrCode, // ADDED: QR Code icon
   TrendingUp, 
   Award, 
   Calendar,
@@ -31,6 +32,7 @@ import { debugReferralFlow, testReferralFunction } from '../utils/referralDebugg
 import { debounce } from '../lib/utils';
 import { Layout } from '../components/layout/Layout';
 import { ReferralDebugPanel } from '../components/debug/ReferralDebugPanel';
+import { ReferralQRCodeModal } from '../components/referrals/ReferralQRCodeModal'; // ADDED: QR Code Modal import
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -44,6 +46,8 @@ export const InfluencerReferrals: React.FC = () => {
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/influencer-signup');
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false); // ADDED: QR Modal state
+  
   const { 
     stats, 
     referredUsers, 
@@ -176,6 +180,17 @@ export const InfluencerReferrals: React.FC = () => {
     } else {
       copyToClipboard(referralUrl);
     }
+  };
+
+  // ADDED: Function to open QR Code modal
+  const handleShowQRCode = () => {
+    setIsQRModalOpen(true);
+  };
+
+  // ADDED: Get selected landing page name for QR modal
+  const getSelectedLandingPageName = () => {
+    const selected = landingPageOptions.find(opt => opt.value === selectedLandingPage);
+    return selected?.label || 'Influencer Signup';
   };
 
   const getStatusIcon = (status: string) => {
@@ -393,9 +408,11 @@ export const InfluencerReferrals: React.FC = () => {
                   </div>
                 </div>
 
+                {/* MODIFIED: Updated button section with QR Code button */}
                 <div className="flex space-x-2">
                   <Button
                     onClick={shareReferralUrl}
+                    variant="outline"
                     className="flex-1"
                     disabled={!referralUrl || urlLoading}
                   >
@@ -403,14 +420,25 @@ export const InfluencerReferrals: React.FC = () => {
                     Share Link
                   </Button>
                   <Button
-                    onClick={() => copyToClipboard(referralUrl)}
-                    variant="outline"
+                    onClick={handleShowQRCode}
+                    className="flex-1"
                     disabled={!referralUrl || urlLoading}
                   >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Show QR Code
                   </Button>
                 </div>
+                
+                {/* Keep the separate copy button for quick access */}
+                <Button
+                  onClick={() => copyToClipboard(referralUrl)}
+                  variant="outline"
+                  className="w-full"
+                  disabled={!referralUrl || urlLoading}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
 
                 <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
                   <div className="flex items-start">
@@ -419,7 +447,7 @@ export const InfluencerReferrals: React.FC = () => {
                       <p className="font-medium mb-1">How it works:</p>
                       <ul className="list-disc list-inside space-y-1">
                         <li>Choose your preferred landing page from the dropdown</li>
-                        <li>Share your customized referral link</li>
+                        <li>Share your customized referral link or QR code</li>
                         <li>New users sign up using your link</li>
                         <li>Earn tokens for each successful referral</li>
                         <li>Get rewards up to 5 levels deep!</li>
@@ -509,10 +537,16 @@ export const InfluencerReferrals: React.FC = () => {
                   <p className="text-gray-600 mb-4">
                     Start sharing your referral link to earn tokens!
                   </p>
-                  <Button onClick={shareReferralUrl} disabled={!referralUrl}>
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Referral Link
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button onClick={shareReferralUrl} disabled={!referralUrl}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Referral Link
+                    </Button>
+                    <Button onClick={handleShowQRCode} variant="outline" disabled={!referralUrl}>
+                      <QrCode className="h-4 w-4 mr-2" />
+                      Show QR Code
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -566,7 +600,29 @@ export const InfluencerReferrals: React.FC = () => {
           onClose={() => setShowDebugPanel(false)}
           defaultReferralCode={profile?.referral_code || 'marshallepie'}
         />
+
+        {/* ADDED: QR Code Modal */}
+        <ReferralQRCodeModal
+          isOpen={isQRModalOpen}
+          onClose={() => setIsQRModalOpen(false)}
+          referralUrl={referralUrl}
+          referralCode={profile?.referral_code || ''}
+          landingPageName={getSelectedLandingPageName()}
+        />
       </div>
     </Layout>
   );
 };
+
+// ADDED: QR Code generation functions
+export function generateQRCode(referralUrl: string, size: number = 256): string {
+  const baseUrl = 'https://api.qrserver.com/v1/create-qr-code/';
+  const qrCodeUrl = `${baseUrl}?data=${encodeURIComponent(referralUrl)}&size=${size}x${size}`;
+  return qrCodeUrl;
+}
+
+export function generateBrandedQRCode(referralUrl: string, logoUrl: string, size: number = 256): string {
+  const baseUrl = 'https://api.qrserver.com/v1/create-qr-code/';
+  const qrCodeUrl = `${baseUrl}?data=${encodeURIComponent(referralUrl)}&size=${size}x${size}&logo=${encodeURIComponent(logoUrl)}`;
+  return qrCodeUrl;
+}
