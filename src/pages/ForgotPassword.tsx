@@ -24,7 +24,11 @@ const ForgotPassword: React.FC = () => {
       setMessage('Check your email for the password reset link!');
       setEmail(''); // Clear the form
     } catch (error) {
-      setError(error.message);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(String(error));
+      }
     } finally {
       setLoading(false);
     }
