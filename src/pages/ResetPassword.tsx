@@ -1,141 +1,176 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase'; // Adjust path as needed
+import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
 
-const ResetPassword: React.FC = () => {
+export const ResetPassword: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [validToken, setValidToken] = useState(false);
 
   useEffect(() => {
-    // Check if we have the necessary tokens in the URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+    const verifyResetToken = async () => {
+      console.log('=== RESET PASSWORD DEBUG ===');
+      console.log('Full URL:', window.location.href);
+      console.log('Search params:', location.search);
+      
+      const urlParams = new URLSearchParams(location.search);
+      const token = urlParams.get('token');
+      const type = urlParams.get('type');
+      
+      console.log('Token:', token);
+      console.log('Type:', type);
+      
+      if (!token || type !== 'recovery') {
+        console.error('Invalid reset link - missing token or wrong type');
+        toast.error('Invalid reset link. Please try requesting a new password reset.');
+        navigate('/forgot-password');
+        return;
+      }
+      
+      try {
+        // Verify the session with the token
+        const { data, error } = await supabase.auth.verifyOtp({
+          token_hash: token,
+          type: 'recovery'
+        });
+        
+        console.log('Token verification result:', { data, error });
+        
+        if (error) {
+          console.error('Token verification failed:', error);
+          toast.error('Invalid or expired reset link. Please request a new one.');
+          navigate('/forgot-password');
+          return;
+        }
+        
+        console.log('Reset token verified successfully');
+        setValidToken(true);
+        toast.success('Reset link verified! Please enter your new password.');
+        
+      } catch (error) {
+        console.error('Token verification error:', error);
+        toast.error('Something went wrong. Please try again.');
+        navigate('/forgot-password');
+      }
+    };
     
-    if (!accessToken || !refreshToken) {
-      setError('Invalid reset link. Please try requesting a new password reset.');
-      return;
-    }
+    verifyResetToken();
+  }, [location, navigate]);
 
-    // Set the session with the tokens from the URL
-    supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-  }, [searchParams]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    // Validate passwords match
+    
+    if (!validToken) {
+      toast.error('Invalid reset session. Please request a new password reset.');
+      return;
+    }
+    
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
-
-    // Validate password strength (adjust as needed)
+    
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      toast.error('Password must be at least 6 characters');
       return;
     }
-
+    
     setLoading(true);
-
+    
     try {
-      const { error } = await supabase.auth.updateUser({
+      console.log('Attempting to update password...');
+      
+      const { data, error } = await supabase.auth.updateUser({
         password: password
       });
-
-      if (error) throw error;
-
-      // Success! Redirect to login
-      alert('Password updated successfully! Please log in with your new password.');
-      navigate('/login');
-    } catch (error) {
-      if (error && typeof error === 'object' && 'message' in error) {
-        setError((error as { message: string }).message);
-      } else {
-        setError('An unexpected error occurred.');
+      
+      console.log('Update password result:', { data, error });
+      
+      if (error) {
+        console.error('Password update error:', error);
+        throw error;
       }
+      
+      toast.success('Password updated successfully! Please sign in with your new password.');
+      navigate('/auth');
+      
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      toast.error(error.message || 'Failed to update password');
     } finally {
       setLoading(false);
     }
   };
 
+  if (!validToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying reset link...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Reset your password
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Reset Your Password
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             Enter your new password below
           </p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="password" className="sr-only">
-                New Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="New password"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">
-                Confirm New Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
-          )}
-
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Updating...' : 'Update Password'}
-            </button>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              New Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter new password (min 6 characters)"
+            />
           </div>
+          
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Confirm new password"
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={loading}
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          >
+            {loading ? 'Updating...' : 'Update Password'}
+          </button>
         </form>
       </div>
     </div>
   );
 };
-
-export default ResetPassword;
