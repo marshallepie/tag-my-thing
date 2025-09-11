@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
-export const ResetPassword: React.FC = () => {
+const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -174,3 +174,4 @@ export const ResetPassword: React.FC = () => {
     </div>
   );
 };
+export default ResetPassword;
