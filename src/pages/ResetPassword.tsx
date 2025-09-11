@@ -56,7 +56,11 @@ const ResetPassword: React.FC = () => {
       alert('Password updated successfully! Please log in with your new password.');
       navigate('/login');
     } catch (error) {
-      setError(error.message);
+      if (error && typeof error === 'object' && 'message' in error) {
+        setError((error as { message: string }).message);
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }
