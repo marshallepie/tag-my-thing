@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; 
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
@@ -295,6 +296,41 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </React.Suspense>
+    <Toaster 
+        position="top-right"
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+          },
+          success: {
+            style: {
+              background: '#10B981',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#10B981',
+            },
+          },
+          error: {
+            style: {
+              background: '#EF4444',
+            },
+            iconTheme: {
+              primary: '#fff', 
+              secondary: '#EF4444',
+            },
+          },
+        }}
+      />
     </>
   );
 }
