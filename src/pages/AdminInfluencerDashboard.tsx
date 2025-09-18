@@ -27,7 +27,7 @@ import {
   Clock,
   AlertTriangle
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { isAdmin, supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
@@ -104,14 +104,14 @@ export const AdminInfluencerDashboard: React.FC = () => {
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [retryLoading, setRetryLoading] = useState(false);
 
-  const { isAdminInfluencer } = useAuth();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
-    if (isAdminInfluencer) {
+    if (isAdmin) {
       fetchDashboardData();
       fetchAssetsForArchiving();
     }
-  }, [isAdminInfluencer]);
+  }, [isAdmin]);
 
   useEffect(() => {
     filterUsers();
@@ -264,44 +264,48 @@ export const AdminInfluencerDashboard: React.FC = () => {
     });
   };
 
-  const fetchAssetsForArchiving = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('assets')
-        .select(`
-          id,
-          title,
-          media_type,
-          archive_status,
-          created_at,
-          archive_requested_at,
-          user_id,
-          user_profiles!inner(email)
-        `)
-        .in('archive_status', ['pending', 'failed', 'instant_requested'])
-        .order('created_at', { ascending: false });
+const fetchAssetsForArchiving = async () => {
+  console.log('=== DEBUG: fetchAssetsForArchiving called ===');
+  try {
+    const { data, error } = await supabase
+      .from('assets')
+      .select(`
+        id,
+        title,
+        media_type,
+        archive_status,
+        created_at,
+        archive_requested_at,
+        user_id
+      `)
+      .in('archive_status', ['pending', 'failed', 'instant_requested'])
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
+    console.log('=== DEBUG: Supabase query result ===', { data, error });
+    console.log('=== DEBUG: Data length ===', data?.length);
 
-      const transformedAssets = data?.map(asset => ({
-        id: asset.id,
-        title: asset.title,
-        media_type: asset.media_type,
-        archive_status: asset.archive_status,
-        created_at: asset.created_at,
-        archive_requested_at: asset.archive_requested_at,
-        user_id: asset.user_id,
-        user_email: asset.user_profiles?.email || 'Unknown'
-      })) || [];
+    if (error) throw error;
 
-      setAssetsForArchiving(transformedAssets);
-    } catch (error: any) {
-      console.error('Error fetching assets for archiving:', error);
-      toast.error('Failed to load assets for archiving');
-      setAssetsForArchiving([]);
-    }
-  };
+    // For now, just set a placeholder email
+    const transformedAssets = data?.map(asset => ({
+      id: asset.id,
+      title: asset.title,
+      media_type: asset.media_type,
+      archive_status: asset.archive_status,
+      created_at: asset.created_at,
+      archive_requested_at: asset.archive_requested_at,
+      user_id: asset.user_id,
+      user_email: 'Loading...'
+    })) || [];
 
+    console.log('=== DEBUG: Transformed assets ===', transformedAssets);
+    setAssetsForArchiving(transformedAssets);
+  } catch (error: any) {
+    console.error('=== DEBUG: Error in fetchAssetsForArchiving ===', error);
+    toast.error('Failed to load assets for archiving');
+    setAssetsForArchiving([]);
+  }
+};
   const toggleAssetSelection = (assetId: string) => {
     setSelectedAssets(prev => 
       prev.includes(assetId) 
@@ -329,7 +333,13 @@ export const AdminInfluencerDashboard: React.FC = () => {
           supabase.rpc('archive_tag_now', { asset_id: assetId })
         )
       );
-
+      results.forEach(result => {
+        if (result.status === 'rejected') {
+          console.error('RPC rejected:', result.reason);
+        } else if (!result.value?.data?.success) {
+          console.error('RPC failed:', result.value?.data?.error);
+        }
+      });
       const successful = results.filter(result => 
         result.status === 'fulfilled' && result.value?.data?.success
       ).length;

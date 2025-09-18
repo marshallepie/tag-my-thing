@@ -52,15 +52,15 @@ export const Header: React.FC = () => {
     navigation.push({ name: 'Business', href: '/business-dashboard' });
   }
 
-  if (isAdminInfluencer) {
-    navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
-    navigation.push({ name: 'Bug Reports', href: '/bug-reports' });
-  } else if (isAdmin) {
+if (isAdminInfluencer || isAdmin) {
+  navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
+  navigation.push({ name: 'Bug Reports', href: '/bug-reports' });
+  if (isAdmin && !isAdminInfluencer) {
     navigation.push({ name: 'Admin', href: '/admin' });
-  } else if (isModerator) {
-    navigation.push({ name: 'Moderator', href: '/moderator' });
   }
-
+} else if (isModerator) {
+  navigation.push({ name: 'Moderator', href: '/moderator' });
+}
 
   // Add Public Assets link for everyone
   navigation.push({ name: 'Public Assets', href: '/public-assets' });
