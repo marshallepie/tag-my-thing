@@ -4,6 +4,7 @@ export interface NewsArticle {
   id: string;
   title: string;
   content: string;
+  news_category: string;
   image_url?: string;
   is_published: boolean;
   author_id: string;
@@ -18,6 +19,7 @@ export interface NewsArticle {
 export interface CreateArticleData {
   title: string;
   content: string;
+  news_category: string;
   image_url?: string;
   is_published: boolean;
   author_id: string;
@@ -104,4 +106,31 @@ export const deleteArticle = async (id: string): Promise<void> => {
     .eq('id', id);
 
   if (error) throw error;
+};
+
+export const getArticlesByCategory = async (category: string): Promise<NewsArticle[]> => {
+  const { data, error } = await supabase
+    .from('news_articles')
+    .select(`
+      *,
+      author:user_profiles!author_id(full_name, email)
+    `)
+    .eq('is_published', true)
+    .eq('news_category', category)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
+export const getNewsCategories = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('news_articles')
+    .select('news_category')
+    .eq('is_published', true);
+
+  if (error) throw error;
+  
+  const categories = Array.from(new Set(data?.map(item => item.news_category) || []));
+  return categories.sort();
 };
