@@ -36,6 +36,8 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import NewsAPITester from '../components/debug/NewsAPITester';
+
 
 interface UserProfile {
   id: string;
@@ -582,6 +584,12 @@ const fetchAssetsForArchiving = async () => {
             </Button>
           </div>
         </div>
+
+// Add this component in your render method (find a good spot in your grid/layout)
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Your existing admin components */}
+          <NewsAPITester />
+        </div>   
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

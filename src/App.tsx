@@ -8,6 +8,12 @@ import { AuthCallback } from './pages/AuthCallback';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
+// Add this import
+import { NewsManagement } from './pages/NewsManagement';
+import { News } from './pages/News';
+
+
+
 
 // Lazy load all page components for better performance
 const Auth = React.lazy(() =>
@@ -245,6 +251,9 @@ function App() {
               <InfluencerReferrals />
             </ProtectedRoute>
           } />
+
+          // Add this route
+          <Route path="/news" element={<News />} />
           
           {/* Legacy referral route redirect */}
           <Route path="/influencer-referrals" element={<Navigate to="/referrals" replace />} />
@@ -294,6 +303,10 @@ function App() {
           } />
           {/* Catch-all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
+// Add this route in your router configuration
+          <Route path="/news-management" element={<NewsManagement />} />
+      
         </Routes>
       </React.Suspense>
     <Toaster 

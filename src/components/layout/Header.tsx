@@ -38,6 +38,7 @@ export const Header: React.FC = () => {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Tag Asset', href: '/tag' },
     { name: 'My Assets', href: '/assets' },
+    { name: 'News', href: '/news' },
     { name: 'Wallet', href: '/wallet' },
     { name: 'NOK', href: '/nok' },
   ];
@@ -55,6 +56,7 @@ export const Header: React.FC = () => {
 if (isAdminInfluencer || isAdmin) {
   navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
   navigation.push({ name: 'Bug Reports', href: '/bug-reports' });
+  navigation.push({ name: 'News Management', href: '/news-management' });
   if (isAdmin && !isAdminInfluencer) {
     navigation.push({ name: 'Admin', href: '/admin' });
   }
