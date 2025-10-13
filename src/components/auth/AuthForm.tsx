@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import toast from 'react-hot-toast';
+import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 
 interface AuthFormProps {
   mode: 'signin' | 'signup';
@@ -52,6 +52,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       setReferralCode(refCode);
     }
   }, [initialEmail, location.search]);
+
+  const handlePhoneAuth = () => {
+    navigate('/auth/phone');
+  };
 
   const handleNokInvite = async (userId: string) => {
     if (!nokInviteEmail) return;
@@ -331,6 +335,28 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           {mode === 'signin' ? 'Sign In' : 'Create Account'}
         </Button>
       </form>
+
+            {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+      </div>
+
+      {/* Phone Login Button */}
+      <Button
+        type="button"
+        onClick={handlePhoneAuth}
+        variant="outline"
+        className="w-full"
+      >
+        <Phone className="h-4 w-4 mr-2" />
+        Sign in with Phone
+      </Button>
+
 
       {mode === 'signup' && (
         <motion.div

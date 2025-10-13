@@ -310,7 +310,7 @@ const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | n
   const hasProfile = !!authState.profile;
   
   // Role checks - simplified hierarchy
-  const isStandardUser = authState.profile?.role === 'standard' || !authState.profile?.role; // Default to standard
+  const isStandardUser = authState.profile?.role === 'influencer' || !authState.profile?.role; // Default to influencer if no role
   const isModerator = authState.profile?.role === 'moderator';
   const isAdmin = authState.profile?.role === 'admin';
   
@@ -353,5 +353,66 @@ const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | n
     // Actions
     signOut,
     refreshProfile,
+
+    // Phone authentication methods
+    signInWithPhone: async (phoneNumber: string) => {
+      try {
+        console.log('🔐 useAuth: Starting phone auth for:', phoneNumber);
+        
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: phoneNumber,
+        });
+
+        if (error) {
+          console.error('❌ Phone auth error:', error);
+          throw error;
+        }
+
+        console.log('✅ Verification code sent to:', phoneNumber);
+      } catch (error: any) {
+        console.error('❌ Phone sign-in failed:', error);
+        throw error;
+      }
+    },
+
+    verifyOTP: async (phoneNumber: string, token: string) => {
+      try {
+        console.log('🔐 useAuth: Verifying OTP for:', phoneNumber);
+        
+        const { data: authData, error } = await supabase.auth.verifyOtp({
+          phone: phoneNumber,
+          token: token,
+          type: 'sms',
+        });
+
+        if (error) {
+          console.error('❌ OTP verification error:', error);
+          throw error;
+        }
+
+        if (!authData.user) {
+          throw new Error('No user returned after verification');
+        }
+
+        console.log('✅ OTP verified, user:', authData.user.id);
+
+        // Fetch or create user profile
+        const profile = await fetchProfile(authData.user.id);
+        
+        if (mountedRef.current) {
+          setAuthState({
+            user: authData.user,
+            profile,
+            loading: false,
+            initialized: true,
+          });
+        }
+
+        console.log('✅ Phone authentication complete');
+      } catch (error: any) {
+        console.error('❌ OTP verification failed:', error);
+        throw error;
+      }
+    },
   };
 };

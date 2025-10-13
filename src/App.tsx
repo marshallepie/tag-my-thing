@@ -7,10 +7,9 @@ import { ScrollToTop } from './components/layout/ScrollToTop';
 import { AuthCallback } from './pages/AuthCallback';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-
-// Add this import
 import { NewsManagement } from './pages/NewsManagement';
 import { News } from './pages/News';
+import { PhoneAuth } from './pages/PhoneAuth';
 
 
 
@@ -166,6 +165,7 @@ function App() {
           <Route path="/signup" element={<Auth />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/auth/phone" element={<PhoneAuth />} />
           
           {/* Landing Pages */}
           <Route path="/launch" element={<Launch />} />
