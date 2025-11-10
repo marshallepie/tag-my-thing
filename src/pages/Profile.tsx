@@ -42,6 +42,7 @@ interface ProfileFormData {
   full_name: string;
   email: string;
   location: string;
+  phone_number: string;
   language: string;
   is_business_user: boolean;
 }
@@ -57,6 +58,7 @@ export const Profile: React.FC = () => {
     full_name: '',
     email: '',
     location: '',
+    phone_number: '',
     language: 'en',
     is_business_user: false
   });
@@ -83,6 +85,7 @@ export const Profile: React.FC = () => {
         full_name: profile.full_name || '',
         email: profile.email || '',
         location: profile.location || '',
+        phone_number: profile.phone_number || '',
         language: profile.language || 'en',
         is_business_user: profile.is_business_user || false
       });
@@ -100,6 +103,7 @@ export const Profile: React.FC = () => {
         .update({
           full_name: profileData.full_name,
           location: profileData.location,
+          phone_number: profileData.phone_number,
           language: profileData.language,
           is_business_user: profileData.is_business_user
         })
@@ -271,7 +275,7 @@ export const Profile: React.FC = () => {
     }
   };
 
-  const getSubscriptionBadge = (plan: string) => {
+  const getSubscriptionBadge = (_plan: string) => {
     // Only freemium plan is available now
     return 'bg-gray-100 text-gray-800';
   };
@@ -399,7 +403,23 @@ export const Profile: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-1">
                   {profile?.full_name || 'User'}
                 </h2>
-                <p className="text-gray-600 mb-4">{profile?.email}</p>
+                <p className="text-gray-600 mb-2">{profile?.email}</p>
+                
+                {/* Contact Information */}
+                <div className="space-y-1 mb-4">
+                  {profile?.location && (
+                    <div className="flex items-center justify-center text-sm text-gray-600">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {profile.location}
+                    </div>
+                  )}
+                  {profile?.phone_number && (
+                    <div className="flex items-center justify-center text-sm text-gray-600">
+                      <Smartphone className="h-4 w-4 mr-1" />
+                      {profile.phone_number}
+                    </div>
+                  )}
+                </div>
 
                 {/* Badges */}
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -483,6 +503,7 @@ export const Profile: React.FC = () => {
                             full_name: profile.full_name || '',
                             email: profile.email || '',
                             location: profile.location || '',
+                            phone_number: profile.phone_number || '',
                             language: profile.language || 'en',
                             is_business_user: profile.is_business_user || false
                           });
@@ -527,6 +548,16 @@ export const Profile: React.FC = () => {
                     onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
                     placeholder="City, Country"
                     icon={<MapPin className="h-5 w-5 text-gray-400" />}
+                    disabled={!isEditing}
+                  />
+
+                  <Input
+                    label="Phone Number"
+                    type="tel"
+                    value={profileData.phone_number}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, phone_number: e.target.value }))}
+                    placeholder="+1234567890"
+                    icon={<Smartphone className="h-5 w-5 text-gray-400" />}
                     disabled={!isEditing}
                   />
 

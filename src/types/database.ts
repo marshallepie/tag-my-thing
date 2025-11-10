@@ -13,6 +13,7 @@ export interface Database {
           updated_at: string;
           location: string | null;
           language: string | null;
+          phone_number: string | null;
           referral_code: string | null;
           is_business_user: boolean;
         };
@@ -25,6 +26,7 @@ export interface Database {
           subscription_plan?: 'freemium' | 'pro' | 'enterprise';
           location?: string | null;
           language?: string | null;
+          phone_number?: string | null;
           referral_code?: string | null;
           is_business_user?: boolean;
         };
@@ -35,6 +37,7 @@ export interface Database {
           subscription_plan?: 'freemium' | 'pro' | 'enterprise';
           location?: string | null;
           language?: string | null;
+          phone_number?: string | null;
           referral_code?: string | null;
           is_business_user?: boolean;
         };
