@@ -79,6 +79,14 @@ export const Profile: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const { balance, transactions } = useTokens();
 
+  // Helper function to format phone number - only allow digits
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+    // Limit to reasonable phone number length (15 digits max per E.164 standard)
+    return digits.slice(0, 15);
+  };
+
   useEffect(() => {
     if (profile) {
       setProfileData({
@@ -554,11 +562,23 @@ export const Profile: React.FC = () => {
                   <Input
                     label="Phone Number"
                     type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={profileData.phone_number}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, phone_number: e.target.value }))}
-                    placeholder="+1234567890"
+                    onChange={(e) => {
+                      const formattedPhone = formatPhoneNumber(e.target.value);
+                      setProfileData(prev => ({ ...prev, phone_number: formattedPhone }));
+                    }}
+                    onKeyPress={(e) => {
+                      // Prevent non-numeric characters from being typed
+                      if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab' && e.key !== 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
+                    placeholder="1234567890"
                     icon={<Smartphone className="h-5 w-5 text-gray-400" />}
                     disabled={!isEditing}
+                    maxLength={15}
                   />
 
                   <div>

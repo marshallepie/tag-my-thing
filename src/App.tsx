@@ -18,9 +18,6 @@ import { PhoneAuth } from './pages/PhoneAuth';
 const Auth = React.lazy(() =>
   import('./pages/Auth').then(module => ({ default: module.Auth }))
 );
-const InfluencerAuth = React.lazy(() =>
-  import('./pages/InfluencerAuth').then(module => ({ default: module.InfluencerAuth }))
-);
 const Dashboard = React.lazy(() =>
   import('./pages/Dashboard').then(module => ({ default: module.Dashboard }))
 );
@@ -180,7 +177,6 @@ function App() {
           <Route path="/signup" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/business-auth" element={<Auth />} />
-          <Route path="/influencer-signup" element={<InfluencerAuth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -255,10 +251,7 @@ function App() {
           // Add this route
           <Route path="/news" element={<News />} />
           
-          {/* Legacy referral route redirect */}
-          <Route path="/influencer-referrals" element={<Navigate to="/referrals" replace />} />
-          
-// ✅ FIXED: Update business route protection
+          {/* Business route protection */}
           <Route path="/business-dashboard" element={
             <ProtectedRoute requiresBusinessFeatures={true}>
               <BusinessDashboard />

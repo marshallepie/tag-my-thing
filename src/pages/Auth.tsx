@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building, Crown, Shield } from 'lucide-react';
+import { Building, Shield } from 'lucide-react';
 import { AuthForm } from '../components/auth/AuthForm';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
@@ -16,7 +16,6 @@ export const Auth: React.FC = () => {
     if (location.pathname === '/signup') return 'signup';
     if (location.pathname === '/login') return 'signin';
     if (location.pathname === '/business-auth') return 'signup';
-    if (location.pathname === '/influencer-auth') return 'signup';
     return 'signin'; // default
   };
 
@@ -30,7 +29,6 @@ export const Auth: React.FC = () => {
   
   // Determine signup type from path
   const isBusinessSignup = location.pathname === '/business-auth';
-  const isInfluencerPath = location.pathname === '/influencer-auth' || location.pathname === '/influencer-signup';
 
   // Redirect authenticated users
   if (isAuthenticated && hasProfile) {
@@ -58,35 +56,31 @@ export const Auth: React.FC = () => {
   const getPageTitle = () => {
     if (nokInviteEmail) return 'Next-of-Kin Invitation';
     if (isBusinessSignup) return 'Business Account';
-    if (isInfluencerPath) return 'Join as Creator'; // Simplified from "Influencer"
     return 'TagMyThing';
   };
 
   const getPageDescription = () => {
     if (nokInviteEmail) return 'Accept your Next-of-Kin nomination and help manage digital legacy';
     if (isBusinessSignup) return 'Protect your products with business verification features';
-    if (isInfluencerPath) return 'Earn tokens by sharing TagMyThing with friends';
     return 'Secure and tag your valuable assets';
   };
 
   const getPageIcon = () => {
     if (nokInviteEmail) return <Shield className="h-12 w-12 text-secondary-600" />;
     if (isBusinessSignup) return <Building className="h-12 w-12 text-blue-600" />;
-    if (isInfluencerPath) return <Crown className="h-12 w-12 text-yellow-600" />;
     return null;
   };
 
   const getGradientClasses = () => {
     if (nokInviteEmail) return 'from-secondary-50 via-white to-gray-50';
     if (isBusinessSignup) return 'from-blue-50 via-white to-indigo-50';
-    if (isInfluencerPath) return 'from-yellow-50 via-white to-primary-50';
     return 'from-primary-50 via-white to-secondary-50';
   };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${getGradientClasses()} flex flex-col items-center justify-center p-4`}>
       {/* Header */}
-      {(isBusinessSignup || isInfluencerPath || nokInviteEmail) && (
+      {(isBusinessSignup || nokInviteEmail) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -107,7 +101,7 @@ export const Auth: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: nokInviteEmail || isBusinessSignup || isInfluencerPath ? 0.2 : 0 }}
+          transition={{ duration: 0.6, delay: nokInviteEmail || isBusinessSignup ? 0.2 : 0 }}
         >
           <AuthForm 
             mode={mode} 
@@ -133,12 +127,12 @@ export const Auth: React.FC = () => {
                 </Button>
                 
                 {/* Additional signup options for regular auth page */}
-                {!isBusinessSignup && !isInfluencerPath && !nokInviteEmail && (
+                {!isBusinessSignup && !nokInviteEmail && (
                   <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
                     <p className="text-sm text-gray-500">
                       Special signup options:
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex justify-center">
                       <Button
                         variant="outline"
                         size="sm"
@@ -147,15 +141,6 @@ export const Auth: React.FC = () => {
                       >
                         <Building className="h-4 w-4 mr-1" />
                         Business
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate('/influencer-signup')}
-                        className="flex items-center justify-center"
-                      >
-                        <Crown className="h-4 w-4 mr-1" />
-                        Creator
                       </Button>
                     </div>
                   </div>
@@ -182,46 +167,13 @@ export const Auth: React.FC = () => {
                         <p className="text-sm text-gray-500 mb-2">
                           Looking for something else?
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex justify-center">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => navigate('/auth?mode=signup')}
                           >
                             Regular Account
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/influencer-signup')}
-                            className="flex items-center justify-center"
-                          >
-                            <Crown className="h-4 w-4 mr-1" />
-                            Creator Account
-                          </Button>
-                        </div>
-                      </div>
-                    ) : isInfluencerPath ? (
-                      <div>
-                        <p className="text-sm text-gray-500 mb-2">
-                          Looking for something else?
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/auth?mode=signup')}
-                          >
-                            Regular Account
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/business-auth')}
-                            className="flex items-center justify-center"
-                          >
-                            <Building className="h-4 w-4 mr-1" />
-                            Business Account
                           </Button>
                         </div>
                       </div>
@@ -230,7 +182,7 @@ export const Auth: React.FC = () => {
                         <p className="text-sm text-gray-500 mb-2">
                           Special account types:
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex justify-center">
                           <Button
                             variant="outline"
                             size="sm"
@@ -239,15 +191,6 @@ export const Auth: React.FC = () => {
                           >
                             <Building className="h-4 w-4 mr-1" />
                             Business
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate('/influencer-signup')}
-                            className="flex items-center justify-center"
-                          >
-                            <Crown className="h-4 w-4 mr-1" />
-                            Creator
                           </Button>
                         </div>
                       </div>
@@ -281,7 +224,6 @@ export const Auth: React.FC = () => {
             💡 <strong>New:</strong> All accounts now include full referral privileges! 
             Share your referral link with friends and earn tokens when they join. 
             {isBusinessSignup && ' Business features are additional add-ons.'}
-            {isInfluencerPath && ' Creator accounts get the same benefits with enhanced tracking.'}
           </p>
         </motion.div>
       )}

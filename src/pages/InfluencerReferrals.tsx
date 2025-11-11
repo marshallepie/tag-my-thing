@@ -45,7 +45,7 @@ export const InfluencerReferrals: React.FC = () => {
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlLoaded, setUrlLoaded] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/influencer-signup');
+  const [selectedLandingPage, setSelectedLandingPage] = useState<string>('/general-tagging');
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   
   const { 
@@ -65,13 +65,8 @@ export const InfluencerReferrals: React.FC = () => {
   // Define landing page options for the dropdown
   const landingPageOptions = [
     {
-      value: '/influencer-signup',
-      label: 'Influencer Signup (Recommended)',
-      description: 'Best rewards for new users'
-    },
-    {
       value: '/general-tagging',
-      label: 'General Ownership Tagging',
+      label: 'General Ownership Tagging (Recommended)',
       description: 'Document and verify ownership'
     },
     {
@@ -189,7 +184,7 @@ export const InfluencerReferrals: React.FC = () => {
   // Get selected landing page name for QR modal
   const getSelectedLandingPageName = () => {
     const selected = landingPageOptions.find(opt => opt.value === selectedLandingPage);
-    return selected?.label || 'Influencer Signup';
+    return selected?.label || 'General Ownership Tagging';
   };
 
   const getStatusIcon = (status: string) => {

@@ -303,7 +303,7 @@ export const useReferrals = () => {
       console.log('getReferralUrl - Got code:', code);
       if (!code) return null;
 
-      const url = `${window.location.origin}/influencer-signup?ref=${code}`;
+      const url = `${window.location.origin}/general-tagging?ref=${code}`;
       console.log('getReferralUrl - Generated URL:', url);
       return url;
     } catch (error) {
@@ -319,7 +319,7 @@ export const useReferrals = () => {
       console.log('getReferralUrlForLandingPage - Got code:', code);
       if (!code) return null;
 
-      const basePath = landingPagePath || '/influencer-signup';
+      const basePath = landingPagePath || '/general-tagging';
       const url = `${window.location.origin}${basePath}?ref=${code}`;
       console.log('getReferralUrlForLandingPage - Generated URL:', url);
       return url;

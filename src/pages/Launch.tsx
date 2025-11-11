@@ -249,7 +249,7 @@ export const Launch: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/influencer-signup">
+                <Link to="/auth">
                   <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                     <Camera className="h-5 w-5 mr-2" />
                     Get Free Tokens
