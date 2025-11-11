@@ -19,6 +19,8 @@ This is not just a place to leave your *last* will—it's a place to record your
 - Optional blockchain storage for proof of existence
 - Asset tagging by name, type, value, and location
 - Searchable personal archive
+- Phone number management with automatic sync across authentication systems
+- Numeric-only phone number validation with real-time formatting
 - Advanced Next-of-Kin management with Dead Man's Switch protection
 - Incoming/Outgoing NOK assignment tracking
 - Mass assignment of assets to trusted individuals
@@ -124,10 +126,9 @@ src/
 
 ### Signup Paths
 
-TagMyThing offers different signup paths for different user types Minimum user starts as Influencer:
+TagMyThing offers streamlined signup paths for different user types:
 
-- **HIDDEN temporarily; Regular Users**: Visit `/auth` for standard signup (50 TMT tokens)
-- **All users start here; Influencers**: Visit `/influencer-signup` for enhanced features (100 TMT tokens + referral system)
+- **Regular Users**: Visit `/auth` for standard signup (50 TMT tokens + referral system)
 - **Business Users**: Visit `/business-auth` for business features (50 TMT tokens + product verification tools)
 - **Referred Users**: Any signup with `?ref=code` automatically gets enhanced benefits
 ---
@@ -168,20 +169,20 @@ TagMyThing features an advanced Next-of-Kin (NOK) management system with Dead Ma
 
 ### Token Economy
 
-- **100 TMT** - Free signup bonus for everyone.
+- **50 TMT** - Free signup bonus for regular users
+- **50 TMT** - Free signup bonus for business users
 - **25 TMT** - Cost per photo tag
 - **60 TMT** - Cost per video tag
-- **Additional tokens** - Available for purchase on pay as you go.
+- **Additional tokens** - Available for purchase on pay as you go
 
 ### User Roles
 - Any user can be nominated as NOK.
 - Any user can nominate a next of kin.
 - Any user can nominate multiple next of kins. (outgoing Noks)
-- Any user can be nominated as next of kin by different users. (incomming NOKs)
+- Any user can be nominated as next of kin by different users. (incoming NOKs)
 - **NOK** - Next-of-kin with limited asset access set by visibility switch and by Dead Mans Switch.
 - **Moderator** - Content moderation capabilities
 - **Admin** - Full platform administration
-- **Influencer** - Enhanced referral capabilities, higher signup bonus (100 TMT)
 - **Business User** - Access to product verification, QR code generation, and scan history tracking
 
 ---
@@ -190,7 +191,7 @@ TagMyThing features an advanced Next-of-Kin (NOK) management system with Dead Ma
 
 The application uses a comprehensive PostgreSQL schema with the following main tables:
 
-- `user_profiles` - Extended user information
+- `user_profiles` - Extended user information including phone numbers with automatic sync to authentication system
 - `user_wallets` - TMT token balances
 - `assets` - Tagged assets with metadata
 - `next_of_kin` - Next-of-kin relationships and contact information
@@ -216,7 +217,9 @@ All tables implement Row Level Security (RLS) for data protection.
 ## 🔒 Security Features
 
 - **Row Level Security** - Database-level access control
-- **Authentication** - Supabase Auth with email/password
+- **Authentication** - Supabase Auth with email/password and phone number sync
+- **Phone Number Validation** - Numeric-only input with uniqueness constraints
+- **Automated Data Sync** - Phone numbers automatically synchronized between user profiles and authentication system
 - **File Upload Security** - Secure asset storage with access controls
 - **Token Validation** - Server-side token transaction validation
 - **Privacy Controls** - User-controlled asset visibility
