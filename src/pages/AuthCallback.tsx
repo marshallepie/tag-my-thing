@@ -1,3 +1,18 @@
+/*
+  AuthCallback Component - Email Verification Flow
+  
+  This component handles email-based signup verification and referral processing.
+  For phone-based signups, referrals are handled directly in the usePhoneSignup hook
+  during the OTP verification process, so they don't need to go through this callback.
+  
+  Flow:
+  1. User clicks email verification link
+  2. Supabase processes the email verification
+  3. This component extracts referral codes from URL params
+  4. Applies referral via apply_referral_on_signup RPC
+  5. Redirects to appropriate dashboard
+*/
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';

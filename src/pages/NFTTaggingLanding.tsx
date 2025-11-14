@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Shield, Palette, Music, Lightbulb, QrCode, ArrowRight } from 'lucide-react';
+import { Camera, ArrowRight, Palette, Mail, Phone, Music, Lightbulb, QrCode } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Footer } from '../components/layout/Footer';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { PhoneSignupForm } from '../components/auth/PhoneSignupForm';
 
 export const NFTTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export const NFTTaggingLanding: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [signupMethod, setSignupMethod] = useState<'email' | 'phone'>('email');
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -230,6 +232,15 @@ export const NFTTaggingLanding: React.FC = () => {
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handlePhoneSignupSuccess = () => {
+    // After successful phone signup, navigate to dashboard or redirect
+    if (redirectParam) {
+      navigate(redirectParam, { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   return (

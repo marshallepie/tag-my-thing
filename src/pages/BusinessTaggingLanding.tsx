@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Camera, Shield, QrCode, Building, CheckCircle, ArrowRight, Key, Lock } from 'lucide-react';
+import { Camera, Shield, QrCode, Building, CheckCircle, ArrowRight, Key, Lock, Mail, Phone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Footer } from '../components/layout/Footer';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { PhoneSignupForm } from '../components/auth/PhoneSignupForm';
 
 export const BusinessTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export const BusinessTaggingLanding: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [signupMethod, setSignupMethod] = useState<'email' | 'phone'>('email');
 
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -229,6 +231,15 @@ export const BusinessTaggingLanding: React.FC = () => {
 
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  const handlePhoneSignupSuccess = () => {
+    // After successful phone signup, navigate to business dashboard or redirect
+    if (redirectParam) {
+      navigate(redirectParam, { replace: true });
+    } else {
+      navigate('/business-dashboard', { replace: true });
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Navigation */}
@@ -398,83 +409,140 @@ export const BusinessTaggingLanding: React.FC = () => {
             <p className="mt-3 text-gray-600">Create your business account here — no page hopping.</p>
           </motion.div>
 
-          <motion.form
-            ref={formRef}
-            onSubmit={handleSignup}
+          {/* Signup Method Toggle */}
+          <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="mt-8 space-y-4"
+            className="mt-6 flex justify-center"
           >
-            <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">Your name</label>
-              <input
-                id="full_name"
-                name="full_name"
-                type="text"
-                autoComplete="name"
-                placeholder="Jane Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={submitting}
-                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
-              />
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setSignupMethod('email')}
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  signupMethod === 'email'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Email
+              </button>
+              <button
+                type="button"
+                onClick={() => setSignupMethod('phone')}
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  signupMethod === 'phone'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                Phone
+              </button>
             </div>
+          </motion.div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-900">Work email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={submitting || Boolean(nokInviteEmail)}
-                readOnly={Boolean(nokInviteEmail)}
-                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
-              />
-              {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>}
-            </div>
+          {/* Conditional Signup Form */}
+          {signupMethod === 'email' ? (
+            <motion.form
+              ref={formRef}
+              onSubmit={handleSignup}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="mt-8 space-y-4"
+            >
+              <div>
+                <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">Your name</label>
+                <input
+                  id="full_name"
+                  name="full_name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Jane Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={submitting}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="At least 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={submitting}
-                className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-900">Work email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={submitting || Boolean(nokInviteEmail)}
+                  readOnly={Boolean(nokInviteEmail)}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
+                />
+                {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>}
+              </div>
 
-            {refCode && (
-              <p className="text-xs text-gray-500">
-                Applying referral code: <span className="font-medium">{refCode}</span>
-              </p>
-            )}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-900">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="At least 8 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={submitting}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            {info && <p className="text-sm text-amber-700">{info}</p>}
-
-            <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
-              {submitting ? 'Creating your business account…' : (
-                <span className="inline-flex items-center">
-                  Create account <ArrowRight className="h-4 w-4 ml-2" />
-                </span>
+              {refCode && (
+                <p className="text-xs text-gray-500">
+                  Applying referral code: <span className="font-medium">{refCode}</span>
+                </p>
               )}
-            </Button>
 
-            <p className="text-center text-xs text-gray-500">
-              By continuing you agree to our Terms and acknowledge our Privacy Policy.
-            </p>
-          </motion.form>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              {info && <p className="text-sm text-amber-700">{info}</p>}
+
+              <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
+                {submitting ? 'Creating your business account…' : (
+                  <span className="inline-flex items-center">
+                    Create account <ArrowRight className="h-4 w-4 ml-2" />
+                  </span>
+                )}
+              </Button>
+
+              <p className="text-center text-xs text-gray-500">
+                By continuing you agree to our Terms and acknowledge our Privacy Policy.
+              </p>
+            </motion.form>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="mt-8"
+            >
+              <PhoneSignupForm
+                referralCode={refCode}
+                fullName={name || ''}
+                fromSource={fromParam || 'business_tagging_landing'}
+                isBusinessSignup={true}
+                nokInviteEmail={nokInviteEmail || undefined}
+                onBackToEmail={() => setSignupMethod('email')}
+                onSuccess={handlePhoneSignupSuccess}
+              />
+            </motion.div>
+          )}
         </div>
       </section>
 
