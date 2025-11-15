@@ -63,6 +63,10 @@ export const GeneralTaggingLanding: React.FC = () => {
       if (qRef && qRef.trim()) {
         localStorage.setItem('tmt_ref_code', qRef.trim());
         setRefCode(qRef.trim());
+        // Auto-scroll to signup form for referral users
+        setTimeout(() => {
+          formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
       } else {
         const cachedRef = localStorage.getItem('tmt_ref_code');
         if (cachedRef) setRefCode(cachedRef);
@@ -260,12 +264,31 @@ export const GeneralTaggingLanding: React.FC = () => {
             </button>
 
             <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" onClick={scrollToForm}>
-                Sign In / Sign Up
-              </Button>
-              <Button size="sm" onClick={scrollToForm}>
-                Get Started
-              </Button>
+              {refCode ? (
+                // New user with referral code - no sign-in option, just signup
+                <>
+                  <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
+                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                  </div>
+                  <Button size="sm" onClick={scrollToForm}>
+                    Join Now
+                  </Button>
+                </>
+              ) : (
+                // Regular user - show both options
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/auth')}
+                  >
+                    Sign In
+                  </Button>
+                  <Button size="sm" onClick={scrollToForm}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -355,11 +378,41 @@ export const GeneralTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center"
           >
-            <h2 className="text-3xl font-semibold text-gray-900">
-              Become a Tag<span className="text-primary-600">My</span>Thing{' '}
-              <span className="text-primary-700 font-medium">Member</span> and start tagging
-            </h2>
-            <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+            {refCode ? (
+              <>
+                <h2 className="text-3xl font-semibold text-gray-900">
+                  Welcome! You've been invited to{' '}
+                  <span className="text-primary-600">Tag</span>
+                  <span className="text-primary-700">My</span>
+                  <span className="text-primary-600">Thing</span>
+                </h2>
+                <p className="mt-3 text-gray-600">
+                  Create your account below to start tagging and get your referral bonus!
+                </p>
+                <div className="mt-4 inline-flex items-center bg-green-50 px-4 py-2 rounded-full">
+                  <span className="text-green-700 font-medium">Referral Code: {refCode}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-semibold text-gray-900">
+                  Become a Tag<span className="text-primary-600">My</span>Thing{' '}
+                  <span className="text-primary-700 font-medium">Member</span> and start tagging
+                </h2>
+                <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-700">
+                    Already have an account?{' '}
+                    <button 
+                      onClick={() => navigate('/auth')}
+                      className="font-medium text-blue-800 hover:text-blue-900 underline"
+                    >
+                      Sign in here
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
           </motion.div>
 
           {/* Signup Method Toggle */}

@@ -61,6 +61,10 @@ export const NFTTaggingLanding: React.FC = () => {
       if (qRef && qRef.trim()) {
         localStorage.setItem('tmt_ref_code', qRef.trim());
         setRefCode(qRef.trim());
+        // Auto-scroll to signup form for referral users
+        setTimeout(() => {
+          formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
       } else {
         const cachedRef = localStorage.getItem('tmt_ref_code');
         if (cachedRef) setRefCode(cachedRef);
@@ -110,16 +114,6 @@ export const NFTTaggingLanding: React.FC = () => {
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Please enter a valid email.';
     if (password.length < 8) return 'Password must be at least 8 characters.';
     return null;
-  };
-
-  const postSignupRedirect = () => {
-    if (fromParam === 'tagging' && redirectParam) {
-      navigate(`${redirectParam}?from=tagging`, { replace: true });
-    } else if (redirectParam) {
-      navigate(redirectParam, { replace: true });
-    } else {
-      navigate('/tag', { replace: true });
-    }
   };
 
   // const handleSignup = async (e: React.FormEvent) => {
@@ -260,12 +254,31 @@ export const NFTTaggingLanding: React.FC = () => {
             </button>
 
             <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" onClick={scrollToForm}>
-                Sign In / Sign Up
-              </Button>
-              <Button size="sm" onClick={scrollToForm}>
-                Get Started
-              </Button>
+              {refCode ? (
+                // New user with referral code - no sign-in option, just signup
+                <>
+                  <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
+                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                  </div>
+                  <Button size="sm" onClick={scrollToForm}>
+                    Join Now
+                  </Button>
+                </>
+              ) : (
+                // Regular user - show both options
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/auth')}
+                  >
+                    Sign In
+                  </Button>
+                  <Button size="sm" onClick={scrollToForm}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -358,22 +371,91 @@ export const NFTTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center"
           >
-            <h2 className="text-3xl font-semibold text-gray-900">
-              Become a Tag<span className="text-primary-600">My</span>Thing{' '}
-              <span className="text-primary-700 font-medium">Member</span> and start tagging
-            </h2>
-            <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+            {refCode ? (
+              <>
+                <h2 className="text-3xl font-semibold text-gray-900">
+                  Welcome! You've been invited to{' '}
+                  <span className="text-primary-600">Tag</span>
+                  <span className="text-primary-700">My</span>
+                  <span className="text-primary-600">Thing</span>
+                  {' '}NFT
+                </h2>
+                <p className="mt-3 text-gray-600">
+                  Create your account below to start tagging your digital assets and get your referral bonus!
+                </p>
+                <div className="mt-4 inline-flex items-center bg-green-50 px-4 py-2 rounded-full">
+                  <span className="text-green-700 font-medium">Referral Code: {refCode}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-semibold text-gray-900">
+                  Become a Tag<span className="text-primary-600">My</span>Thing{' '}
+                  <span className="text-primary-700 font-medium">Member</span> and start tagging
+                </h2>
+                <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-700">
+                    Already have an account?{' '}
+                    <button 
+                      onClick={() => navigate('/auth')}
+                      className="font-medium text-blue-800 hover:text-blue-900 underline"
+                    >
+                      Sign in here
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
           </motion.div>
 
-          <motion.form
-            ref={formRef}
-            onSubmit={handleSignup}
+          {/* Signup Method Toggle */}
+          <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="mt-8 space-y-4"
+            className="mt-6 flex justify-center"
           >
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setSignupMethod('email')}
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  signupMethod === 'email'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Email
+              </button>
+              <button
+                type="button"
+                onClick={() => setSignupMethod('phone')}
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  signupMethod === 'phone'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                Phone
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Conditional Signup Form */}
+          {signupMethod === 'email' ? (
+            <motion.form
+              ref={formRef}
+              onSubmit={handleSignup}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="mt-8 space-y-4"
+            >
             <div>
               <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
                 Your name
@@ -450,6 +532,24 @@ export const NFTTaggingLanding: React.FC = () => {
               By continuing you agree to our Terms and acknowledge our Privacy Policy.
             </p>
           </motion.form>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="mt-8"
+            >
+              <PhoneSignupForm
+                onSuccess={handlePhoneSignupSuccess}
+                onBackToEmail={() => setSignupMethod('email')}
+                referralCode={refCode}
+                fullName={name}
+                fromSource="nft_tagging"
+                nokInviteEmail={nokInviteEmail}
+              />
+            </motion.div>
+          )}
         </div>
       </section>
 
