@@ -130,7 +130,8 @@ export const AdminInfluencerDashboard: React.FC = () => {
         setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
       });
       
-      // Fetch users without wallet data first
+      // Fetch users with wallet data using LEFT JOIN via RPC or direct query
+      // First, get all user profiles
       const usersPromise = supabase
         .from('user_profiles')
         .select(`
@@ -151,7 +152,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
       if (usersError) throw usersError;
 
-      // Fetch wallet balances separately
+      // Fetch ALL wallet balances
       const walletsPromise = supabase
         .from('user_wallets')
         .select('user_id, balance');
@@ -163,22 +164,35 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
       if (walletsError) {
         console.error('Wallets fetch error:', walletsError);
-        // Continue without wallet data rather than failing completely
       }
 
-      // Create a map of user_id to balance for efficient lookup
+      // Create a map of user_id to balance
       const balanceMap = new Map();
       if (walletsData) {
         walletsData.forEach((wallet: any) => {
-          balanceMap.set(wallet.user_id, wallet.balance || 0);
+          balanceMap.set(wallet.user_id, wallet.balance ?? 0);
         });
       }
 
-      // Transform the data to include balance from the separate query
-      const transformedUsers = usersData?.map(user => ({
-        ...user,
-        balance: balanceMap.get(user.id) || 0
-      })) || [];
+      // Transform users and identify those without wallets
+      const usersWithoutWallets: string[] = [];
+      const transformedUsers = usersData?.map(user => {
+        const balance = balanceMap.get(user.id);
+        if (balance === undefined) {
+          usersWithoutWallets.push(user.email);
+          console.warn(`User ${user.email} (${user.id}) has no wallet record`);
+        }
+        return {
+          ...user,
+          balance: balance ?? 0
+        };
+      }) || [];
+
+      // Log warning if any users are missing wallets
+      if (usersWithoutWallets.length > 0) {
+        console.warn(`${usersWithoutWallets.length} users missing wallet records:`, usersWithoutWallets);
+        toast.error(`${usersWithoutWallets.length} users are missing wallet records. Please run the wallet creation migration.`);
+      }
 
       setUsers(transformedUsers);
 
