@@ -152,18 +152,16 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
       if (usersError) throw usersError;
 
-      // Fetch ALL wallet balances
-      const walletsPromise = supabase
+      // Fetch ALL wallet balances with explicit query
+      console.log('🔍 Fetching all wallet balances...');
+      const { data: walletsData, error: walletsError } = await supabase
         .from('user_wallets')
         .select('user_id, balance');
-      
-      const { data: walletsData, error: walletsError } = await Promise.race([
-        walletsPromise,
-        timeoutPromise
-      ]) as any;
 
       if (walletsError) {
-        console.error('Wallets fetch error:', walletsError);
+        console.error('❌ Wallets fetch error:', walletsError);
+      } else {
+        console.log(`✅ Fetched ${walletsData?.length || 0} wallet records`);
       }
 
       // Create a map of user_id to balance
