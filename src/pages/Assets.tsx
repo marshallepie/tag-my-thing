@@ -42,6 +42,7 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { getViewBlockUrl } from '../lib/arweaveUploader';
 
 interface Asset {
   id: string;
@@ -57,7 +58,7 @@ interface Asset {
   blockchain_status: 'pending' | 'published' | 'failed' | null;
   ipfs_cid: string | null;
   arweave_tx_id: string | null;
-  archive_status: 'pending' | 'archived' | 'instant_requested' | 'failed';
+  archive_status: 'pending' | 'archived' | 'instant_requested' | 'failed' | 'uploading' | 'upgrade_available';
   archive_requested_at: string | null;
   archive_method: string | null;
   created_at: string;
@@ -287,31 +288,56 @@ export const Assets: React.FC = () => {
 
     setArchiveLoading(true);
     try {
-      // Spend tokens first
-      const success = await spendTokens(ARCHIVE_COST, 'blockchain_publish', `Archived asset: ${selectedAsset.title}`);
-      if (!success) {
-        toast.error('Failed to spend tokens for archiving');
+      // Get the current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in to archive assets');
         return;
       }
 
-      // Call the archive function
-      const { data, error } = await supabase.rpc('archive_tag_now', {
-        asset_id: selectedAsset.id
+      // Call the Edge Function for real Arweave upload
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-to-arweave`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          assetId: selectedAsset.id,
+          enableEncryption: false, // TODO: Add UI option for encryption
+          enableCompression: true // Optimize for free tier
+        })
       });
 
-      if (error) throw error;
-
-      if (data?.success) {
-        toast.success('Asset archived successfully to Arweave!');
-        setShowArchiveModal(false);
-        setSelectedAsset(null);
-        fetchAssets();
-      } else {
-        toast.error(data?.error || 'Failed to archive asset');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
+
+      const result = await response.json();
+
+      // Success! Show the transaction details
+      toast.success(
+        <div>
+          <p>Asset archived successfully to Arweave!</p>
+          <a 
+            href={result.viewBlockUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-400 underline"
+          >
+            View Transaction
+          </a>
+        </div>,
+        { duration: 8000 }
+      );
+
+      setShowArchiveModal(false);
+      setSelectedAsset(null);
+      fetchAssets();
     } catch (error: any) {
       console.error('Error archiving asset:', error);
-      toast.error('Failed to archive asset');
+      toast.error(`Failed to archive asset: ${error.message}`);
     } finally {
       setArchiveLoading(false);
     }
@@ -336,6 +362,10 @@ export const Assets: React.FC = () => {
         return 'bg-success-100 text-success-800';
       case 'pending':
         return 'bg-warning-100 text-warning-800';
+      case 'uploading':
+        return 'bg-blue-100 text-blue-800';
+      case 'upgrade_available':
+        return 'bg-purple-100 text-purple-800';
       case 'instant_requested':
         return 'bg-primary-100 text-primary-800';
       case 'failed':
@@ -491,11 +521,28 @@ export const Assets: React.FC = () => {
               </Button>
             )}
             
+            {asset.archive_status === 'upgrade_available' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedAsset(asset);
+                  setShowArchiveModal(true);
+                }}
+                disabled={balance < 300}
+                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                title={balance < 300 ? 'Insufficient tokens (300 TMT required)' : 'Upgrade to real Arweave storage'}
+              >
+                <Archive className="h-4 w-4 mr-1" />
+                Upgrade to Real Arweave
+              </Button>
+            )}
+            
             {asset.arweave_tx_id && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(`https://arweave.net/${asset.arweave_tx_id}`, '_blank')}
+                onClick={() => window.open(getViewBlockUrl(asset.arweave_tx_id!), '_blank')}
                 className="text-success-600 hover:text-success-700 hover:bg-success-50"
               >
                 <Archive className="h-4 w-4 mr-1" />
@@ -598,11 +645,28 @@ export const Assets: React.FC = () => {
                   </Button>
                 )}
                 
+                {asset.archive_status === 'upgrade_available' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedAsset(asset);
+                      setShowArchiveModal(true);
+                    }}
+                    disabled={balance < 300}
+                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    title={balance < 300 ? 'Insufficient tokens (300 TMT required)' : 'Upgrade to real Arweave storage'}
+                  >
+                    <Archive className="h-4 w-4 mr-1" />
+                    Upgrade
+                  </Button>
+                )}
+                
                 {asset.arweave_tx_id && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(`https://arweave.net/${asset.arweave_tx_id}`, '_blank')}
+                    onClick={() => window.open(getViewBlockUrl(asset.arweave_tx_id!), '_blank')}
                     className="text-success-600 hover:text-success-700 hover:bg-success-50"
                   >
                     <Archive className="h-4 w-4 mr-1" />
