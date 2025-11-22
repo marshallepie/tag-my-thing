@@ -42,7 +42,7 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { getViewBlockUrl } from '../lib/arweaveUploader';
+import { getViewBlockUrl } from '../lib/arweaveUtils';
 
 interface Asset {
   id: string;
