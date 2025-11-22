@@ -8,7 +8,8 @@ import { useTokens } from '../../hooks/useTokens';
 import { Button } from '../ui/Button';
 
 export const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [isAssetsMenuOpen, setIsAssetsMenuOpen] = useState(false);
   const { user, profile, signOut, isAuthenticated, hasProfile, isAdmin, isModerator, isAdminInfluencer } = useAuth();
@@ -20,7 +21,8 @@ export const Header: React.FC = () => {
   // Safe navigation handler using React Router
   const handleNavigation = (path: string) => {
     try {
-      setIsMenuOpen(false);
+      setIsMobileMenuOpen(false);
+      setIsProfileMenuOpen(false);
       
       if (path.startsWith('http')) {
         // External links
@@ -52,8 +54,8 @@ export const Header: React.FC = () => {
   const assetsNavigation = [
     { name: 'Tag Asset', href: '/tag', icon: Camera },
     { name: 'My Assets', href: '/assets', icon: Package },
-    { name: 'Next of Kin', href: '/nok', icon: Heart },
     { name: 'Public Assets', href: '/public-assets', icon: Globe },
+    { name: 'Next of Kin', href: '/nok', icon: Heart },
   ];
 
   // Admin/role-specific navigation (for dropdown)
@@ -146,7 +148,7 @@ export const Header: React.FC = () => {
                   `}
                 >
                   <Package className="h-4 w-4" />
-                  <span>Assets</span>
+                  <span>Asset Management</span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${isAssetsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
@@ -262,7 +264,7 @@ export const Header: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     className="p-2"
                   >
                     {profile?.avatar_url ? (
@@ -277,7 +279,7 @@ export const Header: React.FC = () => {
                   </Button>
 
                   {/* Dropdown Menu */}
-                  {isMenuOpen && (
+                  {isProfileMenuOpen && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -309,7 +311,7 @@ export const Header: React.FC = () => {
                               // Force navigation even if sign out fails
                               handleNavigation('/');
                             });
-                            setIsMenuOpen(false);
+                            setIsProfileMenuOpen(false);
                           }}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
                         >
@@ -323,10 +325,10 @@ export const Header: React.FC = () => {
 
                 {/* Mobile Menu Button */}
                 <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="md:hidden p-2 rounded-md text-gray-600 hover:text-primary-600 hover:bg-gray-100"
                 >
-                  {isMenuOpen ? (
+                  {isMobileMenuOpen ? (
                     <X className="h-6 w-6" />
                   ) : (
                     <Menu className="h-6 w-6" />
@@ -358,7 +360,7 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Mobile Navigation */}
-      {isAuthenticated && isMenuOpen && (
+      {isAuthenticated && isMobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
@@ -381,6 +383,60 @@ export const Header: React.FC = () => {
                 {item.name}
               </button>
             ))}
+            
+            {/* Assets Section */}
+            <div className="pt-2 border-t border-gray-200">
+              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Asset Management
+              </div>
+              {assetsNavigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => handleNavigation(item.href)}
+                    className={`
+                      flex items-center w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors
+                      ${isActive(item.href)
+                        ? 'text-primary-600 bg-primary-50'
+                        : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <Icon className="h-5 w-5 mr-3" />
+                    {item.name}
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Admin Section */}
+            {adminNavigation.length > 0 && (
+              <div className="pt-2 border-t border-gray-200">
+                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Admin
+                </div>
+                {adminNavigation.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => handleNavigation(item.href)}
+                      className={`
+                        flex items-center w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors
+                        ${isActive(item.href)
+                          ? 'text-primary-600 bg-primary-50'
+                          : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      <Icon className="h-5 w-5 mr-3" />
+                      {item.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </motion.div>
       )}
