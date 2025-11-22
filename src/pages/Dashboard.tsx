@@ -138,15 +138,6 @@ export const Dashboard: React.FC = () => {
           <p className="text-gray-600">Manage your assets and track your digital legacy.</p>
         </motion.div>
 
-        {/* Debug Panel (dev-only; comment out for prod if you like) */}
-        <Card className="mb-6">
-          <div className="text-sm text-gray-700">
-            <div><strong>Auth:</strong> userId: {user?.id ?? '—'} | email: {user?.email ?? '—'} | profile: {profile ? 'yes' : 'no'} | role: {profile?.role ?? '—'}</div>
-            <div><strong>Token length:</strong> {tokenLen ?? '—'} | <strong>RPC:</strong> {rpcDuration ?? '—'} | <strong>RPC error:</strong> {rpcError ?? '—'}</div>
-            <div><strong>RPC totalAssets:</strong> {assetsLoading ? '…' : totalAssets} | <strong>Fallback COUNT:</strong> {fallbackCount ?? '—'}</div>
-          </div>
-        </Card>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
