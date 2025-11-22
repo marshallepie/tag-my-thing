@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, Camera, Wallet, Settings, LogOut, User, Shield, Megaphone } from 'lucide-react';
+import { Menu, X, Camera, Wallet, Settings, LogOut, User, Shield, Megaphone, ChevronDown, Package, Heart } from 'lucide-react';
 import { Building, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTokens } from '../../hooks/useTokens';
@@ -9,6 +9,8 @@ import { Button } from '../ui/Button';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+  const [isAssetsMenuOpen, setIsAssetsMenuOpen] = useState(false);
   const { user, profile, signOut, isAuthenticated, hasProfile, isAdmin, isModerator, isAdminInfluencer } = useAuth();
   const { isBusinessUser } = useAuth();
   const { balance } = useTokens();
@@ -34,13 +36,11 @@ export const Header: React.FC = () => {
     }
   };
 
+  // Base navigation for all users
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Tag Asset', href: '/tag' },
-    { name: 'My Assets', href: '/assets' },
     { name: 'News', href: '/news' },
     { name: 'Wallet', href: '/wallet' },
-    { name: 'NOK', href: '/nok' },
   ];
 
   // All users can access referrals now
@@ -48,25 +48,51 @@ export const Header: React.FC = () => {
     navigation.push({ name: 'Referrals', href: '/referrals' });
   }
 
-  // Add Business Dashboard link for business users
+  // Assets-related navigation (for dropdown)
+  const assetsNavigation = [
+    { name: 'Tag Asset', href: '/tag', icon: Camera },
+    { name: 'My Assets', href: '/assets', icon: Package },
+    { name: 'Next of Kin', href: '/nok', icon: Heart },
+    { name: 'Public Assets', href: '/public-assets', icon: Globe },
+  ];
+
+  // Admin/role-specific navigation (for dropdown)
+  const adminNavigation: Array<{ name: string; href: string; icon: any }> = [];
+  
   if (isBusinessUser) {
-    navigation.push({ name: 'Business', href: '/business-dashboard' });
+    adminNavigation.push({ name: 'Business Dashboard', href: '/business-dashboard', icon: Building });
+  }
+  
+  if (isAdminInfluencer || isAdmin) {
+    adminNavigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard', icon: Shield });
+    adminNavigation.push({ name: 'Bug Reports', href: '/bug-reports', icon: Megaphone });
+    adminNavigation.push({ name: 'News Management', href: '/news-management', icon: Globe });
+    if (isAdmin && !isAdminInfluencer) {
+      adminNavigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
+    }
+  } else if (isModerator) {
+    adminNavigation.push({ name: 'Moderator Panel', href: '/moderator', icon: Shield });
   }
 
-if (isAdminInfluencer || isAdmin) {
-  navigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard' });
-  navigation.push({ name: 'Bug Reports', href: '/bug-reports' });
-  navigation.push({ name: 'News Management', href: '/news-management' });
-  if (isAdmin && !isAdminInfluencer) {
-    navigation.push({ name: 'Admin', href: '/admin' });
-  }
-} else if (isModerator) {
-  navigation.push({ name: 'Moderator', href: '/moderator' });
-}
-
-  // Add Public Assets link for everyone
-  navigation.push({ name: 'Public Assets', href: '/public-assets' });
   const isActive = (path: string) => location.pathname === path;
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.admin-dropdown')) {
+        setIsAdminMenuOpen(false);
+      }
+      if (!target.closest('.assets-dropdown')) {
+        setIsAssetsMenuOpen(false);
+      }
+    };
+    
+    if (isAdminMenuOpen || isAssetsMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isAdminMenuOpen, isAssetsMenuOpen]);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
@@ -87,13 +113,13 @@ if (isAdminInfluencer || isAdmin) {
 
           {/* Desktop Navigation */}
           {isAuthenticated && (
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-4 items-center">
               {navigation.map((item) => (
                 <button
                   key={item.name}
                   onClick={() => handleNavigation(item.href)}
                   className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap
                     ${isActive(item.href)
                       ? 'text-primary-600 bg-primary-50'
                       : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
@@ -103,6 +129,116 @@ if (isAdminInfluencer || isAdmin) {
                   {item.name}
                 </button>
               ))}
+              
+              {/* Assets Dropdown */}
+              <div className="relative assets-dropdown">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsAssetsMenuOpen(!isAssetsMenuOpen);
+                  }}
+                  className={`
+                    flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap
+                    ${isAssetsMenuOpen || assetsNavigation.some(item => isActive(item.href))
+                      ? 'text-primary-600 bg-primary-50'
+                      : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <Package className="h-4 w-4" />
+                  <span>Assets</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isAssetsMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isAssetsMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50"
+                  >
+                    <div className="py-1">
+                      {assetsNavigation.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <button
+                            key={item.name}
+                            onClick={() => {
+                              handleNavigation(item.href);
+                              setIsAssetsMenuOpen(false);
+                            }}
+                            className={`
+                              flex items-center w-full px-4 py-2 text-sm transition-colors text-left
+                              ${isActive(item.href)
+                                ? 'bg-primary-50 text-primary-600'
+                                : 'text-gray-700 hover:bg-gray-100'
+                              }
+                            `}
+                          >
+                            <Icon className="h-4 w-4 mr-3" />
+                            {item.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+              
+              {/* Admin Dropdown */}
+              {adminNavigation.length > 0 && (
+                <div className="relative admin-dropdown">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAdminMenuOpen(!isAdminMenuOpen);
+                    }}
+                    className={`
+                      flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap
+                      ${isAdminMenuOpen || adminNavigation.some(item => isActive(item.href))
+                        ? 'text-primary-600 bg-primary-50'
+                        : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Admin</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isAdminMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {isAdminMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50"
+                    >
+                      <div className="py-1">
+                        {adminNavigation.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <button
+                              key={item.name}
+                              onClick={() => {
+                                handleNavigation(item.href);
+                                setIsAdminMenuOpen(false);
+                              }}
+                              className={`
+                                flex items-center w-full px-4 py-2 text-sm transition-colors text-left
+                                ${isActive(item.href)
+                                  ? 'bg-primary-50 text-primary-600'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                                }
+                              `}
+                            >
+                              <Icon className="h-4 w-4 mr-3" />
+                              {item.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
             </nav>
           )}
 
@@ -162,15 +298,6 @@ if (isAdminInfluencer || isAdmin) {
                           <Settings className="h-4 w-4 mr-2" />
                           Settings
                         </button>
-                        {(isAdmin || isModerator) && (
-                          <button
-                            onClick={() => handleNavigation(isAdmin ? "/admin" : "/moderator")}
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                          >
-                            <Shield className="h-4 w-4 mr-2" />
-                            {isAdmin ? 'Admin Panel' : 'Moderator Panel'}
-                          </button>
-                        )}
                         <button
                           onClick={() => {
                             console.log('Header: Logout button clicked');
