@@ -20,6 +20,7 @@
     "arweave": "^1.15.7",
     "buffer": "^6.0.3",
     "date-fns": "^2.30.0",
+    "dotenv": "^17.2.3",
     "framer-motion": "^10.16.16",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.344.0",

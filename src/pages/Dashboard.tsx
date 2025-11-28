@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Layout } from '../components/layout/Layout';
+import { LocationToggle } from '../components/ui/LocationToggle';
 
 const log = (...args: any[]) => console.log('%cDashboard', 'color:#0ea5e9', ...args);
 const warn = (...args: any[]) => console.warn('%cDashboard', 'color:#f59e0b', ...args);
@@ -318,6 +319,16 @@ export const Dashboard: React.FC = () => {
                 </div>
               )}
             </Card>
+
+            {/* Location Tracking */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 1.1 }}
+              className="mt-6"
+            >
+              <LocationToggle />
+            </motion.div>
           </div>
         </div>
       </div>

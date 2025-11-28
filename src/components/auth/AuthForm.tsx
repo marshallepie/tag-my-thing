@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import { LocationPermissionModal } from '../modals/LocationPermissionModal';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 
@@ -37,6 +38,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   useEffect(() => {
     // Set initial email if provided
@@ -165,8 +167,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       await handleNokInvite(auth.user.id);
     }
 
-    // Call the onSuccess callback to handle redirect
-    onSuccess();
+    // Show location permission modal after successful signin
+    setShowLocationModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,8 +226,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     }));
   };
 
+  const handleLocationPermissionComplete = () => {
+    setShowLocationModal(false);
+    onSuccess();
+  };
+
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <>
+      <Card className="w-full max-w-md mx-auto">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
           {mode === 'signin' ? 'Welcome back' : 'Create your account'}
@@ -374,5 +382,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         </motion.div>
       )}
     </Card>
+
+    {/* Location Permission Modal */}
+    <LocationPermissionModal
+      isOpen={showLocationModal}
+      onClose={handleLocationPermissionComplete}
+      onPermissionSet={() => {}}
+    />
+    </>
   );
 };
