@@ -1,44 +1,195 @@
-# TagMyThing TMT
+# TagMyThing - Protect What Matters
 
-**TagMyThing** is a digital asset tagging system that lets users document ownership of any item—physical or digital—in a secure, timestamped, and verifiable way.
+**TagMyThing** helps you securely document and protect ownership of your valuable items - whether physical or digital.
 
-Whether it's a bike, a car, a hidden bank account, a love letter, or a life story, TagMyThing allows you to:
-- Record a video or photo of the asset
-- Tag it with metadata (title, description, location, timestamp)
-- Store it immutably and securely
-- Retrieve it anytime, even years later
-- Prove ownership, intention, or message delivery
+🏷️ **Tag anything**: Take photos or videos of your belongings  
+🔐 **Secure storage**: Your records are timestamped and safely stored  
+🎯 **Easy recovery**: Find and prove ownership anytime  
+💝 **Legacy planning**: Decide what happens to your items in the future  
 
-This is not just a place to leave your *last* will—it's a place to record your *first* will. Tag your things. Say what they mean to you. Decide what should happen to them. Forever.
+**Perfect for protecting:**
+- Jewelry, electronics, and collectibles
+- Important documents and certificates  
+- Family heirlooms and sentimental items
+- Digital accounts and passwords
+- Personal messages and memories
 
----
-
-## 💡 Key Features
-- Take photos or record videos directly in the app
-- GPS and timestamp metadata
-- Optional blockchain storage for proof of existence
-- Asset tagging by name, type, value, and location
-- Searchable personal archive
-- Phone number management with automatic sync across authentication systems
-- Numeric-only phone number validation with real-time formatting
-- Advanced Next-of-Kin management with Dead Man's Switch protection
-- Incoming/Outgoing NOK assignment tracking
-- Mass assignment of assets to trusted individuals
-- NOK reassignment capabilities for flexible legacy planning
-- Product authenticity verification for businesses
-- QR code generation and scan tracking
-- Multi-tier subscription plans for business users
+This isn't just about your *last* will - it's about recording your *first* will. Tag your things, share their stories, and ensure they're protected forever.
 
 ---
 
-## 🔐 Target Use Cases
-- Lost & found recovery
-- Proof of ownership
-- Legacy planning with Dead Man's Switch protection
-- Secret safekeeping
-- Emotional or legal testimony
-- Digital inheritance management
-- Trusted asset handover with privacy protection
+## ✨ What You Can Do
+
+### 📱 **Easy Documentation**
+- Take photos or videos with your phone camera
+- Add descriptions, locations, and personal notes
+- Everything is automatically timestamped
+- Create a searchable archive of your belongings
+
+### 🛡️ **Smart Protection**  
+- Secure, encrypted storage of your records
+- GPS location tracking (with your permission)
+- Proof of ownership that stands up in court
+- Never lose track of your valuable items again
+
+### 👨‍👩‍👧‍👦 **Family & Legacy Planning**
+- Assign trusted family members as "Next of Kin"
+- Set up automatic access if something happens to you
+- Share specific items with specific people
+- Protect your family's inheritance and memories
+
+### 🏢 **Business Features**
+- Verify authentic products with QR codes
+- Track product ownership and warranties
+- Protect against counterfeits
+- Professional documentation tools
+
+---
+
+## 🎯 Perfect For
+
+**Protecting Your Valuables:**
+- Insurance claims and theft recovery
+- Proving you own expensive items
+- Keeping track of warranties and receipts
+
+**Family & Legacy:**
+- Planning what happens to your belongings
+- Sharing family history and stories
+- Protecting important documents
+- Managing digital accounts and passwords
+
+**Peace of Mind:**
+- Never forgetting where you put things
+- Having backup proof of ownership
+- Knowing your family is protected
+- Keeping precious memories safe
+
+---
+
+## 🚀 Getting Started
+
+### 📱 **Download & Sign Up**
+1. **Visit**: [https://tagmything.com](https://tagmything.com)
+2. **Create Account**: Choose your signup type:
+   - **Personal Account**: For individuals and families
+   - **Business Account**: For companies and professionals  
+3. **Get Started**: Receive 50 free credits to begin tagging
+
+### 📸 **Tag Your First Item**
+1. **Tap "Tag Now"** on your dashboard
+2. **Take a photo or video** of your item
+3. **Add details**: Name, description, and location
+4. **Save**: Your item is now protected and documented
+
+### 👨‍👩‍👧‍👦 **Set Up Family Protection** 
+1. **Add Next of Kin**: Register trusted family members
+2. **Assign Items**: Choose who gets what if something happens
+3. **Set Timeline**: Decide how long before they get access
+4. **Peace of Mind**: Your family is automatically protected
+
+---
+
+## 💰 Simple Pricing
+
+**Free Credits**: 50 credits when you sign up  
+**Photo Tags**: 25 credits per photo  
+**Video Tags**: 60 credits per video  
+**Buy More**: Additional credits available as needed
+
+*No monthly fees - only pay for what you use!*
+
+---
+
+## 🛡️ How Family Protection Works
+
+### **Next-of-Kin System**
+Our unique "Dead Man's Switch" system ensures your belongings are passed to the right people:
+
+1. **Assign Trusted People**: Add family members as your "Next of Kin"
+2. **Set Time Periods**: Choose 1-5 years of inactivity before access is granted
+3. **Privacy First**: Your family knows they're assigned but can't see details until needed
+4. **Automatic Transfer**: If you don't log in for the set time, they automatically get access
+5. **Reassignment**: They can pass things to someone else if needed
+
+### **What Your Family Can See**
+- **Before**: They know they're assigned but can't see your private items
+- **After**: Full access to items you've assigned to them
+- **Always**: Ability to reassign to other trusted family members
+
+---
+
+## 📞 **Get Help**
+
+**Questions?** Contact us at: tagmything_support@marshallepie.com
+
+**Need to report a problem?** We're here to help 24/7
+
+---
+
+## 🌟 **Why Choose TagMyThing?**
+
+✅ **Simple to use** - No technical knowledge required  
+✅ **Secure & private** - Your data is encrypted and protected  
+✅ **Family-focused** - Built for real families and real needs  
+✅ **No monthly fees** - Pay only for what you use  
+✅ **Works on any device** - Phone, tablet, or computer  
+✅ **Legally recognized** - Documentation that holds up in court  
+
+---
+
+**Start protecting what matters most today.** 🏷️✨
+
+*For technical documentation and development information, see [DEVELOPMENT.md](DEVELOPMENT.md)*
+
+---
+
+## ✨ What You Can Do
+
+### 📱 **Easy Documentation**
+- Take photos or videos with your phone camera
+- Add descriptions, locations, and personal notes
+- Everything is automatically timestamped
+- Create a searchable archive of your belongings
+
+### 🛡️ **Smart Protection**  
+- Secure, encrypted storage of your records
+- GPS location tracking (with your permission)
+- Proof of ownership that stands up in court
+- Never lose track of your valuable items again
+
+### 👨‍👩‍👧‍👦 **Family & Legacy Planning**
+- Assign trusted family members as "Next of Kin"
+- Set up automatic access if something happens to you
+- Share specific items with specific people
+- Protect your family's inheritance and memories
+
+### 🏢 **Business Features**
+- Verify authentic products with QR codes
+- Track product ownership and warranties
+- Protect against counterfeits
+- Professional documentation tools
+
+---
+
+## 🎯 Perfect For
+
+**Protecting Your Valuables:**
+- Insurance claims and theft recovery
+- Proving you own expensive items
+- Keeping track of warranties and receipts
+
+**Family & Legacy:**
+- Planning what happens to your belongings
+- Sharing family history and stories
+- Protecting important documents
+- Managing digital accounts and passwords
+
+**Peace of Mind:**
+- Never forgetting where you put things
+- Having backup proof of ownership
+- Knowing your family is protected
+- Keeping precious memories safe
 
 ---
 
@@ -47,82 +198,13 @@ TagMyThing aims to become the go-to app for digital truth-keeping and asset memo
 
 ---
 
-## 🛠️ Technical Stack
-
-### Frontend
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **Framer Motion** for animations
-- **React Router** for navigation
-- **Lucide React** for icons
-
-### Backend & Database
-- **Supabase** for authentication, database, and storage
-- **PostgreSQL** with Row Level Security (RLS)
-- **Real-time subscriptions** for live updates
-
-### Key Features
-- **Camera Integration** - Direct photo/video capture
-- **Token Economy** - TMT tokens for platform interactions
-- **Blockchain Ready** - Prepared for immutable asset records
-- **Mobile-First** - Responsive design optimized for mobile devices
-- **Progressive Web App** - Installable on mobile devices
 
 ---
 
-## 🏗️ Project Structure
 
-```
-src/
-├── components/          # Reusable UI components
-│   ├── auth/           # Authentication components
-│   ├── layout/         # Layout components (Header, Layout)
-│   ├── tagging/        # Asset tagging components
-│   └── ui/             # Base UI components (Button, Card, etc.)
-├── hooks/              # Custom React hooks
-├── lib/                # Utility libraries and configurations
-├── pages/              # Page components
-├── types/              # TypeScript type definitions
-└── main.tsx           # Application entry point
-```
 
----
 
-## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- Supabase account (for backend services)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd tagmything
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   Create a `.env` file in the root directory:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser**
-   Navigate to `http://localhost:5173`
 
 ### Signup Paths
 
@@ -187,19 +269,7 @@ TagMyThing features an advanced Next-of-Kin (NOK) management system with Dead Ma
 
 ---
 
-## 🗄️ Database Schema
 
-The application uses a comprehensive PostgreSQL schema with the following main tables:
-
-- `user_profiles` - Extended user information including phone numbers with automatic sync to authentication system
-- `user_wallets` - TMT token balances
-- `assets` - Tagged assets with metadata
-- `next_of_kin` - Next-of-kin relationships and contact information
-- `asset_nok_assignments` - NOK assignments with Dead Man's Switch configuration
-- `token_transactions` - Token earning/spending history
-- `payments` - Token purchase records
-- `referrals` - Referral tracking system
-- `referral_rewards` - Referral token rewards
 
 #### Enhanced NOK Schema
 The NOK system includes advanced fields for Dead Man's Switch functionality:
@@ -229,30 +299,15 @@ All tables implement Row Level Security (RLS) for data protection.
 
 ---
 
-## 🌐 Deployment
 
-The application is deployed on Netlify with automatic builds from the main branch.
 
 **Live URL:** [https://tagmything.com)
 
-### Build Commands
-```bash
-npm run build    # Build for production
-npm run preview  # Preview production build locally
-npm run lint     # Run ESLint
-```
+
 
 ---
 
-## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ---
 

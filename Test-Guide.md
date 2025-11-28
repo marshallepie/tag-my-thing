@@ -46,15 +46,19 @@ Create multiple test accounts to fully test referral and NOK features:
 **Path:** `/auth`
 - [ ] Visit the signup page
 - [ ] Enter valid email and password
+- [ ] **NEW:** Location permission modal appears after successful signup
+- [ ] **NEW:** Choose to enable or disable automatic GPS tracking
 - [ ] Verify email confirmation process
 - [ ] Check that you receive **50 TMT tokens** upon signup
 - [ ] Confirm user profile is created with correct information
 
 **Expected Results:**
 - Account created successfully
+- Location permission modal shows privacy explanation
+- GPS tracking preference is saved based on user choice
 - Email verification required and working
 - 50 TMT tokens credited automatically
-- Access to main dashboard
+- Access to main dashboard with location toggle (if GPS enabled)
 
 #### 1.2 Business User Signup  
 **Path:** `/business-auth`
@@ -95,14 +99,18 @@ Create multiple test accounts to fully test referral and NOK features:
   - [ ] Description
   - [ ] Tags/categories
   - [ ] Estimated value
-  - [ ] Location/GPS data
+  - [ ] **Manual Location Field:** Enter the physical location of the tagged item (e.g., "Kitchen drawer", "Office desk", "Car trunk")
+- [ ] **NEW:** If GPS tracking is enabled, app automatically captures your current location where you're using the app
 - [ ] Save the asset
 - [ ] Verify 25 TMT tokens are deducted
 - [ ] Confirm asset appears on dashboard
+- [ ] **NEW:** Check that both manual item location and automatic GPS coordinates (if enabled) are stored
 
 **Expected Results:**
 - Camera functionality works smoothly
 - All metadata fields save correctly
+- Manual location field stores where the item is located
+- Automatic GPS captures where you used the app (if enabled)
 - Token deduction is accurate
 - Asset is retrievable from dashboard
 
@@ -124,6 +132,54 @@ Create multiple test accounts to fully test referral and NOK features:
 - [ ] Test search functionality for finding assets
 - [ ] Organize assets by tags/categories
 - [ ] Test asset privacy settings
+
+---
+
+### 2.5 GPS Location Tracking (NEW FEATURE)
+
+#### 2.5.1 GPS Permission Setup
+**During Signup/Signin:**
+- [ ] Complete account creation
+- [ ] Location Permission Modal should appear automatically
+- [ ] Read privacy explanation and benefits
+- [ ] Test both "Enable Location Tracking" and "Skip for Now" options
+- [ ] Verify permission preference is saved to profile
+
+#### 2.5.2 Dashboard Location Features
+**Path:** `/dashboard`
+- [ ] Look for LocationToggle component on dashboard sidebar
+- [ ] If GPS enabled, verify current location is displayed
+- [ ] Test the toggle switch to enable/disable GPS tracking
+- [ ] Click refresh location button (if GPS enabled)
+- [ ] Verify location updates in real-time
+
+**Expected Results:**
+- Location toggle shows current GPS status
+- Current location displayed with formatted address (via Google Maps API)
+- Toggle switch properly enables/disables location tracking
+- Location updates when refreshed
+
+#### 2.5.3 Automatic Session Tracking
+**Background GPS Capture:**
+- [ ] Enable GPS tracking from dashboard toggle
+- [ ] Navigate around the app (dashboard, tagging, assets)
+- [ ] Verify GPS coordinates are automatically captured during session
+- [ ] Check that location updates in user profile
+- [ ] Test with GPS disabled - verify no location capture
+
+#### 2.5.4 Asset Tagging with GPS
+**Two Types of Location Data:**
+- [ ] **Manual Item Location:** Enter where the item is physically stored (e.g., "Home office", "Car glove compartment")
+- [ ] **Automatic GPS Coordinates:** App captures where YOU are when tagging (if GPS enabled)
+- [ ] Tag an item with both location types
+- [ ] Verify both are stored separately in the asset record
+- [ ] Check that GPS coordinates show your tagging location, not the item's location
+
+**Expected Results:**
+- Manual location field stores item's physical storage location
+- GPS coordinates automatically capture where you used the app
+- Both location types are clearly differentiated
+- GPS data only captured when permission is enabled
 
 ---
 
@@ -243,6 +299,21 @@ Create a test chain: You → Account A → Account B → Account C
 - [ ] Verify email change process
 - [ ] Test session management (logout/login)
 
+#### 7.4 GPS Privacy & Security (NEW)
+**Location Data Protection:**
+- [ ] Test location permission modal privacy explanations
+- [ ] Verify GPS can be disabled at any time via dashboard toggle
+- [ ] Check that location data is not captured when permission is disabled
+- [ ] Confirm location data is only used for asset tracking purposes
+- [ ] Test that location data is securely stored in user profile
+- [ ] Verify no location sharing with third parties (privacy policy compliance)
+
+**Browser Permission Management:**
+- [ ] Test browser-level location permission denial
+- [ ] Verify app gracefully handles permission errors
+- [ ] Check fallback behavior when GPS is unavailable
+- [ ] Test location accuracy settings (high accuracy vs. standard)
+
 ---
 
 ### 8. Mobile & Responsive Testing
@@ -312,11 +383,13 @@ When you find issues, please report them with:
 - [ ] Account creation (Standard & Business)
 - [ ] Asset tagging (Photo & Video)
 - [ ] Token economy (Balance, purchases, deductions)
+- [ ] **GPS location tracking (Permissions, dashboard toggle, automatic capture)**
 - [ ] Referral system (Multi-level rewards)
 - [ ] Next-of-Kin setup and assignments
 - [ ] Dashboard navigation and asset management
 
 ### Advanced Features
+- [ ] **GPS-enhanced asset tagging (Dual location capture)**
 - [ ] Dead Man's Switch configuration
 - [ ] Business product verification
 - [ ] QR code generation and scanning
@@ -324,6 +397,7 @@ When you find issues, please report them with:
 - [ ] Cross-device compatibility
 
 ### Security & Performance
+- [ ] **Location privacy and GPS permission management**
 - [ ] Data privacy and access controls
 - [ ] Authentication flows
 - [ ] File upload handling
