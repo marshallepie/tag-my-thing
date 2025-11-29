@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
@@ -26,6 +27,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   nokInviteEmail = null,
   isBusinessSignup = false
 }) => {
+  const { t, ready } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -236,12 +238,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       <Card className="w-full max-w-md mx-auto">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
-          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+          {mode === 'signin' ? (ready ? t('auth.welcomeBack') : 'Welcome back') : (ready ? t('auth.createAccount') : 'Create your account')}
         </h2>
         <p className="text-gray-600 mt-1">
           {mode === 'signin' 
-            ? 'Sign in to continue tagging your assets' 
-            : 'Start tagging and securing your assets today'
+            ? (ready ? t('auth.signInToContinue') : 'Sign in to continue tagging your assets')
+            : (ready ? t('auth.startTagging') : 'Start tagging and securing your assets today')
           }
         </p>
         
@@ -253,7 +255,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             className="mt-3 p-3 bg-primary-50 border border-primary-200 rounded-lg"
           >
             <p className="text-sm text-primary-700">
-              You're signing up via a referral! You and your referrer will earn bonus tokens.
+              {ready ? t('auth.referralSignup') : "You're signing up via a referral! You and your referrer will earn bonus tokens."}
             </p>
           </motion.div>
         )}
@@ -266,7 +268,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             className="mt-3 p-3 bg-secondary-50 border border-secondary-200 rounded-lg"
           >
             <p className="text-sm text-secondary-700">
-              You're accepting a Next-of-Kin nomination! You'll be able to manage someone's digital legacy.
+              {ready ? t('auth.nokInvitation') : "You're accepting a Next-of-Kin nomination! You'll be able to manage someone's digital legacy."}
             </p>
           </motion.div>
         )}
@@ -279,7 +281,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
           >
             <p className="text-sm text-blue-700">
-              Business Account - You'll have access to business features after signup.
+              {ready ? t('auth.businessSignupNotice') : "Business Account - You'll have access to business features after signup."}
             </p>
           </motion.div>
         )}
@@ -288,7 +290,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'signup' && (
           <Input
-            label="Full Name"
+            label={ready ? t('auth.fullName') : 'Full Name'}
             name="fullName"
             id="auth-full-name"
             type="text"
@@ -300,7 +302,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         )}
 
         <Input
-          label="Email"
+          label={ready ? t('auth.email') : 'Email'}
           name="email"
           id="auth-email"
           type="email"
@@ -313,7 +315,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
         <div className="relative">
           <Input
-            label="Password"
+            label={ready ? t('auth.password') : 'Password'}
             name="password"
             id="auth-password"
             type={showPassword ? 'text' : 'password'}
@@ -340,7 +342,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           className="w-full"
           loading={loading}
         >
-          {mode === 'signin' ? 'Sign In' : 'Create Account'}
+          {mode === 'signin' ? (ready ? t('buttons.signIn') : 'Sign In') : (ready ? t('auth.createAccount') : 'Create Account')}
         </Button>
       </form>
 
@@ -350,7 +352,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          <span className="px-2 bg-white text-gray-500">{ready ? t('auth.orContinueWith') : 'Or continue with'}</span>
         </div>
       </div>
 
@@ -362,7 +364,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         className="w-full"
       >
         <Phone className="h-4 w-4 mr-2" />
-        Sign in with Phone
+        {ready ? t('auth.signInWithPhone') : 'Sign in with Phone'}
       </Button>
 
 
@@ -373,11 +375,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           className="mt-4 p-3 bg-primary-50 rounded-lg"
         >
           <p className="text-sm text-primary-700 text-center">
-            Get 50 TMT tokens as a welcome bonus{referralCode ? ' + referral rewards' : ''}!
-            {isBusinessSignup ? ' Plus business features access!' : ''}
-            {nokInviteEmail ? ' Plus Next-of-Kin access!' : ''}
+            {ready ? t('auth.welcomeBonus') : 'Get 50 TMT tokens as a welcome bonus'}
+            {referralCode ? (ready ? t('auth.referralRewards') : ' + referral rewards') : ''}!
+            {isBusinessSignup ? (ready ? t('auth.businessFeatures') : ' Plus business features access!') : ''}
+            {nokInviteEmail ? (ready ? t('auth.nokAccess') : ' Plus Next-of-Kin access!') : ''}
             <br />
-            <span className="text-xs opacity-75">Everyone gets full referral privileges to earn from friend referrals!</span>
+            <span className="text-xs opacity-75">{ready ? t('auth.referralPrivileges') : 'Everyone gets full referral privileges to earn from friend referrals!'}</span>
           </p>
         </motion.div>
       )}

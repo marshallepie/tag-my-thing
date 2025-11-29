@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Menu, X, Camera, Wallet, Settings, LogOut, User, Shield, Megaphone, ChevronDown, Package, Heart } from 'lucide-react';
 import { Building, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTokens } from '../../hooks/useTokens';
 import { Button } from '../ui/Button';
+import { LanguageToggle } from '../ui/LanguageToggle';
 
 export const Header: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
@@ -40,40 +43,40 @@ export const Header: React.FC = () => {
 
   // Base navigation for all users
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'News', href: '/news' },
-    { name: 'Wallet', href: '/wallet' },
+    { name: ready ? t('navigation.dashboard') : 'Dashboard', href: '/dashboard' },
+    { name: ready ? t('navigation.news') : 'News', href: '/news' },
+    { name: ready ? t('navigation.wallet') : 'Wallet', href: '/wallet' },
   ];
 
   // All users can access referrals now
   if (profile) {
-    navigation.push({ name: 'Referrals', href: '/referrals' });
+    navigation.push({ name: ready ? t('navigation.referrals') : 'Referrals', href: '/referrals' });
   }
 
   // Assets-related navigation (for dropdown)
   const assetsNavigation = [
-    { name: 'Tag Asset', href: '/tag', icon: Camera },
-    { name: 'My Assets', href: '/assets', icon: Package },
-    { name: 'Public Assets', href: '/public-assets', icon: Globe },
-    { name: 'Next of Kin', href: '/nok', icon: Heart },
+    { name: ready ? t('navigation.tagAsset') : 'Tag Asset', href: '/tag', icon: Camera },
+    { name: ready ? t('navigation.myAssets') : 'My Assets', href: '/assets', icon: Package },
+    { name: ready ? t('navigation.publicAssets') : 'Public Assets', href: '/public-assets', icon: Globe },
+    { name: ready ? t('navigation.nextOfKin') : 'Next of Kin', href: '/nok', icon: Heart },
   ];
 
   // Admin/role-specific navigation (for dropdown)
   const adminNavigation: Array<{ name: string; href: string; icon: any }> = [];
   
   if (isBusinessUser) {
-    adminNavigation.push({ name: 'Business Dashboard', href: '/business-dashboard', icon: Building });
+    adminNavigation.push({ name: ready ? t('navigation.businessDashboard') : 'Business Dashboard', href: '/business-dashboard', icon: Building });
   }
   
   if (isAdminInfluencer || isAdmin) {
-    adminNavigation.push({ name: 'Admin Dashboard', href: '/admin-influencer-dashboard', icon: Shield });
-    adminNavigation.push({ name: 'Bug Reports', href: '/bug-reports', icon: Megaphone });
-    adminNavigation.push({ name: 'News Management', href: '/news-management', icon: Globe });
+    adminNavigation.push({ name: ready ? t('navigation.adminDashboard') : 'Admin Dashboard', href: '/admin-influencer-dashboard', icon: Shield });
+    adminNavigation.push({ name: ready ? t('navigation.bugReports') : 'Bug Reports', href: '/bug-reports', icon: Megaphone });
+    adminNavigation.push({ name: ready ? t('navigation.newsManagement') : 'News Management', href: '/news-management', icon: Globe });
     if (isAdmin && !isAdminInfluencer) {
-      adminNavigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
+      adminNavigation.push({ name: ready ? t('navigation.adminPanel') : 'Admin Panel', href: '/admin', icon: Shield });
     }
   } else if (isModerator) {
-    adminNavigation.push({ name: 'Moderator Panel', href: '/moderator', icon: Shield });
+    adminNavigation.push({ name: ready ? t('navigation.moderatorPanel') : 'Moderator Panel', href: '/moderator', icon: Shield });
   }
 
   const isActive = (path: string) => location.pathname === path;
@@ -148,7 +151,7 @@ export const Header: React.FC = () => {
                   `}
                 >
                   <Package className="h-4 w-4" />
-                  <span>Asset Management</span>
+                  <span>{ready ? t('navigation.assetManagement') : 'Asset Management'}</span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${isAssetsMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
@@ -203,7 +206,7 @@ export const Header: React.FC = () => {
                     `}
                   >
                     <Shield className="h-4 w-4" />
-                    <span>Admin</span>
+                    <span>{ready ? t('navigation.admin') : 'Admin'}</span>
                     <ChevronDown className={`h-4 w-4 transition-transform ${isAdminMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
@@ -246,6 +249,9 @@ export const Header: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Language Toggle - always visible */}
+            <LanguageToggle />
+            
             {isAuthenticated ? (
               <>
                 {/* Token Balance */}
@@ -291,14 +297,14 @@ export const Header: React.FC = () => {
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                         >
                           <User className="h-4 w-4 mr-2" />
-                          Profile
+                          {ready ? t('navigation.profile') : 'Profile'}
                         </button>
                         <button
                           onClick={() => handleNavigation('/settings')}
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                         >
                           <Settings className="h-4 w-4 mr-2" />
-                          Settings
+                          {ready ? t('navigation.settings') : 'Settings'}
                         </button>
                         <button
                           onClick={() => {
@@ -316,7 +322,7 @@ export const Header: React.FC = () => {
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
                         >
                           <LogOut className="h-4 w-4 mr-2" />
-                          Sign Out
+                          {ready ? t('navigation.signOut') : 'Sign Out'}
                         </button>
                       </div>
                     </motion.div>
@@ -344,14 +350,14 @@ export const Header: React.FC = () => {
                   onClick={() => handleNavigation('/tag')}
                 >
                     <Camera className="h-4 w-4 mr-1" />
-                    Tag Asset
+                    {ready ? t('buttons.tagAsset') : 'Tag Asset'}
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => handleNavigation('/auth')}
                 >
-                    Sign In
+                    {ready ? t('buttons.signIn') : 'Sign In'}
                 </Button>
               </div>
             )}
@@ -368,6 +374,14 @@ export const Header: React.FC = () => {
           className="md:hidden bg-white border-t border-gray-200"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Language Toggle for mobile */}
+            <div className="px-3 py-2 border-b border-gray-200 mb-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">{ready ? t('buttons.language') : 'Language'}</span>
+                <LanguageToggle />
+              </div>
+            </div>
+            
             {navigation.map((item) => (
               <button
                 key={item.name}
@@ -387,7 +401,7 @@ export const Header: React.FC = () => {
             {/* Assets Section */}
             <div className="pt-2 border-t border-gray-200">
               <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Asset Management
+                {ready ? t('navigation.assetManagement') : 'Asset Management'}
               </div>
               {assetsNavigation.map((item) => {
                 const Icon = item.icon;
@@ -414,7 +428,7 @@ export const Header: React.FC = () => {
             {adminNavigation.length > 0 && (
               <div className="pt-2 border-t border-gray-200">
                 <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Admin
+                  {ready ? t('navigation.admin') : 'Admin'}
                 </div>
                 {adminNavigation.map((item) => {
                   const Icon = item.icon;

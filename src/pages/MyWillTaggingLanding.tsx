@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Camera, Heart, Users, Clock, ArrowRight, Watch, Image, Coins, Mail, Phone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -13,6 +14,11 @@ export const MyWillTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, hasProfile } = useAuth();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return <div>Loading...</div>;
+  }
 
   // URL params
   const urlParams = new URLSearchParams(location.search);
@@ -84,48 +90,41 @@ export const MyWillTaggingLanding: React.FC = () => {
   const benefits = [
     {
       icon: <Heart className="h-8 w-8 text-primary-600" />,
-      title: 'Clear Intentions',
-      description:
-        'Document sentimental value, history, and specific instructions to prevent disputes and honor your wishes.',
+      title: t('myWillTagging.benefits.familyHeirlooms.title'),
+      description: t('myWillTagging.benefits.familyHeirlooms.description'),
     },
     {
       icon: <Coins className="h-8 w-8 text-secondary-600" />,
-      title: 'Digital Asset Management',
-      description:
-        'Record access details for digital accounts and crypto so your next-of-kin can find and manage them.',
+      title: t('myWillTagging.benefits.digitalAssets.title'),
+      description: t('myWillTagging.benefits.digitalAssets.description'),
     },
     {
       icon: <Users className="h-8 w-8 text-accent-600" />,
-      title: 'Next-of-Kin Access',
-      description:
-        'Designate trusted people who can access specific tagged information when the time comes.',
+      title: t('myWillTagging.benefits.importantDocuments.title'),
+      description: t('myWillTagging.benefits.importantDocuments.description'),
     },
     {
       icon: <Clock className="h-8 w-8 text-success-600" />,
-      title: 'Living Document',
-      description:
-        'Update your wishes as life evolves, keeping your legacy plan current and comprehensive.',
+      title: t('myWillTagging.benefits.memories.title'),
+      description: t('myWillTagging.benefits.memories.description'),
     },
   ];
 
   const examples = [
     {
       icon: <Watch className="h-12 w-12 text-primary-600" />,
-      title: 'Family Heirlooms',
-      description:
-        'Tag an antique watch with a video on its history and who should receive it, preserving story + intent.',
+      title: t('myWillTagging.examples.familyHeirlooms.title'),
+      description: t('myWillTagging.examples.familyHeirlooms.description'),
     },
     {
       icon: <Image className="h-12 w-12 text-secondary-600" />,
-      title: 'Digital Photo Archives',
-      description:
-        'Store where albums live and how to access/share them so memories aren’t lost.',
+      title: t('myWillTagging.examples.digitalPhotos.title'),
+      description: t('myWillTagging.examples.digitalPhotos.description'),
     },
     {
       icon: <Coins className="h-12 w-12 text-accent-600" />,
-      title: 'Cryptocurrency Wallets',
-      description:
-        'Record wallet details and transfer instructions so digital wealth reaches beneficiaries.',
+      title: t('myWillTagging.examples.cryptocurrency.title'),
+      description: t('myWillTagging.examples.cryptocurrency.description'),
     },
   ];
 
@@ -275,10 +274,10 @@ const handleSignup = async (e: React.FormEvent) => {
                 // New user with referral code - no sign-in option, just signup
                 <>
                   <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
-                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                    <span className="text-green-600 font-medium">{t('myWillTagging.navigation.referralCode')} {refCode}</span>
                   </div>
                   <Button size="sm" onClick={scrollToForm}>
-                    Join Now
+                    {t('myWillTagging.navigation.joinNow')}
                   </Button>
                 </>
               ) : (
@@ -289,10 +288,10 @@ const handleSignup = async (e: React.FormEvent) => {
                     size="sm" 
                     onClick={() => navigate('/auth')}
                   >
-                    Sign In
+                    {t('myWillTagging.navigation.signIn')}
                   </Button>
                   <Button size="sm" onClick={scrollToForm}>
-                    Get Started
+                    {t('myWillTagging.navigation.getStarted')}
                   </Button>
                 </>
               )}
@@ -307,20 +306,17 @@ const handleSignup = async (e: React.FormEvent) => {
           <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                MyWill & Legacy
-                <span className="block text-primary-600">Tagging</span>
+                {t('myWillTagging.hero.title')}
+                <span className="block text-primary-600">{t('myWillTagging.hero.titleHighlight')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Secure Your Legacy: Beyond the Last Will and Testament
+                {t('myWillTagging.hero.subtitle')}
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-8 leading-relaxed">
-                Your possessions tell a story, and your intentions for them are deeply personal. MyWill/Legacy Tagging with TagMyThing
-                allows you to create a living, verifiable record of your wishes for physical and digital assets, ensuring your legacy
-                is preserved and your intentions are clearly understood by those you leave behind.
+                {t('myWillTagging.hero.description')}
               </p>
               <p className="text-lg font-medium text-primary-700 max-w-3xl mx-auto mb-12">
-                This is not just a place to leave your <em>last</em> will—it’s a place to record your <em>first</em> will,
-                and every intention in between.
+                {t('myWillTagging.hero.extendedDescription')}
               </p>
             </motion.div>
 
@@ -332,10 +328,10 @@ const handleSignup = async (e: React.FormEvent) => {
             >
               <Button size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Start Your Legacy
+                {t('myWillTagging.hero.startTagging')}
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
-                Get Started Free
+                {t('myWillTagging.hero.getStartedFree')}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -353,9 +349,9 @@ const handleSignup = async (e: React.FormEvent) => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Key Benefits</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('myWillTagging.benefits.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Preserve your legacy with comprehensive digital documentation
+              {t('myWillTagging.benefits.subtitle')}
             </p>
           </motion.div>
 
@@ -389,9 +385,9 @@ const handleSignup = async (e: React.FormEvent) => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Legacy Examples</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('myWillTagging.examples.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See how TagMyThing can preserve your intentions and memories
+              {t('myWillTagging.examples.subtitle')}
             </p>
           </motion.div>
 
@@ -428,34 +424,29 @@ const handleSignup = async (e: React.FormEvent) => {
             {refCode ? (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Welcome! You've been invited to{' '}
-                  <span className="text-primary-600">Tag</span>
-                  <span className="text-primary-700">My</span>
-                  <span className="text-primary-600">Thing</span>
-                  {' '}Will & Legacy
+                  {t('myWillTagging.signup.welcomeWithReferral')}
                 </h2>
                 <p className="mt-3 text-gray-600">
-                  Create your account below to start recording your legacy and get your referral bonus!
+                  {t('myWillTagging.signup.referralDescription')}
                 </p>
                 <div className="mt-4 inline-flex items-center bg-green-50 px-4 py-2 rounded-full">
-                  <span className="text-green-700 font-medium">Referral Code: {refCode}</span>
+                  <span className="text-green-700 font-medium">{t('myWillTagging.signup.referralCodeLabel')} {refCode}</span>
                 </div>
               </>
             ) : (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Become a Tag<span className="text-primary-600">My</span>Thing{' '}
-                  <span className="text-primary-700 font-medium">Member</span> and record your wishes
+                  {t('myWillTagging.signup.becomeMember')}
                 </h2>
-                <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+                <p className="mt-3 text-gray-600">{t('myWillTagging.signup.memberDescription')}</p>
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-700">
-                    Already have an account?{' '}
+                    {t('myWillTagging.signup.alreadyHaveAccount')}{' '}
                     <button 
                       onClick={() => navigate('/auth')}
                       className="font-medium text-blue-800 hover:text-blue-900 underline"
                     >
-                      Sign in here
+                      {t('myWillTagging.signup.signInHere')}
                     </button>
                   </p>
                 </div>
@@ -512,14 +503,14 @@ const handleSignup = async (e: React.FormEvent) => {
             >
               <div>
                 <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
-                  Your name
+                  {t('myWillTagging.signup.fullName')}
                 </label>
                 <input
                   id="full_name"
                   name="full_name"
                   type="text"
                   autoComplete="name"
-                  placeholder="Jane Doe"
+                  placeholder={t('myWillTagging.signup.fullNamePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={submitting}
@@ -529,14 +520,14 @@ const handleSignup = async (e: React.FormEvent) => {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-                  Email
+                  {t('myWillTagging.signup.email')}
                 </label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t('myWillTagging.signup.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting || Boolean(nokInviteEmail)}
@@ -548,14 +539,14 @@ const handleSignup = async (e: React.FormEvent) => {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                  Password
+                  {t('myWillTagging.signup.password')}
                 </label>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('myWillTagging.signup.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={submitting}
@@ -577,7 +568,7 @@ const handleSignup = async (e: React.FormEvent) => {
                   'Creating your account…'
                 ) : (
                   <span className="inline-flex items-center">
-                    Create account & start tagging <ArrowRight className="h-4 w-4 ml-2" />
+                    {t('myWillTagging.signup.createAccount')} & start tagging <ArrowRight className="h-4 w-4 ml-2" />
                   </span>
                 )}
               </Button>
@@ -612,14 +603,14 @@ const handleSignup = async (e: React.FormEvent) => {
       <section className="py-16 lg:py-24 bg-gradient-to-r from-amber-600 to-orange-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Start Building Your Digital Legacy</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{t('myWillTagging.cta.title')}</h2>
             <p className="text-xl text-amber-100 mb-8">
-              Ensure your wishes are preserved and your loved ones understand your intentions.
+              {t('myWillTagging.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Heart className="h-5 w-5 mr-2" />
-                Create Your Legacy
+                {t('myWillTagging.cta.createLegacy')}
               </Button>
               <Button
                 variant="outline"
@@ -627,7 +618,7 @@ const handleSignup = async (e: React.FormEvent) => {
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-amber-600"
                 onClick={scrollToForm}
               >
-                Create Account
+                {t('myWillTagging.signup.createAccount')}
               </Button>
             </div>
           </motion.div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Coins, Users, Vote, Shield, Target, TrendingUp, Calendar, Award, Building, Globe } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
@@ -7,6 +8,12 @@ import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 
 export const Dao: React.FC = () => {
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
@@ -20,9 +27,9 @@ export const Dao: React.FC = () => {
               className="text-center"
             >
               <Coins className="h-16 w-16 mx-auto mb-6 text-white" />
-              <h1 className="text-4xl font-bold mb-4">TagMyThing DAO</h1>
+              <h1 className="text-4xl font-bold mb-4">{t('dao.title')}</h1>
               <p className="text-xl text-primary-100">
-                Community-driven governance for the future of digital asset management
+                {t('dao.subtitle')}
               </p>
             </motion.div>
           </div>
@@ -40,11 +47,9 @@ export const Dao: React.FC = () => {
             <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 border-primary-200">
               <div className="text-center">
                 <Target className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Vision</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dao.vision.title')}</h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  TagMyThing is evolving into a community-driven ecosystem where users not only tag and secure their assets 
-                  but also help guide the growth and governance of the platform. The DAO ensures transparency, fairness, 
-                  and shared ownership in the project's future.
+                  {t('dao.vision.description')}
                 </p>
               </div>
             </Card>
@@ -57,29 +62,29 @@ export const Dao: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Core Principles</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">{t('dao.corePrinciples.title')}</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
                   icon: <Shield className="h-6 w-6 text-primary-600" />,
-                  title: 'Transparency',
-                  description: 'All decisions, token flows, and governance actions are public and verifiable.'
+                  title: t('dao.corePrinciples.transparency.title'),
+                  description: t('dao.corePrinciples.transparency.description')
                 },
                 {
                   icon: <Users className="h-6 w-6 text-secondary-600" />,
-                  title: 'Community Empowerment',
-                  description: 'Token holders shape the future by voting on proposals and priorities.'
+                  title: t('dao.corePrinciples.communityEmpowerment.title'),
+                  description: t('dao.corePrinciples.communityEmpowerment.description')
                 },
                 {
                   icon: <Award className="h-6 w-6 text-accent-600" />,
-                  title: 'Fair Distribution',
-                  description: 'Tokens reflect both participation and contribution, ensuring everyone has a stake.'
+                  title: t('dao.corePrinciples.fairDistribution.title'),
+                  description: t('dao.corePrinciples.fairDistribution.description')
                 },
                 {
                   icon: <TrendingUp className="h-6 w-6 text-success-600" />,
-                  title: 'Sustainability',
-                  description: 'Resources are allocated with long-term project health in mind.'
+                  title: t('dao.corePrinciples.sustainability.title'),
+                  description: t('dao.corePrinciples.sustainability.description')
                 }
               ].map((principle, index) => (
                 <motion.div
@@ -119,27 +124,27 @@ export const Dao: React.FC = () => {
               <div className="flex items-start space-x-4">
                 <Coins className="h-6 w-6 text-primary-600 mt-1 flex-shrink-0" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Token Utility</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dao.tokenUtility.title')}</h2>
                   <p className="text-gray-700 mb-6 leading-relaxed">
-                    The TMT token is at the heart of the DAO. It powers:
+                    {t('dao.tokenUtility.description')}
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
                       {
                         icon: <Vote className="h-5 w-5 text-primary-600" />,
-                        title: 'Voting Rights',
-                        description: 'Each token represents a vote in governance decisions.'
+                        title: t('dao.tokenUtility.votingRights.title'),
+                        description: t('dao.tokenUtility.votingRights.description')
                       },
                       {
                         icon: <Shield className="h-5 w-5 text-secondary-600" />,
-                        title: 'Access to Features',
-                        description: 'Unlocking premium tools, tagging capacity, and integrations.'
+                        title: t('dao.tokenUtility.accessToFeatures.title'),
+                        description: t('dao.tokenUtility.accessToFeatures.description')
                       },
                       {
                         icon: <Award className="h-5 w-5 text-accent-600" />,
-                        title: 'Incentives',
-                        description: 'Rewards for referrals, contributions, and community involvement.'
+                        title: t('dao.tokenUtility.incentives.title'),
+                        description: t('dao.tokenUtility.incentives.description')
                       }
                     ].map((utility, index) => (
                       <div key={utility.title} className="bg-gray-50 rounded-lg p-4">
@@ -164,29 +169,29 @@ export const Dao: React.FC = () => {
             className="mb-12"
           >
             <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Governance Structure</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('dao.governanceStructure.title')}</h2>
               
               <div className="space-y-4">
                 {[
                   {
-                    title: 'Token Holders',
-                    description: 'The community members who vote on proposals.'
+                    title: t('dao.governanceStructure.tokenHolders.title'),
+                    description: t('dao.governanceStructure.tokenHolders.description')
                   },
                   {
-                    title: 'Delegates',
-                    description: 'Trusted individuals who can represent groups of token holders.'
+                    title: t('dao.governanceStructure.delegates.title'),
+                    description: t('dao.governanceStructure.delegates.description')
                   },
                   {
-                    title: 'Core Contributors',
-                    description: 'Developers and maintainers actively building TagMyThing.'
+                    title: t('dao.governanceStructure.coreContributors.title'),
+                    description: t('dao.governanceStructure.coreContributors.description')
                   },
                   {
-                    title: 'Governance Council',
-                    description: 'A rotating group of elected members overseeing proposal quality and execution.'
+                    title: t('dao.governanceStructure.governanceCouncil.title'),
+                    description: t('dao.governanceStructure.governanceCouncil.description')
                   },
                   {
-                    title: 'Facilitators/Admins',
-                    description: 'Operational roles that ensure proposals, votes, and funds are processed correctly.'
+                    title: t('dao.governanceStructure.facilitators.title'),
+                    description: t('dao.governanceStructure.facilitators.description')
                   }
                 ].map((role, index) => (
                   <div key={role.title} className="flex items-start space-x-3">
@@ -209,29 +214,29 @@ export const Dao: React.FC = () => {
             className="mb-12"
           >
             <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Proposal Process</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('dao.proposalProcess.title')}</h2>
               
               <div className="space-y-6">
                 {[
                   {
                     step: 1,
-                    title: 'Idea Submission',
-                    description: 'Any token holder can submit a proposal.'
+                    title: t('dao.proposalProcess.steps.submission.title'),
+                    description: t('dao.proposalProcess.steps.submission.description')
                   },
                   {
                     step: 2,
-                    title: 'Discussion',
-                    description: 'Community feedback is gathered in an open forum.'
+                    title: t('dao.proposalProcess.steps.discussion.title'),
+                    description: t('dao.proposalProcess.steps.discussion.description')
                   },
                   {
                     step: 3,
-                    title: 'Voting',
-                    description: 'Token-weighted voting determines whether the proposal passes.'
+                    title: t('dao.proposalProcess.steps.voting.title'),
+                    description: t('dao.proposalProcess.steps.voting.description')
                   },
                   {
                     step: 4,
-                    title: 'Execution',
-                    description: 'If approved, smart contracts or contributors implement the decision.'
+                    title: t('dao.proposalProcess.steps.execution.title'),
+                    description: t('dao.proposalProcess.steps.execution.description')
                   }
                 ].map((step, index) => (
                   <div key={step.step} className="flex items-start space-x-4">

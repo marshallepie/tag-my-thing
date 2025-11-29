@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FileText, Shield, Users, Database, Globe, Lock, CheckCircle, Mail, Calendar, Building, Scale } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 
 export const DataProcessingAgreement: React.FC = () => {
+  const { t, ready } = useTranslation();
   const lastUpdated = new Date().toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',
@@ -14,30 +16,30 @@ export const DataProcessingAgreement: React.FC = () => {
   const sections = [
     {
       id: 'subject-duration',
-      title: '1. Subject Matter & Duration',
+      title: ready ? t('dpa.sections.subjectDuration.title') : '1. Subject Matter & Duration',
       icon: <Calendar className="h-6 w-6 text-primary-600" />,
-      content: `This Agreement governs the processing of personal data for the duration of the Customer's use of Tag My Thing services.`
+      content: ready ? t('dpa.sections.subjectDuration.content') : `This Agreement governs the processing of personal data for the duration of the Customer's use of TagMyThing services.`
     },
     {
       id: 'nature-purpose',
-      title: '2. Nature & Purpose of Processing',
+      title: ready ? t('dpa.sections.naturePurpose.title') : '2. Nature & Purpose of Processing',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
-      content: `Processing includes collection, storage, transmission, and deletion of personal data for the purpose of delivering Tag My Thing's tagging, storage, and sharing services.`
+      content: ready ? t('dpa.sections.naturePurpose.content') : `Processing includes collection, storage, transmission, and deletion of personal data for the purpose of delivering TagMyThing's tagging, storage, and sharing services.`
     },
     {
       id: 'data-subjects',
-      title: '3. Categories of Data Subjects',
+      title: ready ? t('dpa.sections.dataSubjects.title') : '3. Categories of Data Subjects',
       icon: <Users className="h-6 w-6 text-primary-600" />,
-      list: [
-        'Users of Tag My Thing',
+      list: ready ? t('dpa.sections.dataSubjects.list', { returnObjects: true }) as string[] : [
+        'Users of TagMyThing',
         'Individuals whose data may appear in uploaded content'
       ]
     },
     {
       id: 'personal-data',
-      title: '4. Categories of Personal Data',
+      title: ready ? t('dpa.sections.personalData.title') : '4. Categories of Personal Data',
       icon: <Database className="h-6 w-6 text-primary-600" />,
-      list: [
+      list: ready ? t('dpa.sections.personalData.list', { returnObjects: true }) as string[] : [
         'Contact details',
         'Login credentials',
         'Uploaded files and metadata',
@@ -46,35 +48,35 @@ export const DataProcessingAgreement: React.FC = () => {
     },
     {
       id: 'sub-processors',
-      title: '5. Sub-Processors',
+      title: ready ? t('dpa.sections.subProcessors.title') : '5. Sub-Processors',
       icon: <Building className="h-6 w-6 text-primary-600" />,
-      content: `The Customer authorizes Tag <span className="text-primary-600">My</span> Thing to use the following sub-processors:`,
+      content: ready ? t('dpa.sections.subProcessors.content') : `The Customer authorizes TagMyThing to use the following sub-processors:`,
       subProcessors: [
         {
-          name: 'Supabase',
-          purpose: 'Cloud data hosting and storage',
-          compliance: 'GDPR compliant'
+          name: ready ? t('dpa.sections.subProcessors.supabase.name') : 'Supabase',
+          purpose: ready ? t('dpa.sections.subProcessors.supabase.purpose') : 'Cloud data hosting and storage',
+          compliance: ready ? t('dpa.sections.subProcessors.supabase.compliance') : 'GDPR compliant'
         },
         {
-          name: 'Stripe',
-          purpose: 'Payment processing',
-          compliance: 'GDPR compliant'
+          name: ready ? t('dpa.sections.subProcessors.stripe.name') : 'Stripe',
+          purpose: ready ? t('dpa.sections.subProcessors.stripe.purpose') : 'Payment processing',
+          compliance: ready ? t('dpa.sections.subProcessors.stripe.compliance') : 'GDPR compliant'
         }
       ],
-      note: 'Other sub-processors as necessary, provided that Tag My Thing maintains equivalent data protection obligations.'
+      note: ready ? t('dpa.sections.subProcessors.note') : 'Other sub-processors as necessary, provided that TagMyThing maintains equivalent data protection obligations.'
     },
     {
       id: 'controller-obligations',
-      title: '6. Controller Obligations',
+      title: ready ? t('dpa.sections.controllerObligations.title') : '6. Controller Obligations',
       icon: <Scale className="h-6 w-6 text-primary-600" />,
-      content: `The Customer ensures that they have all necessary consents and legal bases to process personal data using Tag <span className="text-primary-600">My</span> Thing.`
+      content: ready ? t('dpa.sections.controllerObligations.content') : `The Customer ensures that they have all necessary consents and legal bases to process personal data using TagMyThing.`
     },
     {
       id: 'processor-obligations',
-      title: '7. Processor Obligations',
+      title: ready ? t('dpa.sections.processorObligations.title') : '7. Processor Obligations',
       icon: <Shield className="h-6 w-6 text-primary-600" />,
-      content: `Tag <span className="text-primary-600">My</span> Thing shall:`,
-      list: [
+      content: ready ? t('dpa.sections.processorObligations.content') : `TagMyThing shall:`,
+      list: ready ? t('dpa.sections.processorObligations.list', { returnObjects: true }) as string[] : [
         'Process data only on documented instructions',
         'Ensure confidentiality and security measures',
         'Assist the Customer in fulfilling data subject rights',
@@ -84,21 +86,21 @@ export const DataProcessingAgreement: React.FC = () => {
     },
     {
       id: 'security-measures',
-      title: '8. Security Measures',
+      title: ready ? t('dpa.sections.securityMeasures.title') : '8. Security Measures',
       icon: <Lock className="h-6 w-6 text-primary-600" />,
-      content: `Tag <span className="text-primary-600">My</span> Thing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
+      content: ready ? t('dpa.sections.securityMeasures.content') : `TagMyThing implements appropriate technical and organizational measures, including encryption, access controls, and data backup procedures.`
     },
     {
       id: 'data-transfers',
-      title: '9. Data Transfers',
+      title: ready ? t('dpa.sections.dataTransfers.title') : '9. Data Transfers',
       icon: <Globe className="h-6 w-6 text-primary-600" />,
-      content: `If personal data is transferred outside the EEA, Tag <span className="text-primary-600">My</span> Thing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
+      content: ready ? t('dpa.sections.dataTransfers.content') : `If personal data is transferred outside the EEA, TagMyThing ensures compliance through Standard Contractual Clauses or equivalent mechanisms.`
     },
     {
       id: 'termination',
-      title: '10. Termination',
+      title: ready ? t('dpa.sections.termination.title') : '10. Termination',
       icon: <FileText className="h-6 w-6 text-primary-600" />,
-      content: `Upon termination, Tag <span className="text-primary-600">My</span> Thing will delete or return personal data unless otherwise required by law.`
+      content: ready ? t('dpa.sections.termination.content') : `Upon termination, TagMyThing will delete or return personal data unless otherwise required by law.`
     }
   ];
 
@@ -115,13 +117,13 @@ export const DataProcessingAgreement: React.FC = () => {
               className="text-center"
             >
               <FileText className="h-16 w-16 mx-auto mb-6 text-white" />
-              <h1 className="text-4xl font-bold mb-4">Data Processing Agreement</h1>
+              <h1 className="text-4xl font-bold mb-4">{ready ? t('dpa.title') : 'Data Processing Agreement'}</h1>
               <p className="text-xl text-primary-100">
-                Legal framework for personal data processing between Tag My Thing and our customers
+                {ready ? t('dpa.subtitle') : 'Legal framework for personal data processing between TagMyThing and our customers'}
               </p>
               <div className="mt-4 flex items-center justify-center text-primary-100">
                 <Calendar className="h-5 w-5 mr-2" />
-                <span>Last updated: {lastUpdated}</span>
+                <span>{ready ? t('dpa.lastUpdated') : 'Last updated'}: {lastUpdated}</span>
               </div>
             </motion.div>
           </div>
@@ -140,24 +142,22 @@ export const DataProcessingAgreement: React.FC = () => {
               <div className="text-center">
                 <Shield className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Data Processing Agreement (DPA)
+                  {ready ? t('dpa.introduction.title') : 'Data Processing Agreement (DPA)'}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  This Data Processing Agreement is entered into between Tag <span className="text-primary-600">My</span> Thing (Processor)
-                  and You (the Customer/Controller) and governs the processing of personal data 
-                  in connection with the services provided by Tag <span className="text-primary-600">My</span> Thing.
+                  {ready ? t('dpa.introduction.description') : 'This Data Processing Agreement is entered into between TagMyThing (Processor) and You (the Customer/Controller) and governs the processing of personal data in connection with the services provided by TagMyThing.'}
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <Building className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-                    <h3 className="font-semibold text-gray-900 mb-1">Controller</h3>
-                    <p className="text-gray-700 text-sm">You (the Customer)</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">{ready ? t('dpa.introduction.controller') : 'Controller'}</h3>
+                    <p className="text-gray-700 text-sm">{ready ? t('dpa.introduction.controllerDesc') : 'You (the Customer)'}</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <Shield className="h-8 w-8 text-secondary-600 mx-auto mb-2" />
-                    <h3 className="font-semibold text-gray-900 mb-1">Processor</h3>
-                    <p className="text-gray-700 text-sm">Tag <span className="text-primary-600">My</span> Thing</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">{ready ? t('dpa.introduction.processor') : 'Processor'}</h3>
+                    <p className="text-gray-700 text-sm">{ready ? t('dpa.introduction.processorDesc') : 'TagMyThing'}</p>
                   </div>
                 </div>
               </div>
@@ -220,7 +220,7 @@ export const DataProcessingAgreement: React.FC = () => {
                           {section.note && (
                             <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
                               <p className="text-primary-800 text-sm">
-                                <strong>Note:</strong> {section.note}
+                                <strong>{ready ? (t('dpa.sections.subProcessors.noteLabel') || 'Note:') : 'Note:'}</strong> {section.note}
                               </p>
                             </div>
                           )}
@@ -244,24 +244,27 @@ export const DataProcessingAgreement: React.FC = () => {
               <div className="text-center">
                 <Mail className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Questions About This Agreement?
+                  {ready ? t('dpa.contact.title') : 'DPA Questions & Legal Notices'}
                 </h3>
                 <p className="text-gray-700 mb-6 leading-relaxed">
-                  If you have any questions about this Data Processing Agreement 
-                  or need clarification on any data processing matters, please contact us.
+                  {ready ? t('dpa.contact.description') : 'For questions about this Data Processing Agreement or to request additional legal documentation, please contact our legal team.'}
                 </p>
                 
                 <div className="bg-white rounded-lg p-6 max-w-md mx-auto">
                   <div className="flex items-center justify-center space-x-3 mb-3">
                     <FileText className="h-6 w-6 text-primary-600" />
-                    <span className="text-lg font-semibold text-gray-900">DPA Contact</span>
+                    <span className="text-lg font-semibold text-gray-900">{ready ? t('dpa.contact.email') : 'Legal Contact'}</span>
                   </div>
                   <a
-                    href="mailto:tmt_dpa@marshallepie.com"
+                    href="mailto:tagmything@marshallepie.com"
                     className="text-primary-600 hover:text-primary-700 transition-colors font-medium"
                   >
-                    tmt_dpa@marshallepie.com
+                    tagmything@marshallepie.com
                   </a>
+                </div>
+                
+                <div className="mt-4 text-sm text-gray-600">
+                  <p>{ready ? t('dpa.contact.responseNote') : 'We will respond to all legal inquiries within 5 business days.'}</p>
                 </div>
               </div>
             </Card>

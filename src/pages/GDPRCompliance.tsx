@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Shield, CheckCircle, Mail, Database, CreditCard, Lock, Users, FileText, Calendar, Globe } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 
 export const GDPRCompliance: React.FC = () => {
+  const { t, ready } = useTranslation();
   const lastUpdated = new Date().toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',
@@ -14,66 +16,66 @@ export const GDPRCompliance: React.FC = () => {
   const compliancePoints = [
     {
       icon: <Database className="h-6 w-6 text-primary-600" />,
-      title: 'Data Minimization',
-      description: 'We collect only the data necessary to provide and improve our services.',
-      details: 'Our data collection is limited to essential information required for account creation, service delivery, and platform improvement.'
+      title: ready ? t('gdpr.commitments.dataMinimization.title') : 'Data Minimization',
+      description: ready ? t('gdpr.commitments.dataMinimization.description') : 'We collect only the data necessary to provide and improve our services.',
+      details: ready ? t('gdpr.commitments.dataMinimization.details') : 'Our data collection is limited to essential information required for account creation, service delivery, and platform improvement.'
     },
     {
       icon: <FileText className="h-6 w-6 text-primary-600" />,
-      title: 'Transparent Use',
-      description: 'We inform users clearly about how their data is used.',
-      details: 'Our Privacy Policy provides comprehensive details about data collection, processing, and usage in plain language.'
+      title: ready ? t('gdpr.commitments.transparentUse.title') : 'Transparent Use',
+      description: ready ? t('gdpr.commitments.transparentUse.description') : 'We inform users clearly about how their data is used.',
+      details: ready ? t('gdpr.commitments.transparentUse.details') : 'Our Privacy Policy provides comprehensive details about data collection, processing, and usage in plain language.'
     },
     {
       icon: <Users className="h-6 w-6 text-primary-600" />,
-      title: 'User Rights',
-      description: 'You can request access to, correction of, deletion of, or export of your data at any time.',
-      details: 'We provide easy mechanisms for users to exercise all GDPR rights including data portability and the right to be forgotten.'
+      title: ready ? t('gdpr.commitments.userRights.title') : 'User Rights',
+      description: ready ? t('gdpr.commitments.userRights.description') : 'You can request access to, correction of, deletion of, or export of your data at any time.',
+      details: ready ? t('gdpr.commitments.userRights.details') : 'We provide easy mechanisms for users to exercise all GDPR rights including data portability and the right to be forgotten.'
     },
     {
       icon: <Lock className="h-6 w-6 text-primary-600" />,
-      title: 'Data Security',
-      description: 'We store personal data securely using trusted third-party providers.',
-      details: 'All data is encrypted in transit and at rest using industry-standard security measures.'
+      title: ready ? t('gdpr.commitments.dataSecurity.title') : 'Data Security',
+      description: ready ? t('gdpr.commitments.dataSecurity.description') : 'We store personal data securely using trusted third-party providers.',
+      details: ready ? t('gdpr.commitments.dataSecurity.details') : 'All data is encrypted in transit and at rest using industry-standard security measures.'
     }
   ];
 
   const dataProcessors = [
     {
-      name: 'Supabase',
-      role: 'Cloud Database Platform',
-      compliance: 'Fully GDPR compliant with enterprise-grade encryption and security',
+      name: ready ? t('gdpr.processors.supabase.name') : 'Supabase',
+      role: ready ? t('gdpr.processors.supabase.role') : 'Cloud Database Platform',
+      compliance: ready ? t('gdpr.processors.supabase.compliance') : 'Fully GDPR compliant with enterprise-grade encryption and security',
       icon: <Database className="h-8 w-8 text-primary-600" />,
-      features: ['End-to-end encryption', 'EU data residency options', 'SOC 2 Type II certified', 'Regular security audits']
+      features: ready ? t('gdpr.processors.supabase.features', { returnObjects: true }) as string[] : ['End-to-end encryption', 'EU data residency options', 'SOC 2 Type II certified', 'Regular security audits']
     },
     {
-      name: 'Stripe',
-      role: 'Payment Processing Partner',
-      compliance: 'PCI DSS certified and adheres to GDPR requirements',
+      name: ready ? t('gdpr.processors.stripe.name') : 'Stripe',
+      role: ready ? t('gdpr.processors.stripe.role') : 'Payment Processing Partner',
+      compliance: ready ? t('gdpr.processors.stripe.compliance') : 'PCI DSS certified and adheres to GDPR requirements',
       icon: <CreditCard className="h-8 w-8 text-secondary-600" />,
-      features: ['PCI DSS Level 1 certified', 'GDPR compliant', 'Strong customer authentication', 'Fraud protection']
+      features: ready ? t('gdpr.processors.stripe.features', { returnObjects: true }) as string[] : ['PCI DSS Level 1 certified', 'GDPR compliant', 'Strong customer authentication', 'Fraud protection']
     }
   ];
 
   const additionalMeasures = [
     {
-      title: 'Data Processing Agreements',
-      description: 'We have Data Processing Agreements in place with all our sub-processors, including Supabase and Stripe, to ensure lawful processing and cross-border data transfers where applicable.',
+      title: ready ? t('gdpr.additionalMeasures.dataProcessingAgreements.title') : 'Data Processing Agreements',
+      description: ready ? t('gdpr.additionalMeasures.dataProcessingAgreements.description') : 'We have Data Processing Agreements in place with all our sub-processors, including Supabase and Stripe, to ensure lawful processing and cross-border data transfers where applicable.',
       icon: <FileText className="h-5 w-5 text-success-600" />
     },
     {
-      title: 'Accountability',
-      description: 'We regularly review and update our practices to remain compliant with applicable data protection laws.',
+      title: ready ? t('gdpr.additionalMeasures.accountability.title') : 'Accountability',
+      description: ready ? t('gdpr.additionalMeasures.accountability.description') : 'We regularly review and update our practices to remain compliant with applicable data protection laws.',
       icon: <Shield className="h-5 w-5 text-primary-600" />
     },
     {
-      title: 'Regular Audits',
-      description: 'We conduct regular compliance audits and security assessments to ensure ongoing GDPR compliance.',
+      title: ready ? t('gdpr.additionalMeasures.regularAudits.title') : 'Regular Audits',
+      description: ready ? t('gdpr.additionalMeasures.regularAudits.description') : 'We conduct regular compliance audits and security assessments to ensure ongoing GDPR compliance.',
       icon: <CheckCircle className="h-5 w-5 text-success-600" />
     },
     {
-      title: 'Staff Training',
-      description: 'Our team receives regular training on data protection principles and GDPR requirements.',
+      title: ready ? t('gdpr.additionalMeasures.staffTraining.title') : 'Staff Training',
+      description: ready ? t('gdpr.additionalMeasures.staffTraining.description') : 'Our team receives regular training on data protection principles and GDPR requirements.',
       icon: <Users className="h-5 w-5 text-secondary-600" />
     }
   ];
@@ -91,13 +93,13 @@ export const GDPRCompliance: React.FC = () => {
               className="text-center"
             >
               <Shield className="h-16 w-16 mx-auto mb-6 text-white" />
-              <h1 className="text-4xl font-bold mb-4">GDPR Compliance Statement</h1>
+              <h1 className="text-4xl font-bold mb-4">{ready ? t('gdpr.title') : 'GDPR Compliance Statement'}</h1>
               <p className="text-xl text-primary-100">
-                Our commitment to European Union General Data Protection Regulation compliance
+                {ready ? t('gdpr.subtitle') : 'Our commitment to European Union General Data Protection Regulation compliance'}
               </p>
               <div className="mt-4 flex items-center justify-center text-primary-100">
                 <Calendar className="h-5 w-5 mr-2" />
-                <span>Last updated: {lastUpdated}</span>
+                <span>{ready ? t('gdpr.lastUpdated') : 'Last updated'}: {lastUpdated}</span>
               </div>
             </motion.div>
           </div>
@@ -116,11 +118,10 @@ export const GDPRCompliance: React.FC = () => {
               <div className="text-center">
                 <Globe className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Full GDPR Compliance Commitment
+                  {ready ? t('gdpr.introduction.title') : 'Full GDPR Compliance Commitment'}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Tag <span className="text-primary-600">My</span> Thing is committed to full compliance with the European Union General Data Protection Regulation (GDPR).
-                  We ensure that your personal data is processed lawfully, fairly, and transparently at all times.
+                  {ready ? t('gdpr.introduction.description') : 'TagMyThing is committed to full compliance with the European Union General Data Protection Regulation (GDPR). We ensure that your personal data is processed lawfully, fairly, and transparently at all times.'}
                 </p>
               </div>
             </Card>
@@ -134,7 +135,7 @@ export const GDPRCompliance: React.FC = () => {
             className="mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Our GDPR Commitments
+              {ready ? t('gdpr.commitments.title') : 'Our GDPR Commitments'}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,7 +180,7 @@ export const GDPRCompliance: React.FC = () => {
             className="mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Trusted Data Processors
+              {ready ? t('gdpr.processors.title') : 'Trusted Data Processors'}
             </h2>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -207,7 +208,7 @@ export const GDPRCompliance: React.FC = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-gray-900 mb-3">Security Features:</h4>
+                      <h4 className="font-semibold text-gray-900 mb-3">{ready ? (t('gdpr.processors.securityFeatures') || 'Security Features:') : 'Security Features:'}</h4>
                       {processor.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4 text-success-600 flex-shrink-0" />
@@ -229,7 +230,7 @@ export const GDPRCompliance: React.FC = () => {
             className="mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Additional Compliance Measures
+              {ready ? t('gdpr.additionalMeasures.title') : 'Additional Compliance Measures'}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,28 +271,27 @@ export const GDPRCompliance: React.FC = () => {
               <div className="text-center">
                 <Mail className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Exercise Your GDPR Rights
+                  {ready ? t('gdpr.contact.title') : 'Contact Our Data Protection Officer'}
                 </h3>
                 <p className="text-gray-700 mb-6 leading-relaxed">
-                  If you have questions about our GDPR compliance or wish to exercise your data protection rights, 
-                  please don't hesitate to contact our Data Protection Officer.
+                  {ready ? t('gdpr.contact.description') : 'If you have questions about GDPR compliance or wish to exercise your data protection rights, please contact us.'}
                 </p>
                 
                 <div className="bg-white rounded-lg p-6 max-w-md mx-auto">
                   <div className="flex items-center justify-center space-x-3 mb-3">
                     <Mail className="h-6 w-6 text-primary-600" />
-                    <span className="text-lg font-semibold text-gray-900">GDPR Contact</span>
+                    <span className="text-lg font-semibold text-gray-900">{ready ? t('gdpr.contact.email') : 'Contact us via email'}</span>
                   </div>
                   <a
-                    href="mailto:tmt_gdpr@marshallepie.com"
+                    href="mailto:tagmything@marshallepie.com"
                     className="text-primary-600 hover:text-primary-700 transition-colors font-medium"
                   >
-                    tmt_gdpr@marshallepie.com
+                    {ready ? t('gdpr.contact.emailAddress') : 'tagmything@marshallepie.com'}
                   </a>
                 </div>
                 
                 <div className="mt-6 text-sm text-gray-600">
-                  <p>We will respond to all GDPR requests within 30 days as required by law.</p>
+                  <p>{ready ? (t('gdpr.contact.responseTime') || 'We will respond to all GDPR requests within 30 days as required by law.') : 'We will respond to all GDPR requests within 30 days as required by law.'}</p>
                 </div>
               </div>
             </Card>

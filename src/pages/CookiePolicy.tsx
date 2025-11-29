@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Cookie, Settings, Shield, Mail, Calendar, FileText, Eye, ToggleLeft, Globe, Lock } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 
 export const CookiePolicy: React.FC = () => {
+  const { t, ready } = useTranslation();
   const lastUpdated = new Date().toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',
@@ -14,57 +16,57 @@ export const CookiePolicy: React.FC = () => {
   const cookieTypes = [
     {
       id: 'essential',
-      title: 'Essential Cookies',
+      title: ready ? t('cookiePolicy.types.essential.title') : 'Essential Cookies',
       icon: <Lock className="h-6 w-6 text-error-600" />,
-      description: 'Necessary for the platform to function (e.g., authentication, security).',
+      description: ready ? t('cookiePolicy.types.essential.description') : 'Necessary for the platform to function (e.g., authentication, security).',
       required: true,
-      examples: ['Session management', 'Authentication tokens', 'Security features', 'Basic functionality']
+      examples: ready ? t('cookiePolicy.types.essential.examples', { returnObjects: true }) as string[] : ['Session management', 'Authentication tokens', 'Security features', 'Basic functionality']
     },
     {
       id: 'functional',
-      title: 'Functional Cookies',
+      title: ready ? t('cookiePolicy.types.functional.title') : 'Functional Cookies',
       icon: <Settings className="h-6 w-6 text-primary-600" />,
-      description: 'Remember your settings and preferences.',
+      description: ready ? t('cookiePolicy.types.functional.description') : 'Remember your settings and preferences.',
       required: false,
-      examples: ['Language preferences', 'Theme settings', 'User interface customizations', 'Saved preferences']
+      examples: ready ? t('cookiePolicy.types.functional.examples', { returnObjects: true }) as string[] : ['Language preferences', 'Theme settings', 'User interface customizations', 'Saved preferences']
     },
     {
       id: 'analytics',
-      title: 'Analytics Cookies',
+      title: ready ? t('cookiePolicy.types.analytics.title') : 'Analytics Cookies',
       icon: <FileText className="h-6 w-6 text-secondary-600" />,
-      description: 'Help us understand usage patterns and improve the service (e.g., Google Analytics).',
+      description: ready ? t('cookiePolicy.types.analytics.description') : 'Help us understand usage patterns and improve the service (e.g., Google Analytics).',
       required: false,
-      examples: ['Page views', 'User interactions', 'Performance metrics', 'Usage statistics']
+      examples: ready ? t('cookiePolicy.types.analytics.examples', { returnObjects: true }) as string[] : ['Page views', 'User interactions', 'Performance metrics', 'Usage statistics']
     },
     {
       id: 'third-party',
-      title: 'Third-Party Cookies',
+      title: ready ? t('cookiePolicy.types.thirdParty.title') : 'Third-Party Cookies',
       icon: <Globe className="h-6 w-6 text-accent-600" />,
-      description: 'Stripe and Supabase may set cookies for secure payments and session management.',
+      description: ready ? t('cookiePolicy.types.thirdParty.description') : 'Stripe and Supabase may set cookies for secure payments and session management.',
       required: false,
-      examples: ['Payment processing', 'Database sessions', 'External service integration', 'Security verification']
+      examples: ready ? t('cookiePolicy.types.thirdParty.examples', { returnObjects: true }) as string[] : ['Payment processing', 'Database sessions', 'External service integration', 'Security verification']
     }
   ];
 
   const managementOptions = [
     {
-      title: 'Accept All Cookies',
-      description: 'Allow all cookies for the best experience',
+      title: ready ? t('cookiePolicy.management.options.acceptAll.title') : 'Accept All Cookies',
+      description: ready ? t('cookiePolicy.management.options.acceptAll.description') : 'Allow all cookies for the best experience',
       icon: <Shield className="h-5 w-5 text-success-600" />
     },
     {
-      title: 'Customize Preferences',
-      description: 'Choose which types of cookies to allow',
+      title: ready ? t('cookiePolicy.management.options.customize.title') : 'Customize Preferences',
+      description: ready ? t('cookiePolicy.management.options.customize.description') : 'Choose which types of cookies to allow',
       icon: <Settings className="h-5 w-5 text-primary-600" />
     },
     {
-      title: 'Decline Non-Essential',
-      description: 'Only allow essential cookies for basic functionality',
+      title: ready ? t('cookiePolicy.management.options.declineNonEssential.title') : 'Decline Non-Essential',
+      description: ready ? t('cookiePolicy.management.options.declineNonEssential.description') : 'Only allow essential cookies for basic functionality',
       icon: <Eye className="h-5 w-5 text-warning-600" />
     },
     {
-      title: 'Browser Settings',
-      description: 'Manage or delete cookies in your browser',
+      title: ready ? t('cookiePolicy.management.options.browserSettings.title') : 'Browser Settings',
+      description: ready ? t('cookiePolicy.management.options.browserSettings.description') : 'Manage or delete cookies in your browser',
       icon: <ToggleLeft className="h-5 w-5 text-secondary-600" />
     }
   ];
@@ -82,13 +84,13 @@ export const CookiePolicy: React.FC = () => {
               className="text-center"
             >
               <Cookie className="h-16 w-16 mx-auto mb-6 text-white" />
-              <h1 className="text-4xl font-bold mb-4">Cookie Policy</h1>
+              <h1 className="text-4xl font-bold mb-4">{ready ? t('cookiePolicy.title') : 'Cookie Policy'}</h1>
               <p className="text-xl text-primary-100">
-                How we use cookies and similar technologies to enhance your experience
+                {ready ? t('cookiePolicy.subtitle') : 'How we use cookies and similar technologies to enhance your experience'}
               </p>
               <div className="mt-4 flex items-center justify-center text-primary-100">
                 <Calendar className="h-5 w-5 mr-2" />
-                <span>Last updated: {lastUpdated}</span>
+                <span>{ready ? t('cookiePolicy.lastUpdated') : 'Last updated'}: {lastUpdated}</span>
               </div>
             </motion.div>
           </div>
@@ -107,12 +109,10 @@ export const CookiePolicy: React.FC = () => {
               <div className="text-center">
                 <Cookie className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  What are Cookies?
+                  {ready ? t('cookiePolicy.introduction.title') : 'What are Cookies?'}
                 </h2>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Cookies are small text files stored on your device when you visit a website.
-                  They help us recognize your browser, remember your preferences, and improve your experience
-                  with Tag<span className="text-primary-600">My</span>Thing.
+                  {ready ? t('cookiePolicy.introduction.description') : 'Cookies are small text files stored on your device when you visit a website. They help us recognize your browser, remember your preferences, and improve your experience with TagMyThing.'}
                 </p>
               </div>
             </Card>
@@ -126,7 +126,7 @@ export const CookiePolicy: React.FC = () => {
             className="mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Types of Cookies We Use
+              {ready ? t('cookiePolicy.types.title') : 'Types of Cookies We Use'}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -153,7 +153,7 @@ export const CookiePolicy: React.FC = () => {
                           </h3>
                           {cookie.required && (
                             <span className="px-2 py-1 bg-error-100 text-error-800 text-xs font-medium rounded-full">
-                              Required
+                              {ready ? t('cookiePolicy.types.required') : 'Required'}
                             </span>
                           )}
                         </div>
@@ -161,7 +161,7 @@ export const CookiePolicy: React.FC = () => {
                           {cookie.description}
                         </p>
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Examples:</h4>
+                          <h4 className="font-medium text-gray-900 mb-2">{ready ? t('cookiePolicy.types.examples') : 'Examples:'}</h4>
                           <ul className="space-y-1">
                             {cookie.examples.map((example, exampleIndex) => (
                               <li key={exampleIndex} className="flex items-center text-sm text-gray-600">
@@ -187,7 +187,7 @@ export const CookiePolicy: React.FC = () => {
             className="mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Managing Your Cookie Preferences
+              {ready ? t('cookiePolicy.management.title') : 'Managing Your Cookie Preferences'}
             </h2>
             
             <div className="mb-8">
@@ -195,12 +195,10 @@ export const CookiePolicy: React.FC = () => {
                 <div className="text-center">
                   <Settings className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    Cookie Consent Banner
+                    {ready ? t('cookiePolicy.management.consentBanner.title') : 'Cookie Consent Banner'}
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
-                    When you first visit our site, you will be presented with a cookie consent banner 
-                    where you can make your preferences known. You have full control over which cookies 
-                    you allow.
+                    {ready ? t('cookiePolicy.management.consentBanner.description') : 'When you first visit our site, you will be presented with a cookie consent banner where you can choose your preferences.'}
                   </p>
                 </div>
               </Card>
@@ -243,18 +241,22 @@ export const CookiePolicy: React.FC = () => {
           >
             <Card className="bg-secondary-50 border-secondary-200">
               <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
-                Browser Cookie Management
+                {ready ? t('cookiePolicy.browserInstructions.title') : 'Browser-Specific Instructions'}
               </h3>
               <p className="text-gray-700 mb-6 text-center leading-relaxed">
-                You can also manage or delete cookies directly in your browser settings. 
-                Here are quick links to cookie settings for popular browsers:
+                {ready ? t('cookiePolicy.browserInstructions.description') : 'You can also manage cookies directly in your browser settings. Here are quick links for popular browsers:'}
               </p>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                {['Chrome', 'Firefox', 'Safari', 'Edge'].map((browser) => (
-                  <div key={browser} className="p-3 bg-white rounded-lg shadow-sm">
+                {[
+                  { key: 'chrome', name: ready ? t('cookiePolicy.browserInstructions.browsers.chrome') : 'Google Chrome' },
+                  { key: 'firefox', name: ready ? t('cookiePolicy.browserInstructions.browsers.firefox') : 'Mozilla Firefox' },
+                  { key: 'safari', name: ready ? t('cookiePolicy.browserInstructions.browsers.safari') : 'Safari' },
+                  { key: 'edge', name: ready ? t('cookiePolicy.browserInstructions.browsers.edge') : 'Microsoft Edge' }
+                ].map((browser) => (
+                  <div key={browser.key} className="p-3 bg-white rounded-lg shadow-sm">
                     <Globe className="h-6 w-6 text-secondary-600 mx-auto mb-2" />
-                    <span className="text-sm font-medium text-gray-900">{browser}</span>
+                    <span className="text-sm font-medium text-gray-900">{browser.name}</span>
                   </div>
                 ))}
               </div>
@@ -263,10 +265,9 @@ export const CookiePolicy: React.FC = () => {
                 <div className="flex items-start space-x-3">
                   <Eye className="h-5 w-5 text-warning-600 mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-warning-800">
-                    <p className="font-medium mb-1">Important Note</p>
+                    <p className="font-medium mb-1">{ready ? (t('cookiePolicy.importantNote') || 'Important Note') : 'Important Note'}</p>
                     <p>
-                      Disabling certain cookies may affect the functionality of TagMyThing. 
-                      Essential cookies are required for the platform to work properly.
+                      {ready ? (t('cookiePolicy.disablingNote') || 'Disabling certain cookies may affect the functionality of TagMyThing. Essential cookies are required for the platform to work properly.') : 'Disabling certain cookies may affect the functionality of TagMyThing. Essential cookies are required for the platform to work properly.'}
                     </p>
                   </div>
                 </div>
@@ -286,12 +287,10 @@ export const CookiePolicy: React.FC = () => {
                 <Calendar className="h-6 w-6 text-primary-600 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Changes to This Policy
+                    {ready ? (t('cookiePolicy.policyChanges.title') || 'Changes to This Policy') : 'Changes to This Policy'}
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
-                    We may update this Cookie Policy from time to time to reflect changes in our practices 
-                    or for other operational, legal, or regulatory reasons. Any changes will be posted on 
-                    this page with an updated "Last updated" date.
+                    {ready ? (t('cookiePolicy.policyChanges.description') || 'We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. Any changes will be posted on this page with an updated "Last updated" date.') : 'We may update this Cookie Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. Any changes will be posted on this page with an updated "Last updated" date.'}
                   </p>
                 </div>
               </div>
@@ -308,23 +307,22 @@ export const CookiePolicy: React.FC = () => {
               <div className="text-center">
                 <Mail className="h-12 w-12 text-primary-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Questions About Cookies?
+                  {ready ? t('cookiePolicy.contact.title') : 'Questions About Cookies?'}
                 </h3>
                 <p className="text-gray-700 mb-6 leading-relaxed">
-                  If you have any questions about our use of cookies or this Cookie Policy, 
-                  please don't hesitate to contact us.
+                  {ready ? t('cookiePolicy.contact.description') : 'If you have any questions about our use of cookies or this Cookie Policy, please don\'t hesitate to contact us.'}
                 </p>
                 
                 <div className="bg-white rounded-lg p-6 max-w-md mx-auto">
                   <div className="flex items-center justify-center space-x-3 mb-3">
                     <Cookie className="h-6 w-6 text-primary-600" />
-                    <span className="text-lg font-semibold text-gray-900">Cookie Support</span>
+                    <span className="text-lg font-semibold text-gray-900">{ready ? t('cookiePolicy.contact.email') : 'Contact us via email'}</span>
                   </div>
                   <a
-                    href="mailto:tmt-cookies@marshallepie.com"
+                    href="mailto:tagmything@marshallepie.com"
                     className="text-primary-600 hover:text-primary-700 transition-colors font-medium"
                   >
-                    tmt-cookies@marshallepie.com
+                    tagmything@marshallepie.com
                   </a>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { 
   Users, 
   Plus, 
@@ -69,6 +70,7 @@ interface Asset {
 }
 
 export const NextOfKin: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [nokList, setNokList] = useState<NextOfKin[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [filteredNOK, setFilteredNOK] = useState<NextOfKin[]>([]);
@@ -464,25 +466,25 @@ export const NextOfKin: React.FC = () => {
 
   const statsData = [
     {
-      title: 'Total NOK',
+      title: ready ? t('nextOfKin.totalNOK') : 'Total NOK',
       value: nokList.length.toString(),
       icon: <Users className="h-8 w-8 text-primary-600" />,
       color: 'text-primary-600'
     },
     {
-      title: 'Incoming NOK',
+      title: ready ? t('nextOfKin.incomingNOK') : 'Incoming NOK',
       value: stats.incoming_count.toString(),
       icon: <ArrowLeft className="h-8 w-8 text-secondary-600" />,
       color: 'text-secondary-600'
     },
     {
-      title: 'Outgoing NOK',
+      title: ready ? t('nextOfKin.outgoingNOK') : 'Outgoing NOK',
       value: stats.outgoing_count.toString(),
       icon: <ArrowRight className="h-8 w-8 text-accent-600" />,
       color: 'text-accent-600'
     },
     {
-      title: 'Upcoming DMS',
+      title: ready ? t('nextOfKin.upcomingDMS') : 'Upcoming DMS',
       value: stats.upcoming_dms_count.toString(),
       icon: <Timer className="h-8 w-8 text-warning-600" />,
       color: 'text-warning-600'
@@ -508,7 +510,7 @@ export const NextOfKin: React.FC = () => {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading Next of Kin data...</p>
+            <p className="text-gray-600">{ready ? t('nextOfKin.loading') : 'Loading Next of Kin data...'}</p>
           </div>
         </div>
       </Layout>
@@ -521,9 +523,9 @@ export const NextOfKin: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Next of Kin</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{ready ? t('nextOfKin.title') : 'Next of Kin'}</h1>
             <p className="text-gray-600">
-              Manage who can access your assets with Dead Man's Switch protection
+              {ready ? t('nextOfKin.subtitle') : 'Manage who can access your assets with Dead Man\'s Switch protection'}
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
@@ -533,11 +535,11 @@ export const NextOfKin: React.FC = () => {
               disabled={assignmentsLoading}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${assignmentsLoading ? 'animate-spin' : ''}`} />
-              Refresh
+              {ready ? t('nextOfKin.refresh') : 'Refresh'}
             </Button>
             <Button onClick={() => setShowAddModal(true)}>
               <Plus className="h-5 w-5 mr-2" />
-              Add Next of Kin
+              {ready ? t('nextOfKin.addNextOfKin') : 'Add Next of Kin'}
             </Button>
           </div>
         </div>
@@ -607,13 +609,13 @@ export const NextOfKin: React.FC = () => {
             <div className="bg-gradient-to-br from-primary-50 to-secondary-50 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
               <Heart className="h-16 w-16 text-primary-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">No Next of Kin Added</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{ready ? t('nextOfKin.noNOKAdded') : 'No Next of Kin Added'}</h2>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              Secure your digital legacy by adding trusted people who can access your assets with Dead Man's Switch protection.
+              {ready ? t('nextOfKin.secureDigitalLegacy') : 'Secure your digital legacy by adding trusted people who can access your assets with Dead Man\'s Switch protection.'}
             </p>
             <Button size="lg" onClick={() => setShowAddModal(true)}>
               <UserPlus className="h-5 w-5 mr-2" />
-              Add Your First Next of Kin
+              {ready ? t('nextOfKin.addFirstNOK') : 'Add Your First Next of Kin'}
             </Button>
           </motion.div>
         ) : (
@@ -653,8 +655,8 @@ export const NextOfKin: React.FC = () => {
             {filteredNOK.length === 0 ? (
               <div className="text-center py-16">
                 <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Next of Kin found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{ready ? t('nextOfKin.noNOKFound') : 'No Next of Kin found'}</h3>
+                <p className="text-gray-600">{ready ? t('nextOfKin.tryAdjustingFilters') : 'Try adjusting your search or filters'}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -743,7 +745,7 @@ export const NextOfKin: React.FC = () => {
                           className="w-full text-primary-600 hover:text-primary-700 hover:bg-primary-50"
                         >
                           <Package className="h-4 w-4 mr-1" />
-                          Assign All Assets
+                          {ready ? t('nextOfKin.assignAllAssets') : 'Assign All Assets'}
                         </Button>
                       </div>
 

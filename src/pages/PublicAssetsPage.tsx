@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Globe, Search, Filter, Image, Film, FileText, Calendar, User, Tag, MapPin, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Layout } from '../components/layout/Layout';
@@ -32,6 +33,7 @@ interface Asset {
 }
 
 export const PublicAssetsPage: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,7 +152,7 @@ export const PublicAssetsPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading public assets...</p>
+            <p className="text-gray-600">{ready ? t('publicAssets.loadingAssets') : 'Loading public assets...'}</p>
           </div>
         </div>
       </Layout>
@@ -165,16 +167,16 @@ export const PublicAssetsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
               <Globe className="h-8 w-8 mr-3 text-primary-600" />
-              Public Assets
+              {ready ? t('publicAssets.title') : 'Public Assets'}
             </h1>
             <p className="text-gray-600">
-              Explore assets publicly shared by TagMyThing users
+              {ready ? t('publicAssets.subtitle') : 'Explore assets publicly shared by TagMyThing users'}
             </p>
           </div>
           <div className="mt-4 sm:mt-0">
             <div className="bg-primary-50 px-4 py-2 rounded-lg">
               <p className="text-sm text-primary-700">
-                <strong>{filteredAssets.length}</strong> public assets found
+                <strong>{filteredAssets.length}</strong> {ready ? t('publicAssets.assetsFound') : 'public assets found'}
               </p>
             </div>
           </div>
@@ -310,8 +312,8 @@ export const PublicAssetsPage: React.FC = () => {
             ) : (
               <>
                 <Globe className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No public assets yet</h3>
-                <p className="text-gray-600">Be the first to share an asset publicly!</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{ready ? t('publicAssets.noPublicAssets') : 'No public assets yet'}</h3>
+                <p className="text-gray-600">{ready ? t('publicAssets.beFirstToShare') : 'Be the first to share an asset publicly!'}</p>
               </>
             )}
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { 
   Package, 
   Plus, 
@@ -712,7 +713,7 @@ export const Assets: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Assets</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{ready ? t('assets.title') : 'My Assets'}</h1>
             <p className="text-gray-600">
               Manage and organize your tagged assets
             </p>
@@ -741,7 +742,7 @@ export const Assets: React.FC = () => {
             {/* Search */}
             <div className="flex-1 max-w-md">
               <Input
-                placeholder="Search assets..."
+                placeholder={ready ? t('assets.searchPlaceholder') : 'Search assets...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 icon={<Search className="h-5 w-5 text-gray-400" />}
@@ -808,8 +809,8 @@ export const Assets: React.FC = () => {
             {searchTerm || filterPrivacy !== 'all' || filterMediaType !== 'all' ? (
               <>
                 <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No assets found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{ready ? t('assets.noAssetsFound') : 'No assets found'}</h3>
+                <p className="text-gray-600">{ready ? t('assets.tryAdjustingSearch') : 'Try adjusting your search or filters'}</p>
               </>
             ) : (
               <>

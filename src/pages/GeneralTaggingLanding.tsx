@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Camera, Shield, Package, CheckCircle, ArrowRight, Home, Bike, Star, FileText, Mail, Phone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -13,6 +14,11 @@ export const GeneralTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, hasProfile } = useAuth();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return <div>Loading...</div>;
+  }
 
   // URL params / referral preservation
   const urlParams = new URLSearchParams(location.search);
@@ -89,44 +95,41 @@ export const GeneralTaggingLanding: React.FC = () => {
   const features = [
     {
       icon: <Shield className="h-8 w-8 text-primary-600" />,
-      title: 'Proof of Ownership',
-      description: 'Create immutable, timestamped records that serve as verifiable proof of ownership for any item.',
+      title: t('generalTagging.features.proofOfOwnership.title'),
+      description: t('generalTagging.features.proofOfOwnership.description'),
     },
     {
       icon: <FileText className="h-8 w-8 text-primary-600" />,
-      title: 'Detailed Documentation',
-      description: 'Attach photos, videos, descriptions, and important documents (like receipts or certificates) to each tag.',
+      title: t('generalTagging.features.detailedDocumentation.title'),
+      description: t('generalTagging.features.detailedDocumentation.description'),
     },
     {
       icon: <Package className="h-8 w-8 text-primary-600" />,
-      title: 'Lost & Found Recovery',
-      description: 'Increase the chances of recovering lost items by providing clear ownership information accessible to finders.',
+      title: t('generalTagging.features.lostAndFound.title'),
+      description: t('generalTagging.features.lostAndFound.description'),
     },
     {
       icon: <CheckCircle className="h-8 w-8 text-primary-600" />,
-      title: 'Insurance & Valuation',
-      description: 'Maintain a comprehensive inventory of your valuables, simplifying insurance claims and appraisals.',
+      title: t('generalTagging.features.insuranceValuation.title'),
+      description: t('generalTagging.features.insuranceValuation.description'),
     },
   ];
 
   const examples = [
     {
       icon: <Bike className="h-12 w-12 text-primary-600" />,
-      title: 'Bicycle Registration',
-      description:
-        "Tag your bicycle with its serial number, photos, and your contact information. If it's ever stolen and recovered, law enforcement can easily identify you as the rightful owner.",
+      title: t('generalTagging.examples.bicycleRegistration.title'),
+      description: t('generalTagging.examples.bicycleRegistration.description'),
     },
     {
       icon: <Star className="h-12 w-12 text-secondary-600" />,
-      title: 'Collectibles & Memorabilia',
-      description:
-        'Document your stamp collection, vintage comic books, or sports memorabilia with detailed photos, condition reports, and purchase receipts. This enhances their value and provides a clear record for future sales or inheritance.',
+      title: t('generalTagging.examples.collectibles.title'),
+      description: t('generalTagging.examples.collectibles.description'),
     },
     {
       icon: <Home className="h-12 w-12 text-accent-600" />,
-      title: 'Home Inventory',
-      description:
-        'Create a digital inventory of valuable items in your home, such as electronics, jewelry, or artwork. In case of fire, theft, or natural disaster, you have a verifiable record for insurance purposes.',
+      title: t('generalTagging.examples.homeInventory.title'),
+      description: t('generalTagging.examples.homeInventory.description'),
     },
   ];
 
@@ -266,12 +269,12 @@ export const GeneralTaggingLanding: React.FC = () => {
             <div className="flex items-center space-x-3">
               {refCode ? (
                 // New user with referral code - no sign-in option, just signup
-                <>
+                <>  
                   <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
-                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                    <span className="text-green-600 font-medium">{t('generalTagging.navigation.referralCode')} {refCode}</span>
                   </div>
                   <Button size="sm" onClick={scrollToForm}>
-                    Join Now
+                    {t('generalTagging.navigation.joinNow')}
                   </Button>
                 </>
               ) : (
@@ -282,10 +285,10 @@ export const GeneralTaggingLanding: React.FC = () => {
                     size="sm" 
                     onClick={() => navigate('/auth')}
                   >
-                    Sign In
+                    {t('generalTagging.navigation.signIn')}
                   </Button>
                   <Button size="sm" onClick={scrollToForm}>
-                    Get Started
+                    {t('generalTagging.navigation.getStarted')}
                   </Button>
                 </>
               )}
@@ -300,16 +303,14 @@ export const GeneralTaggingLanding: React.FC = () => {
           <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                General Ownership
-                <span className="block text-primary-600">Tagging</span>
+                {t('generalTagging.hero.title')}
+                <span className="block text-primary-600">{t('generalTagging.hero.titleHighlight')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Document and Verify Ownership of Anything You Own
+                {t('generalTagging.hero.subtitle')}
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
-                Whether it's a cherished family heirloom, a valuable piece of equipment, or simply an item you want to keep track of,
-                General Ownership Tagging with TagMyThing provides a simple, secure, and verifiable way to document your possessions.
-                Create a digital record that proves ownership, tracks important details, and ensures your items are always identifiable.
+                {t('generalTagging.hero.description')}
               </p>
             </motion.div>
 
@@ -321,10 +322,10 @@ export const GeneralTaggingLanding: React.FC = () => {
             >
               <Button size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Start Tagging Now
+                {t('generalTagging.hero.startTagging')}
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
-                Get Started Free
+                {t('generalTagging.hero.getStartedFree')}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -342,9 +343,9 @@ export const GeneralTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Key Benefits</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('generalTagging.features.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to document and protect your valuable possessions
+              {t('generalTagging.features.subtitle')}
             </p>
           </motion.div>
 
@@ -381,33 +382,29 @@ export const GeneralTaggingLanding: React.FC = () => {
             {refCode ? (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Welcome! You've been invited to{' '}
-                  <span className="text-primary-600">Tag</span>
-                  <span className="text-primary-700">My</span>
-                  <span className="text-primary-600">Thing</span>
+                  {t('generalTagging.signup.welcomeWithReferral')}
                 </h2>
                 <p className="mt-3 text-gray-600">
-                  Create your account below to start tagging and get your referral bonus!
+                  {t('generalTagging.signup.referralDescription')}
                 </p>
                 <div className="mt-4 inline-flex items-center bg-green-50 px-4 py-2 rounded-full">
-                  <span className="text-green-700 font-medium">Referral Code: {refCode}</span>
+                  <span className="text-green-700 font-medium">{t('generalTagging.signup.referralCodeLabel')} {refCode}</span>
                 </div>
               </>
             ) : (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Become a Tag<span className="text-primary-600">My</span>Thing{' '}
-                  <span className="text-primary-700 font-medium">Member</span> and start tagging
+                  {t('generalTagging.signup.becomeMember')}
                 </h2>
-                <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+                <p className="mt-3 text-gray-600">{t('generalTagging.signup.memberDescription')}</p>
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-700">
-                    Already have an account?{' '}
+                    {t('generalTagging.signup.alreadyHaveAccount')}{' '}
                     <button 
                       onClick={() => navigate('/auth')}
                       className="font-medium text-blue-800 hover:text-blue-900 underline"
                     >
-                      Sign in here
+                      {t('generalTagging.signup.signInHere')}
                     </button>
                   </p>
                 </div>
@@ -464,14 +461,14 @@ export const GeneralTaggingLanding: React.FC = () => {
             >
               <div>
                 <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
-                  Your name
+                  {t('generalTagging.signup.fullName')}
                 </label>
                 <input
                   id="full_name"
                   name="full_name"
                   type="text"
                   autoComplete="name"
-                  placeholder="Jane Doe"
+                  placeholder={t('generalTagging.signup.fullNamePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={submitting}
@@ -481,14 +478,14 @@ export const GeneralTaggingLanding: React.FC = () => {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-                  Email
+                  {t('generalTagging.signup.email')}
                 </label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t('generalTagging.signup.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting || Boolean(nokInviteEmail)}
@@ -496,20 +493,20 @@ export const GeneralTaggingLanding: React.FC = () => {
                   className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
                 />
                 {nokInviteEmail && (
-                  <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>
+                  <p className="mt-1 text-xs text-gray-500">{t('generalTagging.signup.emailLocked')}</p>
                 )}
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                  Password
+                  {t('generalTagging.signup.password')}
                 </label>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('generalTagging.signup.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={submitting}
@@ -519,7 +516,7 @@ export const GeneralTaggingLanding: React.FC = () => {
 
               {refCode && (
                 <p className="text-xs text-gray-500">
-                  Applying referral code: <span className="font-medium">{refCode}</span>
+                  {t('generalTagging.signup.applyingReferralCode')} <span className="font-medium">{refCode}</span>
                 </p>
               )}
 
@@ -528,16 +525,16 @@ export const GeneralTaggingLanding: React.FC = () => {
 
               <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
                 {submitting ? (
-                  'Creating your account…'
+                  t('generalTagging.signup.creatingAccount')
                 ) : (
                   <span className="inline-flex items-center">
-                    Create account & start tagging <ArrowRight className="h-4 w-4 ml-2" />
+                    {t('generalTagging.signup.createAccount')} <ArrowRight className="h-4 w-4 ml-2" />
                   </span>
                 )}
               </Button>
 
               <p className="text-center text-xs text-gray-500">
-                By continuing you agree to our Terms and acknowledge our Privacy Policy.
+                {t('generalTagging.signup.termsAgreement')}
               </p>
             </motion.form>
           ) : (
@@ -572,9 +569,9 @@ export const GeneralTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Real-World Examples</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('generalTagging.examples.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See how TagMyThing can protect your valuable possessions
+              {t('generalTagging.examples.subtitle')}
             </p>
           </motion.div>
 
@@ -602,14 +599,14 @@ export const GeneralTaggingLanding: React.FC = () => {
       <section className="py-16 lg:py-24 bg-primary-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Start Protecting Your Assets Today</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{t('generalTagging.cta.title')}</h2>
             <p className="text-xl text-primary-100 mb-8">
-              Join thousands of users who trust TagMyThing to document and secure their valuable possessions.
+              {t('generalTagging.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Tag Your First Item
+                {t('generalTagging.cta.tagFirstItem')}
               </Button>
               <Button
                 variant="outline"
@@ -617,7 +614,7 @@ export const GeneralTaggingLanding: React.FC = () => {
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600"
                 onClick={scrollToForm}
               >
-                Create Account
+                {t('generalTagging.cta.createAccount')}
               </Button>
             </div>
           </motion.div>

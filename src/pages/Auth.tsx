@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Building, Shield } from 'lucide-react';
 import { AuthForm } from '../components/auth/AuthForm';
@@ -7,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 
 export const Auth: React.FC = () => {
+  const { t, ready } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, hasProfile } = useAuth();
@@ -54,15 +56,15 @@ export const Auth: React.FC = () => {
   };
 
   const getPageTitle = () => {
-    if (nokInviteEmail) return 'Next-of-Kin Invitation';
-    if (isBusinessSignup) return 'Business Account';
+    if (nokInviteEmail) return ready ? t('auth.nokInvitationTitle') : 'Next-of-Kin Invitation';
+    if (isBusinessSignup) return ready ? t('auth.businessAccount') : 'Business Account';
     return 'TagMyThing';
   };
 
   const getPageDescription = () => {
-    if (nokInviteEmail) return 'Accept your Next-of-Kin nomination and help manage digital legacy';
-    if (isBusinessSignup) return 'Protect your products with business verification features';
-    return 'Secure and tag your valuable assets';
+    if (nokInviteEmail) return ready ? t('auth.nokInvitationDescription') : 'Accept your Next-of-Kin nomination and help manage digital legacy';
+    if (isBusinessSignup) return ready ? t('auth.businessDescription') : 'Protect your products with business verification features';
+    return ready ? t('auth.tagMyThingDescription') : 'Secure and tag your valuable assets';
   };
 
   const getPageIcon = () => {
@@ -116,21 +118,21 @@ export const Auth: React.FC = () => {
             {mode === 'signin' ? (
               <>
                 <p className="text-gray-600">
-                  Don't have an account?
+                  {ready ? t('auth.dontHaveAccount') : "Don't have an account?"}
                 </p>
                 <Button
                   variant="ghost"
                   onClick={() => setMode('signup')}
                   className="mt-2"
                 >
-                  Create Account
+                  {ready ? t('auth.createAccount') : 'Create Account'}
                 </Button>
                 
                 {/* Additional signup options for regular auth page */}
                 {!isBusinessSignup && !nokInviteEmail && (
                   <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
                     <p className="text-sm text-gray-500">
-                      Special signup options:
+                      {ready ? t('auth.specialSignupOptions') : 'Special signup options:'}
                     </p>
                     <div className="flex justify-center">
                       <Button
@@ -140,7 +142,7 @@ export const Auth: React.FC = () => {
                         className="flex items-center justify-center"
                       >
                         <Building className="h-4 w-4 mr-1" />
-                        Business
+                        {ready ? t('auth.business') : 'Business'}
                       </Button>
                     </div>
                   </div>
@@ -149,14 +151,14 @@ export const Auth: React.FC = () => {
             ) : (
               <>
                 <p className="text-gray-600">
-                  Already have an account?
+                  {ready ? t('auth.alreadyHaveAccount') : 'Already have an account?'}
                 </p>
                 <Button
                   variant="ghost"
                   onClick={() => setMode('signin')}
                   className="mt-2"
                 >
-                  Sign In
+                  {ready ? t('buttons.signIn') : 'Sign In'}
                 </Button>
                 
                 {/* Switch between signup types */}
@@ -165,7 +167,7 @@ export const Auth: React.FC = () => {
                     {isBusinessSignup ? (
                       <div>
                         <p className="text-sm text-gray-500 mb-2">
-                          Looking for something else?
+                          {ready ? t('auth.lookingForSomethingElse') : 'Looking for something else?'}
                         </p>
                         <div className="flex justify-center">
                           <Button
@@ -173,14 +175,14 @@ export const Auth: React.FC = () => {
                             size="sm"
                             onClick={() => navigate('/auth?mode=signup')}
                           >
-                            Regular Account
+                            {ready ? t('auth.regularAccount') : 'Regular Account'}
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <div>
                         <p className="text-sm text-gray-500 mb-2">
-                          Special account types:
+                          {ready ? t('auth.specialAccountTypes') : 'Special account types:'}
                         </p>
                         <div className="flex justify-center">
                           <Button
@@ -190,7 +192,7 @@ export const Auth: React.FC = () => {
                             className="flex items-center justify-center"
                           >
                             <Building className="h-4 w-4 mr-1" />
-                            Business
+                            {ready ? t('auth.business') : 'Business'}
                           </Button>
                         </div>
                       </div>
@@ -208,7 +210,7 @@ export const Auth: React.FC = () => {
           to="/forgot-password"
           className="text-indigo-600 hover:text-indigo-500 text-sm"
         >
-          Forgot your password?
+          {ready ? t('auth.forgotPassword') : 'Forgot your password?'}
         </Link>
       </div>
 

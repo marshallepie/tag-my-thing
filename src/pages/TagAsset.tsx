@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { CameraCapture } from '../components/tagging/CameraCapture';
 import { TagAssetForm, AssetFormData } from '../components/tagging/TagAssetForm';
 import { useAuth } from '../hooks/useAuth';
@@ -17,6 +18,7 @@ interface MediaFile {
 }
 
 export const TagAsset: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [step, setStep] = useState<'capture' | 'form'>('capture');
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);

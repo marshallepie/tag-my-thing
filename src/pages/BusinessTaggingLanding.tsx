@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Camera, Shield, QrCode, Building, CheckCircle, ArrowRight, Key, Lock, Mail, Phone } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -13,6 +14,11 @@ export const BusinessTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, hasProfile } = useAuth();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return <div>Loading...</div>;
+  }
 
   // URL params
   const urlParams = new URLSearchParams(location.search);
@@ -84,26 +90,26 @@ export const BusinessTaggingLanding: React.FC = () => {
   const steps = [
     {
       number: '1',
-      title: 'Assign Unique Serial & QR Code',
-      description: 'Each product gets a unique serial number and an automatically generated QR code that links to its TagMyThing record.',
+      title: t('businessTagging.benefits.antiFraud.title'),
+      description: t('businessTagging.benefits.antiFraud.description'),
       icon: <QrCode className="h-8 w-8 text-primary-600" />
     },
     {
       number: '2',
-      title: 'Attach QR Code to Product',
-      description: 'Apply the QR code to your product via sticker, engraving, or integration into packaging for easy customer access.',
+      title: t('businessTagging.benefits.brandTrust.title'),
+      description: t('businessTagging.benefits.brandTrust.description'),
       icon: <Key className="h-8 w-8 text-secondary-600" />
     },
     {
       number: '3',
-      title: 'Customer Scans QR Code',
-      description: "Customers use any QR scanner to instantly access the product's TagMyThing verification page.",
+      title: t('businessTagging.benefits.supplyChain.title'),
+      description: t('businessTagging.benefits.supplyChain.description'),
       icon: <Shield className="h-8 w-8 text-success-600" />
     },
     {
       number: '4',
-      title: 'View Authenticity & Scan History',
-      description: 'Customers see product details and scan history. Unusual patterns or locations help identify potential counterfeits.',
+      title: t('businessTagging.benefits.customerExperience.title'),
+      description: t('businessTagging.benefits.customerExperience.description'),
       icon: <Lock className="h-8 w-8 text-accent-600" />
     },
   ];
@@ -255,10 +261,10 @@ export const BusinessTaggingLanding: React.FC = () => {
                 // New user with referral code - no sign-in option, just signup
                 <>
                   <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
-                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                    <span className="text-green-600 font-medium">{t('businessTagging.navigation.referralCode')} {refCode}</span>
                   </div>
                   <Button size="sm" onClick={scrollToForm}>
-                    Join Now
+                    {t('businessTagging.navigation.joinNow')}
                   </Button>
                 </>
               ) : (
@@ -269,10 +275,10 @@ export const BusinessTaggingLanding: React.FC = () => {
                     size="sm" 
                     onClick={() => navigate('/auth')}
                   >
-                    Sign In
+                    {t('businessTagging.navigation.signIn')}
                   </Button>
                   <Button size="sm" onClick={scrollToForm}>
-                    Get Started
+                    {t('businessTagging.navigation.getStarted')}
                   </Button>
                 </>
               )}
@@ -287,14 +293,14 @@ export const BusinessTaggingLanding: React.FC = () => {
           <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Business & Inventory
-                <span className="block text-primary-600">Tagging</span>
+                {t('businessTagging.hero.title')}
+                <span className="block text-primary-600">{t('businessTagging.hero.titleHighlight')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                TagMyThing for Businesses: Simple, Secure Product Authentication with QR Codes
+                {t('businessTagging.hero.subtitle')}
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
-                TagMyThing offers a lightweight product verification system built for businesses. Each product is assigned a unique serial number and an automatically generated QR code. When customers scan the code, they can instantly verify the product's authenticity and view its scan history. This helps identify counterfeits through unusual scan patterns or locations, giving customers confidence and protecting your brand—all without complex cryptographic systems.
+                {t('businessTagging.hero.description')}
               </p>
             </motion.div>
 
@@ -306,10 +312,10 @@ export const BusinessTaggingLanding: React.FC = () => {
             >
               <Button size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Start Protecting Products
+                {t('businessTagging.hero.startTagging')}
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
-                Get Started Free
+                {t('businessTagging.hero.getStartedFree')}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -327,9 +333,9 @@ export const BusinessTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('businessTagging.sections.howItWorks.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A simple four-step process to secure your products against counterfeiting
+              {t('businessTagging.sections.howItWorks.subtitle')}
             </p>
           </motion.div>
 
@@ -365,22 +371,13 @@ export const BusinessTaggingLanding: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">Why Choose TagMyThing?</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{t('businessTagging.sections.whyChoose.title')}</h2>
               <p className="text-lg text-gray-600 mb-8">
-                Our simple yet effective system assigns each product a unique serial number and QR code. When customers scan the code,
-                they instantly see the product's verification page with its complete scan history. Unusual scan patterns—like multiple
-                scans from different countries or suspicious frequency—help identify potential counterfeits. This transparency builds
-                customer confidence while protecting your brand reputation.
+                {t('businessTagging.sections.whyChoose.description')}
               </p>
 
               <div className="space-y-4">
-                {[
-                  'Simple QR code system requires no complex setup',
-                  'Instant verification with complete scan history',
-                  'Unusual patterns help identify potential counterfeits',
-                  'Scalable for any production volume',
-                  'Builds customer trust through transparency',
-                ].map((benefit, index) => (
+                {t('businessTagging.sections.features', { returnObjects: true }).map((benefit: string, index: number) => (
                   <motion.div
                     key={benefit}
                     initial={{ opacity: 0, x: -20 }}
@@ -399,12 +396,12 @@ export const BusinessTaggingLanding: React.FC = () => {
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }} className="relative">
               <div className="bg-gradient-to-br from-primary-600 to-secondary-600 rounded-2xl p-8 text-white">
                 <Building className="h-16 w-16 mb-6" />
-                <h3 className="text-2xl font-bold mb-4">Simple & Transparent</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('businessTagging.sections.whyChoose.cardTitle')}</h3>
                 <p className="text-primary-100 mb-6">
-                  Our lightweight QR code system provides effective protection through transparency and scan history tracking, scaling effortlessly with your business growth.
+                  {t('businessTagging.sections.whyChoose.cardDescription')}
                 </p>
                 <Button variant="secondary" size="lg" className="w-full" onClick={scrollToForm}>
-                  Start Simple Product Authentication
+                  {t('businessTagging.sections.whyChoose.cardButton')}
                 </Button>
               </div>
             </motion.div>
@@ -501,13 +498,13 @@ export const BusinessTaggingLanding: React.FC = () => {
               className="mt-8 space-y-4"
             >
               <div>
-                <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">Your name</label>
+                <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">{t('businessTagging.signup.fullName')}</label>
                 <input
                   id="full_name"
                   name="full_name"
                   type="text"
                   autoComplete="name"
-                  placeholder="Jane Doe"
+                  placeholder={t('businessTagging.signup.fullNamePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={submitting}
@@ -516,30 +513,30 @@ export const BusinessTaggingLanding: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-900">Work email</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-900">{t('businessTagging.signup.email')}</label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@company.com"
+                  placeholder={t('businessTagging.signup.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting || Boolean(nokInviteEmail)}
                   readOnly={Boolean(nokInviteEmail)}
                   className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
                 />
-                {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>}
+                {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">{t('businessTagging.signup.emailLocked')}</p>}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-900">Password</label>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-900">{t('businessTagging.signup.password')}</label>
                 <input
                   id="password"
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('businessTagging.signup.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={submitting}
@@ -549,7 +546,7 @@ export const BusinessTaggingLanding: React.FC = () => {
 
               {refCode && (
                 <p className="text-xs text-gray-500">
-                  Applying referral code: <span className="font-medium">{refCode}</span>
+                  {t('businessTagging.signup.applyingReferralCode')} <span className="font-medium">{refCode}</span>
                 </p>
               )}
 
@@ -557,15 +554,15 @@ export const BusinessTaggingLanding: React.FC = () => {
               {info && <p className="text-sm text-amber-700">{info}</p>}
 
               <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
-                {submitting ? 'Creating your business account…' : (
+                {submitting ? t('businessTagging.signup.creatingAccount') : (
                   <span className="inline-flex items-center">
-                    Create account <ArrowRight className="h-4 w-4 ml-2" />
+                    {t('businessTagging.signup.createAccount')} <ArrowRight className="h-4 w-4 ml-2" />
                   </span>
                 )}
               </Button>
 
               <p className="text-center text-xs text-gray-500">
-                By continuing you agree to our Terms and acknowledge our Privacy Policy.
+                {t('businessTagging.signup.termsAgreement')}
               </p>
             </motion.form>
           ) : (
@@ -594,17 +591,17 @@ export const BusinessTaggingLanding: React.FC = () => {
       <section className="py-16 lg:py-24 bg-primary-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Protect Your Products Today</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{t('businessTagging.cta.title')}</h2>
             <p className="text-xl text-primary-100 mb-8">
-              Join forward-thinking businesses that trust TagMyThing's simple QR code authentication to protect their products and build customer confidence.
+              {t('businessTagging.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Shield className="h-5 w-5 mr-2" />
-                Start Product Authentication
+                {t('businessTagging.cta.authenticateProducts')}
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600" onClick={scrollToForm}>
-                Create Business Account
+                {t('businessTagging.cta.createAccount')}
               </Button>
             </div>
           </motion.div>

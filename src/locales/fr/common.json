@@ -1,0 +1,1370 @@
+{
+  "navigation": {
+    "dashboard": "Tableau de Bord",
+    "news": "Actualités",
+    "assets": "Biens",
+    "wallet": "Portefeuille",
+    "referrals": "Parrainages",
+    "tagAsset": "Étiqueter un Bien",
+    "myAssets": "Mes Biens",
+    "publicAssets": "Biens Publics",
+    "nextOfKin": "Proche Aidant",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "signOut": "Se Déconnecter",
+    "admin": "Administration",
+    "assetManagement": "Gestion des Biens",
+    "businessDashboard": "Tableau de Bord Entreprise",
+    "adminDashboard": "Tableau de Bord Admin",
+    "bugReports": "Rapports de Bogues",
+    "newsManagement": "Gestion des Actualités",
+    "adminPanel": "Panneau d'Administration",
+    "moderatorPanel": "Panneau de Modération",
+    "auth": "Se Connecter",
+    "signup": "S'inscrire",
+    "launch": "Lancer"
+  },
+  "buttons": {
+    "signUp": "S'inscrire",
+    "signIn": "Se Connecter",
+    "tagAsset": "Étiqueter un Bien",
+    "language": "Langue",
+    "tagNow": "Étiqueter Maintenant",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "refresh": "Actualiser",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "apply": "Appliquer",
+    "close": "Fermer",
+    "continue": "Continuer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "viewAll": "Voir Tout"
+  },
+  "messages": {
+    "welcome": "Bienvenue sur TagMyThing",
+    "signUpSuccess": "Compte créé avec succès !",
+    "signInSuccess": "Bon retour !",
+    "assetTagged": "Bien étiqueté avec succès",
+    "tokensAdded": "{{amount}} jetons TMT ajoutés à votre compte",
+    "errorGeneric": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "loadingDashboard": "Chargement du tableau de bord...",
+    "noItemsFound": "Aucun élément trouvé",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+    "deleteSuccess": "Élément supprimé avec succès",
+    "updateSuccess": "Mis à jour avec succès",
+    "saveSuccess": "Sauvegardé avec succès",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "permissionDenied": "Permission refusée",
+    "sessionExpired": "Session expirée. Veuillez vous reconnecter."
+  },
+  "auth": {
+    "welcomeBack": "Bon retour",
+    "createAccount": "Créez votre compte",
+    "enterEmail": "Entrez votre email",
+    "enterPassword": "Entrez votre mot de passe",
+    "enterFullName": "Entrez votre nom complet",
+    "forgotPassword": "Mot de passe oublié ?",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "emailVerificationRequired": "Veuillez vérifier votre email pour valider votre compte",
+    "invalidCredentials": "Email ou mot de passe invalide",
+    "emailRequired": "Email requis",
+    "passwordRequired": "Mot de passe requis",
+    "nameRequired": "Nom complet requis",
+    "orContinueWith": "Ou continuer avec",
+    "signInWithPhone": "Se connecter avec le téléphone",
+    "specialSignupOptions": "Options d'inscription spéciales:",
+    "businessAccount": "Compte Entreprise",
+    "businessDescription": "Protégez vos produits avec des fonctionnalités de vérification d'entreprise",
+    "regularAccount": "Compte Régulier",
+    "lookingForSomethingElse": "Vous cherchez autre chose?",
+    "specialAccountTypes": "Types de comptes spéciaux:",
+    "business": "Entreprise",
+    "welcomeBonus": "Obtenez 50 jetons TMT comme bonus de bienvenue",
+    "referralRewards": " + récompenses de parrainage",
+    "businessFeatures": " Plus accès aux fonctionnalités d'entreprise!",
+    "nokAccess": " Plus accès Proche Aidant!",
+    "referralPrivileges": "Tout le monde obtient des privilèges de parrainage complets pour gagner grâce aux parrainages d'amis!",
+    "referralSignup": "Vous vous inscrivez via un parrainage! Vous et votre parrain gagnerez des jetons bonus.",
+    "nokInvitation": "Vous acceptez une nomination Proche Aidant! Vous pourrez gérer l'héritage numérique de quelqu'un.",
+    "businessSignupNotice": "Compte Entreprise - Vous aurez accès aux fonctionnalités d'entreprise après l'inscription.",
+    "nokInvitationTitle": "Invitation Proche Aidant",
+    "nokInvitationDescription": "Acceptez votre nomination Proche Aidant et aidez à gérer l'héritage numérique",
+    "tagMyThingDescription": "Sécurisez et étiquetez vos biens précieux",
+    "signInToContinue": "Connectez-vous pour continuer à étiqueter vos biens",
+    "startTagging": "Commencez à étiqueter et sécuriser vos biens aujourd'hui",
+    "email": "Email",
+    "password": "Mot de passe",
+    "fullName": "Nom complet",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPasswordTitle": "Mot de passe oublié ?",
+    "forgotPasswordDescription": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "emailAddress": "Adresse email",
+    "sendResetLink": "Envoyer le lien de réinitialisation",
+    "sending": "Envoi en cours...",
+    "checkEmailForReset": "Vérifiez votre email pour le lien de réinitialisation du mot de passe !",
+    "backToLogin": "Retour à la connexion"
+  },
+  "landing": {
+    "tagline": "Prenez une photo. Attachez un message. Stockez-le pour toujours.",
+    "startTagging": "Commencer l'étiquetage →",
+    "heroTitle": "Un Message Numérique dans une Bouteille",
+    "heroDescription": "Avec TagMyThing, vous pouvez prendre une photo, écrire un message, et le préserver pour toujours — public ou privé. Plus tard, vous pouvez même le transmettre à quelqu'un d'autre.",
+    "tagSomethingNow": "Étiqueter Quelque Chose Maintenant",
+    "createAccount": "Créer un Compte",
+    "howItWorksTitle": "Comment Ça Marche",
+    "howItWorksDescription": "Vous n'avez pas besoin de trop réfléchir. Il suffit de photographier, écrire, et étiqueter — et c'est là pour toujours.",
+    "snapAndTagTitle": "Photographier & Étiqueter Instantanément",
+    "snapAndTagDescription": "Capturez n'importe quel objet ou moment. Attachez votre message. Sauvegardez-le définitivement.",
+    "yourMessageTitle": "Votre Message, Votre Façon",
+    "yourMessageDescription": "Écrivez n'importe quoi — une note, un souvenir, un avertissement, ou un murmure vers l'avenir.",
+    "passItOnTitle": "Transmettez-le",
+    "passItOnDescription": "Transférez optionnellement votre étiquette à quelqu'un d'autre, maintenant ou plus tard — même après la mort.",
+    "builtOnPermawebTitle": "Construit sur le Permaweb",
+    "builtOnPermawebDescription": "Stocké pour toujours sur Arweave — aucun abonnement, aucune suppression, aucune expiration.",
+    "ctaTitle": "Commencez l'Étiquetage Gratuitement",
+    "ctaDescription": "Créez votre première étiquette aujourd'hui. Stockez votre message dans une bouteille — numériquement et de façon permanente."
+  },
+  "gps": {
+    "permissionTitle": "Activer le Suivi de Localisation?",
+    "permissionMessage": "TagMyThing peut automatiquement capturer les coordonnées GPS lors de l'étiquetage des biens, facilitant leur localisation et fournissant un meilleur contexte pour vos articles.",
+    "enableTracking": "Activer le Suivi de Localisation",
+    "skipForNow": "Passer pour Maintenant",
+    "locationDisabled": "Le suivi de localisation est désactivé",
+    "currentLocation": "Localisation Actuelle",
+    "locationUnavailable": "Localisation indisponible",
+    "locationPermissionDenied": "Permission de localisation refusée",
+    "gettingLocation": "Obtention de la localisation...",
+    "locationUpdated": "Localisation mise à jour avec succès",
+    "benefitPrivacyTitle": "Confidentialité Protégée",
+    "benefitPrivacyDescription": "Votre localisation n'est stockée que pour vos biens étiquetés et n'est jamais partagée",
+    "benefitContextTitle": "Meilleur Contexte des Biens",
+    "benefitContextDescription": "Sachez exactement où vous avez étiqueté chaque article avec des coordonnées GPS précises",
+    "benefitChoiceTitle": "Toujours Votre Choix",
+    "benefitChoiceDescription": "Vous pouvez activer ou désactiver cette fonctionnalité à tout moment dans les paramètres",
+    "enableButton": "Activer les Services de Localisation",
+    "skipButton": "Passer pour Maintenant",
+    "disableButton": "Désactiver les Services de Localisation",
+    "requestingTitle": "Demande d'Accès à la Localisation",
+    "requestingMessage": "Veuillez autoriser l'accès à la localisation dans votre navigateur lorsqu'on vous le demande",
+    "successTitle": "Localisation Activée!",
+    "successMessage": "Vos biens incluront désormais automatiquement les coordonnées GPS lors de l'étiquetage",
+    "deniedTitle": "Accès à la Localisation Refusé",
+    "deniedMessage": "Vous pouvez activer les services de localisation plus tard dans les paramètres de votre navigateur ou vos préférences de profil",
+    "continueButton": "Continuer Sans Localisation",
+    "enableLocation": "Activer la Localisation",
+    "skipLocation": "Passer pour Maintenant",
+    "locationEnabled": "Suivi de localisation activé avec succès!",
+    "locationDenied": "Accès à la localisation refusé. Vous pouvez l'activer plus tard dans les paramètres."
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "quickActions": "Actions Rapides",
+    "recentActivity": "Activité Récente",
+    "totalBalance": "Solde Total",
+    "totalAssets": "Biens Totaux",
+    "nextOfKinAssignments": "Assignations Proche Aidant",
+    "getStarted": "Prêt à commencer l'étiquetage?",
+    "tagFirstAsset": "Étiquetez Votre Premier Bien",
+    "noTransactions": "Aucune transaction pour l'instant",
+    "startTagging": "Commencez à étiqueter des biens pour voir votre activité",
+    "noAssetsYet": "Aucun bien étiqueté pour l'instant",
+    "tagSomething": "Étiquetez quelque chose pour commencer!",
+    "tagNewAsset": "Étiqueter un Nouveau Bien",
+    "tagDescription": "Capturer et étiqueter un nouveau bien",
+    "viewAssets": "Voir les Biens",
+    "viewDescription": "Parcourir vos biens étiquetés",
+    "manageNok": "Gérer Proche Aidant",
+    "nokDescription": "Configurer l'héritage des biens",
+    "walletOverview": "Aperçu Portefeuille",
+    "walletDescription": "Voir votre solde de jetons",
+    "welcomeBack": "Bon retour",
+    "overview": "Aperçu",
+    "tokens": "TMT",
+    "assets": "Biens",
+    "incoming": "Entrants",
+    "outgoing": "Sortants",
+    "assignmentsTooltip": "Biens qui vous sont assignés par rapport aux biens que vous avez assignés à d'autres",
+    "nokTooltip": "Assignations Proche Aidant et activations imminentes du commutateur de sécurité",
+    "loading": "Chargement...",
+    "welcomeBackUser": "Bon retour, {{name}} !",
+    "dashboardSubtitle": "Gérez vos biens et suivez votre héritage numérique."
+  },
+  "assets": {
+    "title": "Mes Biens",
+    "addNew": "Ajouter un Nouveau Bien",
+    "photoTag": "Étiquette Photo",
+    "videoTag": "Étiquette Vidéo",
+    "assetTitle": "Titre du Bien",
+    "description": "Description",
+    "estimatedValue": "Valeur Estimée",
+    "location": "Localisation",
+    "manualLocation": "Lieu de Stockage de l'Objet",
+    "autoLocation": "Coordonnées GPS",
+    "tags": "Étiquettes",
+    "category": "Catégorie",
+    "createdAt": "Créé le",
+    "lastModified": "Dernière Modification",
+    "viewDetails": "Voir les Détails",
+    "editAsset": "Modifier le Bien",
+    "deleteAsset": "Supprimer le Bien"
+  },
+  "tokens": {
+    "balance": "Solde de Jetons",
+    "transactions": "Transactions",
+    "earned": "Gagnés",
+    "spent": "Dépensés",
+    "photoCost": "Photo coûte {{cost}} TMT",
+    "videoCost": "Vidéo coûte {{cost}} TMT",
+    "insufficientFunds": "Jetons insuffisants",
+    "purchaseMore": "Acheter plus de jetons"
+  },
+  "nextOfKin": {
+    "title": "Proche de Confiance",
+    "addNew": "Ajouter un Proche de Confiance",
+    "fullName": "Nom Complet",
+    "email": "Adresse Email",
+    "phone": "Numéro de Téléphone",
+    "relationship": "Relation",
+    "notes": "Notes",
+    "assignAssets": "Assigner des Biens",
+    "deadManSwitch": "Interrupteur de Sécurité",
+    "dmsSettings": "Paramètres DMS",
+    "inactivityPeriod": "Période d'Inactivité",
+    "oneYear": "1 An",
+    "twoYears": "2 Ans",
+    "threeYears": "3 Ans",
+    "fourYears": "4 Ans",
+    "fiveYears": "5 Ans",
+    "incomingAssignments": "Assignations Reçues",
+    "outgoingAssignments": "Assignations Données",
+    "privacyProtection": "Protection de la Vie Privée : Le proche de confiance peut voir les assignations mais pas les détails des biens jusqu'à ce que le DMS se déclenche."
+  },
+  "referrals": {
+    "title": "Parrainages",
+    "yourCode": "Votre Code de Parrainage",
+    "shareCode": "Partagez Votre Code",
+    "totalReferrals": "Total des Parrainages",
+    "tokensEarned": "Jetons Gagnés",
+    "recentReferrals": "Parrainages Récents",
+    "referralLink": "Lien de Parrainage",
+    "copyLink": "Copier le Lien",
+    "linkCopied": "Lien copié dans le presse-papiers !",
+    "level1": "Niveau 1 (50 TMT)",
+    "level2": "Niveau 2 (30 TMT)",
+    "level3": "Niveau 3 (20 TMT)",
+    "level4": "Niveau 4 (10 TMT)",
+    "level5": "Niveau 5 (5 TMT)"
+  },
+  "language": {
+    "switchTo": "Passer à {{language}}",
+    "english": "English",
+    "french": "Français"
+  },
+  "news": {
+    "title": "Dernières Actualités",
+    "subtitle": "Restez informé des derniers développements, fonctionnalités et insights de TagMyThing",
+    "noArticlesYet": "Aucun article pour le moment",
+    "checkBackSoon": "Revenez bientôt pour les dernières actualités et mises à jour !",
+    "noArticlesInCategory": "Aucun article trouvé dans la catégorie \"{{category}}\".",
+    "readMore": "Lire Plus",
+    "failedToLoad": "Échec du chargement des articles",
+    "all": "Tout",
+    "categories": {
+      "Company News": "Actualités de l'Entreprise",
+      "Product Updates": "Mises à Jour Produit", 
+      "All": "Tout"
+    }
+  },
+  "wallet": {
+    "title": "Portefeuille TMT",
+    "subtitle": "Gérez vos jetons TagMyThing et consultez l'historique des transactions",
+    "currentBalance": "Solde Actuel",
+    "totalEarned": "Total Gagné",
+    "totalSpent": "Total Dépensé",
+    "transactions": "Transactions",
+    "transactionHistory": "Historique des Transactions",
+    "buyTokens": "Acheter des Jetons",
+    "refresh": "Actualiser",
+    "export": "Exporter",
+    "searchTransactions": "Rechercher des transactions...",
+    "allTypes": "Tous les Types",
+    "earned": "Gagné",
+    "spent": "Dépensé",
+    "allSources": "Toutes les Sources",
+    "noTransactionsFound": "Aucune transaction trouvée",
+    "loadingWallet": "Chargement de votre portefeuille...",
+    "processing": "Traitement...",
+    "buyNow": "Acheter Maintenant",
+    "subscribeNow": "S'abonner Maintenant",
+    "businessSubscriptions": "Abonnements Entreprise",
+    "monthlyTokens": "Jetons Mensuels",
+    "paymentMethods": "Méthodes de Paiement",
+    "quickActions": "Actions Rapides",
+    "referralProgram": "Programme de Parrainage",
+    "earnTokensByReferring": "Gagnez des jetons en parrainant des amis",
+    "dailyCheckIn": "Connexion Quotidienne",
+    "getDailyBonus": "Obtenez des jetons bonus quotidiens",
+    "viewRewards": "Voir les Récompenses",
+    "seeAllRewards": "Voir toutes les récompenses disponibles"
+  },
+  "referrals": {
+    "title": "Programme de Parrainage",
+    "yourReferralCode": "Votre Code de Parrainage",
+    "shareReferralLink": "Partagez Votre Lien de Parrainage",
+    "totalReferrals": "Total des Parrainages",
+    "tokensEarned": "Jetons Gagnés",
+    "recentReferrals": "Parrainages Récents",
+    "referralStats": "Statistiques de Parrainage",
+    "copyLink": "Copier le Lien",
+    "linkCopied": "Lien copié !",
+    "shareViaEmail": "Partager par Email",
+    "generateQRCode": "Générer un Code QR",
+    "selectLandingPage": "Sélectionner la Page de Destination",
+    "generalTagging": "Étiquetage de Propriété Générale (Recommandé)",
+    "generalTaggingDesc": "Documenter et vérifier la propriété",
+    "nftTagging": "Étiquetage d'Actifs Numériques et NFT",
+    "nftTaggingDesc": "Protégez les œuvres créatives et les NFT",
+    "myWillTagging": "Étiquetage MyWill et Héritage",
+    "myWillTaggingDesc": "Sécurisez votre héritage numérique",
+    "businessTagging": "Étiquetage Commercial et d'Inventaire",
+    "businessTaggingDesc": "Authentification de produits pour entreprises",
+    "refreshStats": "Actualiser les Statistiques",
+    "howItWorks": "Comment Ça Marche",
+    "step1": "Partagez votre lien de parrainage unique",
+    "step2": "Les amis s'inscrivent en utilisant votre lien",
+    "step3": "Vous gagnez tous les deux des jetons TMT !",
+    "rewardStructure": "Structure de Récompenses",
+    "level1": "Niveau 1: {{amount}} TMT (Parrainages directs)",
+    "level2": "Niveau 2: {{amount}} TMT (2ème niveau)",
+    "level3": "Niveau 3: {{amount}} TMT (3ème niveau)",
+    "level4": "Niveau 4: {{amount}} TMT (4ème niveau)",
+    "level5": "Niveau 5 : {{amount}} TMT (5ème niveau)",
+    "noReferralsYet": "Aucun parrainage pour le moment",
+    "startReferring": "Commencez à parrainer des amis pour gagner des jetons !",
+    "loading": "Chargement...",
+    "totalReferred": "Total Parrainé",
+    "totalEarned": "Total Gagné",
+    "pendingRewards": "Récompenses en Attente",
+    "usersReferred": "Utilisateurs que vous avez parrainés",
+    "rewardsProcessing": "Récompenses en cours de traitement",
+    "shareLink": "Partager le Lien",
+    "showQRCode": "Afficher le Code QR",
+    "rewardStructure": "Structure des Récompenses",
+    "level": "Niveau"
+  },
+  "assets": {
+    "title": "Mes Actifs",
+    "searchPlaceholder": "Rechercher des actifs...",
+    "noAssetsFound": "Aucun actif trouvé",
+    "tryAdjustingSearch": "Essayez d'ajuster votre recherche ou vos filtres",
+    "loading": "Chargement des actifs...",
+    "createNewAsset": "Créer un Nouvel Actif",
+    "viewDetails": "Voir les Détails",
+    "editAsset": "Modifier l'Actif",
+    "deleteAsset": "Supprimer l'Actif",
+    "assignToNOK": "Assigner au NOK",
+    "totalAssets": "Total des Actifs",
+    "publicAssets": "Actifs Publics",
+    "privateAssets": "Actifs Privés",
+    "recentlyAdded": "Récemment Ajoutés"
+  },
+  "publicAssets": {
+    "title": "Actifs Publics",
+    "subtitle": "Explorez les actifs partagés publiquement par les utilisateurs de TagMyThing",
+    "totalPublic": "Total Public",
+    "photoAssets": "Actifs Photo",
+    "videoAssets": "Actifs Vidéo",
+    "otherAssets": "Autres Actifs",
+    "noPublicAssets": "Aucun actif public pour le moment",
+    "beFirstToShare": "Soyez le premier à partager un actif publiquement !",
+    "assetsFound": "actifs publics trouvés",
+    "loadingAssets": "Chargement des actifs publics...",
+    "failedToLoad": "Échec du chargement des actifs publics",
+    "sortByNewest": "Plus Récents d'Abord",
+    "sortByTitle": "Titre",
+    "sortByUser": "Utilisateur"
+  },
+  "nextOfKin": {
+    "title": "Proche Parent",
+    "subtitle": "Gérez qui peut accéder à vos actifs avec la protection du Commutateur d'Homme Mort",
+    "addNextOfKin": "Ajouter un Proche Parent",
+    "addFirstNOK": "Ajoutez Votre Premier Proche Parent",
+    "noNOKAdded": "Aucun Proche Parent Ajouté",
+    "secureDigitalLegacy": "Sécurisez votre héritage numérique en ajoutant des personnes de confiance qui peuvent accéder à vos actifs avec la protection du Commutateur d'Homme Mort.",
+    "totalNOK": "Total NOK",
+    "incomingNOK": "NOK Entrants",
+    "outgoingNOK": "NOK Sortants",
+    "upcomingDMS": "DMS Prochains",
+    "nokList": "Liste des Proches Parents",
+    "incoming": "Entrants",
+    "outgoing": "Sortants",
+    "noNOKFound": "Aucun Proche Parent trouvé",
+    "tryAdjustingFilters": "Essayez d'ajuster votre recherche ou vos filtres",
+    "assignAllAssets": "Assigner Tous les Actifs",
+    "verificationPending": "Vérification en Attente",
+    "sendInvitation": "Envoyez une invitation à cette personne pour qu'elle puisse accepter la nomination.",
+    "invitationSent": "Invitation Envoyée",
+    "waitingAcceptance": "En attente que cette personne accepte votre invitation.",
+    "verified": "Vérifié",
+    "pending": "En Attente",
+    "declined": "Refusé",
+    "allStatus": "Tous les Statuts",
+    "loading": "Chargement des données des Proches Parents...",
+    "refresh": "Actualiser",
+    "fullName": "Nom Complet",
+    "emailAddress": "Adresse Email",
+    "phoneNumber": "Numéro de Téléphone",
+    "relationship": "Relation",
+    "notes": "Notes",
+    "cancel": "Annuler",
+    "removeNextOfKin": "Retirer le Proche Parent",
+    "confirmRemoval": "Êtes-vous sûr de vouloir retirer ce Proche Parent ? Il perdra l'accès à tous les actifs assignés.",
+    "massAssignment": "Attribution en Masse",
+    "massAssignmentDesc": "Cela assignera TOUS vos actifs actuels à cette personne. Elle n'y aura accès que si le Commutateur d'Homme Mort est déclenché.",
+    "dmsYears": "Commutateur d'Homme Mort (Années)",
+    "dmsDescription": "Si vous ne vous connectez pas pendant cette période, cette personne aura accès à tous vos actifs.",
+    "privacyProtection": "Protection de la Vie Privée",
+    "nokAssignmentPrivacy": "Cette personne saura seulement qu'elle a été assignée comme votre Proche Parent sans voir les détails des actifs jusqu'à ce que le Commutateur d'Homme Mort soit déclenché.",
+    "whatWillHappen": "Ce qui va se passer :",
+    "createNOK": "Créer cette personne comme votre Proche Parent",
+    "assignAsset": "Assigner l'actif à cette personne",
+    "setDMS": "Configurer le Commutateur d'Homme Mort",
+    "notifyAssignment": "Elle sera notifiée de l'assignation (sans les détails des actifs)",
+    "selectNextOfKin": "Sélectionner un Proche Parent",
+    "reassignToNOK": "Réassigner au NOK"
+  },
+  "tagAsset": {
+    "title": "Étiqueter un Actif",
+    "assetDetails": "Détails de l'Actif",
+    "title": "Titre",
+    "titlePlaceholder": "Donnez un titre descriptif à votre actif",
+    "description": "Description",
+    "descriptionPlaceholder": "Ajoutez des détails supplémentaires sur cet actif",
+    "tags": "Étiquettes",
+    "tagsPlaceholder": "Ajouter une étiquette",
+    "addTag": "Ajouter",
+    "estimatedValue": "Valeur Estimée (£)",
+    "location": "Emplacement",
+    "locationPlaceholder": "Où se trouve cet actif ?",
+    "privacy": "Confidentialité",
+    "private": "Privé",
+    "public": "Public",
+    "privateDescription": "Vous seul pouvez voir cet actif",
+    "publicDescription": "Tout le monde peut découvrir cet actif",
+    "tokenCostBreakdown": "Répartition des Coûts en Jetons",
+    "photos": "Photos",
+    "videos": "Vidéos",
+    "documents": "Documents",
+    "totalTokenCost": "Coût Total en Jetons",
+    "mediaFiles": "fichiers multimédias",
+    "requiredToSave": "Requis pour sauvegarder",
+    "saveAsset": "Sauvegarder l'Actif",
+    "processing": "Traitement...",
+    "nokAssignment": "Attribution de Proche Parent",
+    "nokOptional": "Optionnel - Attribuer cet actif à un Proche Parent",
+    "assignToExisting": "Attribuer à un NOK Existant",
+    "createNewNOK": "Créer un Nouveau NOK",
+    "dmsYears": "Commutateur d'Homme Mort (Années)",
+    "dmsDescription": "Si vous ne vous connectez pas pendant cette période, cette personne aura accès à cet actif"
+  },
+  "activity": {
+    "tagAsset": "Étiqueter un Actif",
+    "referral": "Parrainage",
+    "referralReward": "Récompense de Parrainage",
+    "signup": "Inscription",
+    "purchase": "Achat",
+    "blockchainPublish": "Publication Blockchain",
+    "viewAllTransactions": "Voir Toutes les Transactions"
+  },
+  "footer": {
+    "brandDescription": "Sécurisez, étiquetez et gérez vos actifs numériques et physiques avec la technologie blockchain. Votre héritage numérique, protégé pour toujours.",
+    "privacySecurityFirst": "Confidentialité et Sécurité d'Abord",
+    "useCases": "Cas d'Utilisation",
+    "generalOwnership": "Propriété Générale",
+    "digitalAssetsNFTs": "Actifs Numériques et NFT",
+    "myWillLegacy": "MonTestament et Héritage",
+    "businessInventory": "Entreprise et Inventaire",
+    "legal": "Légal",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions d'Utilisation",
+    "gdprCompliance": "Conformité RGPD",
+    "cookiePolicy": "Politique des Cookies",
+    "dataProcessingAgreement": "Accord de Traitement des Données",
+    "support": "Assistance",
+    "contactUs": "Nous Contacter",
+    "documentation": "Documentation",
+    "faq": "FAQ",
+    "theOrganisation": "L'Organisation",
+    "aboutUs": "À Propos de Nous",
+    "tagMyThingDAO": "TagMyThing DAO",
+    "careers": "Carrières",
+    "explore": "Explorer",
+    "publicAssets": "Actifs Publics",
+    "allRightsReserved": "Tous droits réservés",
+    "madeWithLove": "Fait avec ❤️ pour la sécurité numérique",
+    "gdprCompliant": "Conforme RGPD",
+    "gdprDescription": "Nous nous engageons à protéger votre vie privée et à respecter les réglementations RGPD. Lisez notre Politique de Confidentialité pour savoir comment nous traitons vos données."
+  },
+  "aboutUs": {
+    "pageTitle": "À Propos de TagMyThing",
+    "pageSubtitle": "Notre histoire, vision et engagement envers la gestion d'actifs numériques",
+    "founder": {
+      "title": "Notre Fondateur Visionnaire",
+      "description": "TagMyThing a été conçu et créé par Marshall Epie, un développeur passionné et visionnaire. Le concept de TagMyThing remonte à 2018 quand Marshall a reconnu le besoin d'un moyen sûr et immuable de protéger les informations numériques importantes, surtout pour ceux impliqués dans les débuts de la cryptomonnaie. Beaucoup de gens ont perdu l'accès à leurs actifs numériques simplement parce qu'ils avaient égaré leurs clés privées. Cela a inspiré l'idée de ce qui s'appelait à l'origine 'Immortal AI', un outil conçu pour aider les gens à garder leurs informations précieuses en sécurité pour toujours."
+    },
+    "evolution": {
+      "title": "De l'Idée à la Réalité",
+      "description": "Bien que l'idée était en avance sur son temps, la technologie et les outils disponibles à cette époque n'étaient pas assez conviviaux pour donner vie à la vision. Alors, Marshall a mis le projet en veilleuse jusqu'à récemment, quand il a acquis de nouvelles compétences en ingénierie d'invite et est apparu à la télévision au Cameroun. Cela l'a inspiré à réaliser pleinement la plateforme TagMyThing, maintenant soutenue par des outils modernes et un processus de développement raffiné.",
+      "mediaAppearance": {
+        "title": "Apparition Médiatique",
+        "description": "L'apparition de Marshall à la télévision au Cameroun a marqué un tournant, fournissant l'inspiration et la confiance nécessaires pour transformer la vision de longue date en la plateforme complète que vous voyez aujourd'hui."
+      },
+      "today": "Aujourd'hui, TagMyThing témoigne du dévouement de Marshall à créer une plateforme équitable et axée sur la communauté. Le projet est conçu pour être open-source et sera gouverné par une Organisation Autonome Décentralisée (DAO), garantissant la transparence et l'implication de la communauté dans sa croissance."
+    },
+    "timeline": {
+      "title": "Notre Parcours",
+      "events": {
+        "2018": {
+          "title": "2018 - La Vision Originale",
+          "description": "Marshall Epie a conçu 'Immortal AI' après avoir vu des utilisateurs de cryptomonnaie perdre l'accès à leurs actifs numériques à cause de clés privées égarées. Le besoin d'un stockage numérique sécurisé et permanent est devenu évident."
+        },
+        "development": {
+          "title": "2018-2024 - Développement et Apprentissage",
+          "description": "Le projet est resté en développement pendant que Marshall perfectionnait ses compétences en développement web moderne, ingénierie d'invite, et acquérait une expérience précieuse dans la création d'applications conviviales."
+        },
+        "tv": {
+          "title": "2024 - Apparition Télévisée et Inspiration",
+          "description": "L'apparition de Marshall à la télévision au Cameroun a fourni l'inspiration finale nécessaire pour donner vie à TagMyThing avec une technologie moderne et une expérience utilisateur raffinée."
+        },
+        "launch": {
+          "title": "2025 - Lancement de TagMyThing",
+          "description": "La plateforme lance officiellement avec des fonctionnalités complètes incluant le marquage d'actifs, la planification Next-of-Kin, la vérification d'entreprise, et une économie basée sur les tokens, le tout gouverné par les principes de DAO axés sur la communauté."
+        }
+      }
+    },
+    "connect": {
+      "title": "Connectez-vous avec Marshall Epie",
+      "description": "Pour plus d'informations sur Marshall Epie et son travail, ou pour contacter l'équipe TagMyThing, utilisez l'une des méthodes de contact suivantes :",
+      "website": "marshallepie.com",
+      "linkedin": "LinkedIn",
+      "email": "Email"
+    }
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour",
+    "contactEmail": "tagmything@marshallepie.com",
+    "email": "Email",
+    "questionsContact": "Des questions ? Contactez-nous à",
+    "privacyPolicy": {
+      "title": "Politique de Confidentialité",
+      "subtitle": "Votre vie privée et la protection des données sont nos priorités absolues",
+      "introduction": "Bienvenue sur TagMyThing (\"nous\", \"notre\"). Nous nous engageons à protéger votre vie privée et à traiter vos données personnelles de manière transparente. Cette Politique de Confidentialité décrit comment nous collectons, utilisons et protégeons vos données personnelles lorsque vous utilisez notre site Web et nos services.",
+      "dataCollection": "Données que Nous Collectons",
+      "dataCollectionDesc": "Nous pouvons collecter :",
+      "personalIdentifiers": "Identifiants personnels (par ex., nom, adresse e-mail, numéro de téléphone)",
+      "accountInfo": "Informations de compte (par ex., identifiants de connexion)",
+      "contentUploaded": "Contenu que vous téléchargez ou étiquetez",
+      "usageData": "Données d'utilisation (par ex., adresse IP, informations sur l'appareil, comportement de navigation)",
+      "paymentInfo": "Informations de paiement (le cas échéant)",
+      "legalBasis": "Base Légale pour le Traitement (RGPD)",
+      "legalBasisDesc": "Nous traitons vos données personnelles sur les bases suivantes :",
+      "contractPerformance": "Exécution du contrat : pour fournir nos services",
+      "consent": "Consentement : lorsque vous acceptez explicitement",
+      "legalObligations": "Obligations légales : par ex., tenue de registres",
+      "legitimateInterests": "Intérêts légitimes : améliorer nos services et la sécurité",
+      "howWeUseData": "Comment Nous Utilisons Vos Données",
+      "operatePlatform": "Pour exploiter et maintenir la plateforme",
+      "communicateUsers": "Pour communiquer avec vous (e-mails de service, mises à jour)",
+      "processPayments": "Pour traiter les paiements",
+      "improveServices": "Pour améliorer nos services",
+      "complyLegal": "Pour nous conformer aux obligations légales",
+      "dataSharing": "Partage de Données",
+      "dataSharingDesc": "Nous pouvons partager vos données avec :",
+      "serviceProviders": "Fournisseurs de services (par ex., hébergement, processeurs de paiement)",
+      "legalAuthorities": "Autorités légales si requis",
+      "otherUsers": "Autres utilisateurs si nécessaire pour exécuter le service (par ex., partager du contenu étiqueté avec les destinataires)",
+      "neverSellData": "Nous ne vendons jamais vos données.",
+      "internationalTransfers": "Transferts Internationaux",
+      "internationalTransfersDesc": "Si vos données sont transférées en dehors de l'EEE, nous garantissons des mesures de protection appropriées (telles que les Clauses Contractuelles Types).",
+      "dataRetention": "Conservation des Données",
+      "dataRetentionDesc": "Nous conservons vos données aussi longtemps que nécessaire pour remplir les objectifs décrits et nous conformer aux lois.",
+      "yourRights": "Vos Droits",
+      "yourRightsDesc": "En vertu du RGPD, vous avez le droit de :",
+      "accessData": "Accéder à vos données",
+      "correctInaccuracies": "Corriger les inexactitudes",
+      "requestDeletion": "Demander la suppression (\"droit à l'oubli\")",
+      "objectProcessing": "Vous opposer au traitement ou le restreindre",
+      "dataPortability": "Portabilité des données",
+      "lodgeComplaint": "Déposer une plainte auprès de votre Autorité de Protection des Données",
+      "security": "Sécurité",
+      "securityDesc": "Nous mettons en place des mesures techniques et organisationnelles pour protéger vos données.",
+      "contact": "Contact",
+      "contactDesc": "Pour les questions liées à la confidentialité ou pour exercer vos droits :"
+    },
+    "termsOfService": {
+      "title": "Conditions d'Utilisation",
+      "subtitle": "Termes et conditions légaux pour l'utilisation de TagMyThing",
+      "acceptance": "Acceptation",
+      "acceptanceDesc": "En utilisant TagMyThing, vous acceptez ces Conditions d'Utilisation et notre Politique de Confidentialité.",
+      "serviceDescription": "Description du Service",
+      "serviceDescriptionDesc": "TagMyThing vous permet de créer, stocker et partager des étiquettes numériques et du contenu associé.",
+      "userAccounts": "Comptes Utilisateur",
+      "minimumAge": "Vous devez avoir au moins 18 ans ou avoir le consentement parental.",
+      "secureCredentials": "Vous êtes responsable de la sécurité de vos identifiants de connexion.",
+      "accurateInfo": "Vous acceptez de fournir des informations exactes.",
+      "acceptableUse": "Utilisation Acceptable",
+      "acceptableUseDesc": "Vous acceptez de ne pas :",
+      "unlawfulUse": "Utiliser le service à des fins illégales",
+      "infringingContent": "Télécharger du contenu qui enfreint les droits d'autrui",
+      "hackingMisuse": "Tenter de pirater, perturber ou abuser de la plateforme",
+      "intellectualProperty": "Propriété Intellectuelle",
+      "intellectualPropertyDesc": "Tout le contenu et les logiciels appartiennent à TagMyThing ou nous sont concédés sous licence. Vous conservez la propriété du contenu que vous téléchargez mais nous accordez une licence pour l'utiliser selon les besoins du service.",
+      "termination": "Résiliation",
+      "terminationDesc": "Nous nous réservons le droit de suspendre ou de résilier votre compte si vous violez ces conditions.",
+      "disclaimers": "Avertissements",
+      "disclaimersDesc": "Le service est fourni \"en l'état\". Nous ne garantissons pas une disponibilité ininterrompue ou un fonctionnement sans erreur.",
+      "liability": "Responsabilité",
+      "liabilityDesc": "Dans toute la mesure permise par la loi, TagMyThing ne sera pas responsable des dommages indirects ou consécutifs.",
+      "governingLaw": "Loi Applicable",
+      "governingLawDesc": "Ces conditions sont régies par les lois du Royaume-Uni.",
+      "contact": "Contact",
+      "questionsTitle": "Des Questions sur ces Conditions ?",
+      "questionsDesc": "Si vous avez des questions sur ces Conditions d'Utilisation ou avez besoin de clarifications sur un point, n'hésitez pas à nous contacter.",
+      "contactUs": "Nous Contacter"
+    }
+  },
+  "gdpr": {
+    "title": "Déclaration de Conformité RGPD",
+    "subtitle": "Notre engagement envers la conformité au Règlement Général sur la Protection des Données de l'Union Européenne",
+    "lastUpdated": "Dernière mise à jour",
+    "introduction": {
+      "title": "Engagement de Conformité RGPD Complète",
+      "description": "TagMyThing s'engage à respecter pleinement le Règlement Général sur la Protection des Données (RGPD) de l'Union Européenne. Nous nous assurons que vos données personnelles sont traitées de manière légale, équitable et transparente en tout temps."
+    },
+    "commitments": {
+      "title": "Nos Engagements RGPD",
+      "dataMinimization": {
+        "title": "Minimisation des Données",
+        "description": "Nous collectons uniquement les données nécessaires pour fournir et améliorer nos services.",
+        "details": "Notre collecte de données est limitée aux informations essentielles requises pour la création de compte, la prestation de services et l'amélioration de la plateforme."
+      },
+      "transparentUse": {
+        "title": "Utilisation Transparente",
+        "description": "Nous informons clairement les utilisateurs sur la façon dont leurs données sont utilisées.",
+        "details": "Notre Politique de Confidentialité fournit des détails complets sur la collecte, le traitement et l'utilisation des données dans un langage clair."
+      },
+      "userRights": {
+        "title": "Droits des Utilisateurs",
+        "description": "Vous pouvez demander l'accès, la correction, la suppression ou l'exportation de vos données à tout moment.",
+        "details": "Nous fournissons des mécanismes faciles pour que les utilisateurs exercent tous les droits RGPD, y compris la portabilité des données et le droit à l'oubli."
+      },
+      "dataSecurity": {
+        "title": "Sécurité des Données",
+        "description": "Nous stockons les données personnelles en toute sécurité en utilisant des fournisseurs tiers de confiance.",
+        "details": "Toutes les données sont chiffrées en transit et au repos en utilisant des mesures de sécurité standards de l'industrie."
+      }
+    },
+    "processors": {
+      "title": "Processeurs de Données de Confiance",
+      "securityFeatures": "Caractéristiques de Sécurité :",
+      "supabase": {
+        "name": "Supabase",
+        "role": "Plateforme de Base de Données Cloud",
+        "compliance": "Entièrement conforme RGPD avec chiffrement et sécurité de niveau entreprise",
+        "features": ["Chiffrement de bout en bout", "Options de résidence des données UE", "Certifié SOC 2 Type II", "Audits de sécurité réguliers"]
+      },
+      "stripe": {
+        "name": "Stripe",
+        "role": "Partenaire de Traitement des Paiements",
+        "compliance": "Certifié PCI DSS et adhère aux exigences RGPD",
+        "features": ["Certifié PCI DSS Niveau 1", "Conforme RGPD", "Authentification forte du client", "Protection contre la fraude"]
+      }
+    },
+    "additionalMeasures": {
+      "title": "Mesures de Conformité Supplémentaires",
+      "dataProcessingAgreements": {
+        "title": "Accords de Traitement des Données",
+        "description": "Nous avons des Accords de Traitement des Données en place avec tous nos sous-traitants, y compris Supabase et Stripe, pour assurer un traitement légal et des transferts de données transfrontaliers le cas échéant."
+      },
+      "accountability": {
+        "title": "Responsabilité",
+        "description": "Nous révisons et mettons à jour régulièrement nos pratiques pour rester conformes aux lois de protection des données applicables."
+      },
+      "regularAudits": {
+        "title": "Audits Réguliers",
+        "description": "Nous menons des audits de conformité réguliers et des évaluations de sécurité pour assurer une conformité RGPD continue."
+      },
+      "staffTraining": {
+        "title": "Formation du Personnel",
+        "description": "Notre équipe reçoit une formation régulière sur les principes de protection des données et les exigences RGPD."
+      }
+    },
+    "contact": {
+      "title": "Contacter Notre Délégué à la Protection des Données",
+      "description": "Si vous avez des questions sur la conformité RGPD ou souhaitez exercer vos droits de protection des données, veuillez nous contacter.",
+      "email": "Nous contacter par email",
+      "emailAddress": "tagmything@marshallepie.com",
+      "responseTime": "Nous répondrons à toutes les demandes RGPD dans les 30 jours comme requis par la loi."
+    }
+  },
+  "cookiePolicy": {
+    "title": "Politique des Cookies",
+    "subtitle": "Comment nous utilisons les cookies et technologies similaires pour améliorer votre expérience",
+    "lastUpdated": "Dernière mise à jour",
+    "introduction": {
+      "title": "Que sont les Cookies ?",
+      "description": "Les cookies sont de petits fichiers texte stockés sur votre appareil lorsque vous visitez un site web. Ils nous aident à reconnaître votre navigateur, mémoriser vos préférences et améliorer votre expérience avec TagMyThing."
+    },
+    "types": {
+      "title": "Types de Cookies que Nous Utilisons",
+      "essential": {
+        "title": "Cookies Essentiels",
+        "description": "Nécessaires au fonctionnement de la plateforme (ex: authentification, sécurité).",
+        "examples": ["Gestion des sessions", "Jetons d'authentification", "Fonctionnalités de sécurité", "Fonctionnalités de base"]
+      },
+      "functional": {
+        "title": "Cookies Fonctionnels",
+        "description": "Mémorisent vos paramètres et préférences.",
+        "examples": ["Préférences de langue", "Paramètres de thème", "Personnalisations d'interface", "Préférences sauvegardées"]
+      },
+      "analytics": {
+        "title": "Cookies d'Analyse",
+        "description": "Nous aident à comprendre les modèles d'utilisation et améliorer le service (ex: Google Analytics).",
+        "examples": ["Vues de pages", "Interactions utilisateur", "Métriques de performance", "Statistiques d'utilisation"]
+      },
+      "thirdParty": {
+        "title": "Cookies Tiers",
+        "description": "Stripe et Supabase peuvent définir des cookies pour les paiements sécurisés et la gestion des sessions.",
+        "examples": ["Traitement des paiements", "Sessions de base de données", "Intégration de services externes", "Vérification de sécurité"]
+      },
+      "required": "Requis",
+      "examples": "Exemples :"
+    },
+    "management": {
+      "title": "Gestion de vos Préférences de Cookies",
+      "consentBanner": {
+        "title": "Bannière de Consentement aux Cookies",
+        "description": "Lors de votre première visite sur notre site, une bannière de consentement aux cookies vous sera présentée où vous pourrez choisir vos préférences."
+      },
+      "options": {
+        "acceptAll": {
+          "title": "Accepter Tous les Cookies",
+          "description": "Autoriser tous les cookies pour la meilleure expérience"
+        },
+        "customize": {
+          "title": "Personnaliser les Préférences",
+          "description": "Choisir quels types de cookies autoriser"
+        },
+        "declineNonEssential": {
+          "title": "Refuser les Non-Essentiels",
+          "description": "Autoriser uniquement les cookies essentiels pour les fonctionnalités de base"
+        },
+        "browserSettings": {
+          "title": "Paramètres du Navigateur",
+          "description": "Gérer ou supprimer les cookies dans votre navigateur"
+        }
+      }
+    },
+    "browserInstructions": {
+      "title": "Instructions Spécifiques au Navigateur",
+      "description": "Vous pouvez également gérer les cookies directement dans les paramètres de votre navigateur. Voici des liens rapides pour les navigateurs populaires :",
+      "browsers": {
+        "chrome": "Google Chrome",
+        "firefox": "Mozilla Firefox",
+        "safari": "Safari",
+        "edge": "Microsoft Edge"
+      }
+    },
+    "thirdPartyServices": {
+      "title": "Services Tiers",
+      "description": "Nous utilisons des services tiers de confiance qui peuvent définir leurs propres cookies :",
+      "services": {
+        "googleAnalytics": {
+          "name": "Google Analytics",
+          "purpose": "Analyse du site web et suivi des performances",
+          "optOut": "Vous pouvez vous désinscrire en utilisant l'outil de désinscription de Google"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Traitement sécurisé des paiements et prévention de la fraude",
+          "optOut": "Essentiel pour la fonctionnalité de paiement"
+        },
+        "supabase": {
+          "name": "Supabase",
+          "purpose": "Sessions de base de données et authentification",
+          "optOut": "Essentiel pour la fonctionnalité de la plateforme"
+        }
+      }
+    },
+    "contact": {
+      "title": "Questions sur les Cookies ?",
+      "description": "Si vous avez des questions sur notre politique des cookies ou avez besoin d'aide pour gérer vos préférences, veuillez nous contacter.",
+      "email": "Nous contacter par email"
+    },
+    "importantNote": "Note Importante",
+    "disablingNote": "La désactivation de certains cookies peut affecter les fonctionnalités de TagMyThing. Les cookies essentiels sont requis pour que la plateforme fonctionne correctement.",
+    "policyChanges": {
+      "title": "Modifications de cette Politique",
+      "description": "Nous pouvons mettre à jour cette Politique des Cookies de temps en temps pour refléter les changements dans nos pratiques ou pour d'autres raisons opérationnelles, légales ou réglementaires. Tout changement sera publié sur cette page avec une date 'Dernière mise à jour' mise à jour."
+    }
+  },
+  "dpa": {
+    "title": "Accord de Traitement des Données",
+    "subtitle": "Cadre juridique pour le traitement des données personnelles entre TagMyThing et nos clients",
+    "lastUpdated": "Dernière mise à jour",
+    "introduction": {
+      "title": "Accord de Traitement des Données (ATD)",
+      "description": "Cet Accord de Traitement des Données est conclu entre TagMyThing (Sous-traitant) et Vous (le Client/Responsable du traitement) et régit le traitement des données personnelles en lien avec les services fournis par TagMyThing.",
+      "controller": "Responsable du Traitement",
+      "controllerDesc": "Vous (le Client)",
+      "processor": "Sous-traitant",
+      "processorDesc": "TagMyThing"
+    },
+    "sections": {
+      "subjectDuration": {
+        "title": "1. Objet et Durée",
+        "content": "Cet Accord régit le traitement des données personnelles pendant la durée d'utilisation des services TagMyThing par le Client."
+      },
+      "naturePurpose": {
+        "title": "2. Nature et Finalité du Traitement",
+        "content": "Le traitement comprend la collecte, le stockage, la transmission et la suppression des données personnelles dans le but de fournir les services de marquage, stockage et partage de TagMyThing."
+      },
+      "dataSubjects": {
+        "title": "3. Catégories de Personnes Concernées",
+        "list": ["Utilisateurs de TagMyThing", "Personnes dont les données peuvent apparaître dans le contenu téléchargé"]
+      },
+      "personalData": {
+        "title": "4. Catégories de Données Personnelles",
+        "list": ["Coordonnées", "Identifiants de connexion", "Fichiers téléchargés et métadonnées", "Informations liées aux paiements"]
+      },
+      "subProcessors": {
+        "title": "5. Sous-traitants Ultérieurs",
+        "content": "Le Client autorise TagMyThing à utiliser les sous-traitants ultérieurs suivants :",
+        "supabase": {
+          "name": "Supabase",
+          "purpose": "Hébergement et stockage de données cloud",
+          "compliance": "Conforme RGPD"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Traitement des paiements",
+          "compliance": "Conforme RGPD"
+        },
+        "note": "Autres sous-traitants si nécessaire, à condition que TagMyThing maintienne des obligations de protection des données équivalentes.",
+        "noteLabel": "Note :",
+        "subProcessorLabel": "Sous-traitant",
+        "purposeLabel": "Finalité",
+        "complianceLabel": "Conformité"
+      },
+      "controllerObligations": {
+        "title": "6. Obligations du Responsable du Traitement",
+        "content": "Le Client s'assure qu'il dispose de tous les consentements et bases légales nécessaires pour traiter les données personnelles en utilisant TagMyThing."
+      },
+      "processorObligations": {
+        "title": "7. Obligations du Sous-traitant",
+        "content": "TagMyThing doit :",
+        "list": [
+          "Traiter les données uniquement sur instructions documentées",
+          "Assurer la confidentialité et les mesures de sécurité",
+          "Aider le Client à satisfaire les droits des personnes concernées",
+          "Notifier le Client de toute violation de données sans délai indu",
+          "Permettre les audits ou fournir la documentation pour démontrer la conformité"
+        ]
+      },
+      "securityMeasures": {
+        "title": "8. Mesures de Sécurité",
+        "content": "TagMyThing met en place des mesures techniques et organisationnelles appropriées, incluant le chiffrement, les contrôles d'accès et les procédures de sauvegarde des données."
+      },
+      "dataTransfers": {
+        "title": "9. Transferts de Données",
+        "content": "Si des données personnelles sont transférées hors de l'EEE, TagMyThing assure la conformité par des Clauses Contractuelles Types ou des mécanismes équivalents."
+      },
+      "termination": {
+        "title": "10. Résiliation",
+        "content": "À la résiliation, TagMyThing supprimera ou retournera les données personnelles sauf si la loi l'exige autrement."
+      }
+    },
+    "contact": {
+      "title": "Questions ATD et Avis Légaux",
+      "description": "Pour des questions sur cet Accord de Traitement des Données ou pour demander une documentation légale supplémentaire, veuillez contacter notre équipe juridique.",
+      "email": "Contact Légal",
+      "responseNote": "Nous répondrons à toutes les demandes légales dans les 5 jours ouvrables."
+    }
+  },
+  "dao": {
+    "title": "DAO TagMyThing",
+    "subtitle": "Gouvernance communautaire pour l'avenir de la gestion d'actifs numériques",
+    "vision": {
+      "title": "Vision",
+      "description": "TagMyThing évolue vers un écosystème communautaire où les utilisateurs non seulement marquent et sécurisent leurs actifs, mais aident également à guider la croissance et la gouvernance de la plateforme. La DAO assure la transparence, l'équité et la propriété partagée de l'avenir du projet."
+    },
+    "corePrinciples": {
+      "title": "Principes Fondamentaux",
+      "transparency": {
+        "title": "Transparence",
+        "description": "Toutes les décisions, flux de tokens et actions de gouvernance sont publics et vérifiables."
+      },
+      "communityEmpowerment": {
+        "title": "Autonomisation Communautaire",
+        "description": "Les détenteurs de tokens façonnent l'avenir en votant sur les propositions et priorités."
+      },
+      "fairDistribution": {
+        "title": "Distribution Équitable",
+        "description": "Les tokens reflètent à la fois la participation et la contribution, garantissant que chacun ait une participation."
+      },
+      "sustainability": {
+        "title": "Durabilité",
+        "description": "Les ressources sont alloquées en tenant compte de la santé à long terme du projet."
+      }
+    },
+    "tokenUtility": {
+      "title": "Utilité du Token",
+      "description": "Le token TMT est au cœur de la DAO. Il alimente :",
+      "votingRights": {
+        "title": "Droits de Vote",
+        "description": "Chaque token représente un vote dans les décisions de gouvernance."
+      },
+      "accessToFeatures": {
+        "title": "Accès aux Fonctionnalités",
+        "description": "Déverrouillage d'outils premium, capacité de marquage et intégrations."
+      },
+      "incentives": {
+        "title": "Incitations",
+        "description": "Récompenses pour les parrainages, contributions et implication communautaire."
+      }
+    },
+    "governanceStructure": {
+      "title": "Structure de Gouvernance",
+      "tokenHolders": {
+        "title": "Détenteurs de Tokens",
+        "description": "Les membres de la communauté qui votent sur les propositions."
+      },
+      "delegates": {
+        "title": "Délégués",
+        "description": "Individus de confiance qui peuvent représenter des groupes de détenteurs de tokens."
+      },
+      "coreContributors": {
+        "title": "Contributeurs Principaux",
+        "description": "Développeurs et mainteneurs construisant activement TagMyThing."
+      },
+      "governanceCouncil": {
+        "title": "Conseil de Gouvernance",
+        "description": "Groupe rotatif de membres élus supervisant la qualité et l'exécution des propositions."
+      },
+      "facilitators": {
+        "title": "Facilitateurs/Admins",
+        "description": "Rôles opérationnels qui s'assurent que les propositions, votes et fonds sont traités correctement."
+      }
+    },
+    "proposalProcess": {
+      "title": "Processus de Proposition",
+      "description": "Comment les décisions sont prises dans la DAO :",
+      "steps": {
+        "submission": {
+          "title": "Soumission de Proposition",
+          "description": "Les membres de la communauté soumettent des idées à considérer."
+        },
+        "discussion": {
+          "title": "Discussion Communautaire",
+          "description": "Forum ouvert pour les commentaires et l'amélioration."
+        },
+        "voting": {
+          "title": "Vote par Token",
+          "description": "Les détenteurs de tokens votent sur les propositions."
+        },
+        "execution": {
+          "title": "Exécution",
+          "description": "Les propositions approuvées sont mises en œuvre par l'équipe principale."
+        }
+      }
+    },
+    "timeline": {
+      "title": "Calendrier de Lancement de la DAO",
+      "phase1": {
+        "title": "Phase 1 : Distribution des Tokens",
+        "date": "T1 2025",
+        "description": "Allocation initiale des tokens et construction de la communauté."
+      },
+      "phase2": {
+        "title": "Phase 2 : Lancement de la Gouvernance",
+        "date": "T2 2025",
+        "description": "Premières propositions et mécanismes de vote en ligne."
+      },
+      "phase3": {
+        "title": "Phase 3 : Décentralisation Complète",
+        "date": "T3-T4 2025",
+        "description": "Transition complète vers la gouvernance communautaire."
+      }
+    },
+    "getInvolved": {
+      "title": "Participez",
+      "description": "Prêt à faire partie de l'avenir décentralisé de TagMyThing ?",
+      "earnTokens": "Gagner des Tokens TMT",
+      "joinCommunity": "Rejoindre la Communauté",
+      "proposeIdeas": "Proposer des Idées"
+    }
+  },
+  "careers": {
+    "title": "Rejoignez le Cercle Intérieur de TagMyThing",
+    "subtitle": "Façonnez l'avenir de la gestion d'actifs numériques décentralisée",
+    "introduction": {
+      "title": "Nous Construisons un Avenir Décentralisé",
+      "description": "Chez TagMyThing, nous construisons un avenir décentralisé et communautaire. Nous ne cherchons pas seulement des membres d'équipe—nous cherchons des leaders qui veulent aider à façonner le projet."
+    },
+    "availablePositions": {
+      "title": "Postes Disponibles",
+      "subtitle": "Nous avons plusieurs rôles clés ouverts pour des contributeurs enthousiastes :"
+    },
+    "positions": {
+      "governanceLead": {
+        "title": "Responsable de Gouvernance",
+        "description": "Guider la communauté dans la prise de décision et aider à façonner la direction de la DAO."
+      },
+      "operationsLead": {
+        "title": "Responsable des Opérations",
+        "description": "Superviser les opérations quotidiennes et s'assurer que tout fonctionne correctement."
+      },
+      "developmentLead": {
+        "title": "Responsable du Développement",
+        "description": "Prendre en charge le code source, coordonner avec d'autres développeurs, et donner vie aux nouvelles fonctionnalités."
+      },
+      "communityLead": {
+        "title": "Responsable Communauté",
+        "description": "Favoriser un environnement accueillant et engageant pour tous les participants."
+      },
+      "marketingLead": {
+        "title": "Responsable Marketing",
+        "description": "Faire connaître le projet et développer notre portée grâce à des campagnes créatives et du contenu."
+      },
+      "designLead": {
+        "title": "Responsable Design",
+        "description": "S'assurer que notre plateforme est belle, intuitive et conviviale."
+      },
+      "securityLead": {
+        "title": "Responsable Sécurité et Conformité",
+        "description": "Nous aider à maintenir un environnement sécurisé et conforme."
+      }
+    },
+    "howToApply": {
+      "title": "Comment Postuler",
+      "description": "Nous croyons en la flexibilité et la collaboration ouverte. Si vous êtes intéressé(e) par diriger l'un de ces domaines, envoyez-nous un email à tagmythingrecruitment@marshallepie.com. Faites-nous savoir pour quel poste vous postulez, partagez un peu de votre parcours, et dites-nous quel type de rémunération ou arrangement fonctionnerait le mieux pour vous.",
+      "philosophy": {
+        "title": "Notre Philosophie",
+        "description": "Nous voulons créer un espace équitable et collaboratif, alors c'est votre chance d'aider à définir comment vous contribuez et comment vous êtes récompensé(e). Rejoignez-nous, et construisons ensemble quelque chose d'incroyable !"
+      },
+      "applyButton": "Postuler Maintenant"
+    }
+  },
+  "generalTagging": {
+    "navigation": {
+      "referralCode": "Code de Parrainage :",
+      "joinNow": "Rejoindre Maintenant",
+      "signIn": "Se Connecter",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "title": "Marquage Général de",
+      "titleHighlight": "Propriété",
+      "subtitle": "Documentez et Vérifiez la Propriété de Tout Ce Que Vous Possédez",
+      "description": "Qu'il s'agisse d'un héritage familial précieux, d'un équipement de valeur, ou simplement d'un objet que vous souhaitez suivre, le Marquage Général de Propriété avec TagMyThing fournit un moyen simple, sécurisé et vérifiable de documenter vos biens. Créez un enregistrement numérique qui prouve la propriété, suit les détails importants, et garantit que vos objets sont toujours identifiables.",
+      "startTagging": "Commencer le Marquage",
+      "getStartedFree": "Commencer Gratuitement"
+    },
+    "features": {
+      "title": "Avantages Clés",
+      "subtitle": "Tout ce dont vous avez besoin pour documenter et protéger vos biens précieux",
+      "proofOfOwnership": {
+        "title": "Preuve de Propriété",
+        "description": "Créez des enregistrements immuables et horodatés qui servent de preuve vérifiable de propriété pour tout objet."
+      },
+      "detailedDocumentation": {
+        "title": "Documentation Détaillée",
+        "description": "Joignez des photos, vidéos, descriptions et documents importants (comme des reçus ou certificats) à chaque marquage."
+      },
+      "lostAndFound": {
+        "title": "Récupération Objets Perdus",
+        "description": "Augmentez les chances de récupérer les objets perdus en fournissant des informations de propriété claires accessibles aux personnes qui les trouvent."
+      },
+      "insuranceValuation": {
+        "title": "Assurance et Évaluation",
+        "description": "Maintenez un inventaire complet de vos objets de valeur, simplifiant les demandes d'assurance et les expertises."
+      }
+    },
+    "signup": {
+      "welcomeWithReferral": "Bienvenue ! Vous avez été invité(e) sur TagMyThing",
+      "referralDescription": "Créez votre compte ci-dessous pour commencer le marquage et obtenir votre bonus de parrainage !",
+      "referralCodeLabel": "Code de Parrainage :",
+      "becomeMember": "Devenez Membre TagMyThing et commencez le marquage",
+      "memberDescription": "Créez votre compte ici — sans changement de page.",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signInHere": "Connectez-vous ici",
+      "fullName": "Votre nom",
+      "fullNamePlaceholder": "Marie Dupont",
+      "email": "Email",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "emailLocked": "Email verrouillé par invitation.",
+      "applyingReferralCode": "Application du code de parrainage :",
+      "createAccount": "Créer un compte et commencer le marquage",
+      "creatingAccount": "Création de votre compte…",
+      "termsAgreement": "En continuant, vous acceptez nos Conditions et reconnaissez notre Politique de Confidentialité."
+    },
+    "examples": {
+      "title": "Exemples Concrets",
+      "subtitle": "Voyez comment TagMyThing peut protéger vos biens précieux",
+      "bicycleRegistration": {
+        "title": "Enregistrement de Vélo",
+        "description": "Marquez votre vélo avec son numéro de série, des photos et vos informations de contact. S'il est volé et retrouvé, les forces de l'ordre peuvent facilement vous identifier comme le propriétaire légitime."
+      },
+      "collectibles": {
+        "title": "Objets de Collection et Souvenirs",
+        "description": "Documentez votre collection de timbres, bandes dessinées vintage, ou souvenirs sportifs avec des photos détaillées, rapports d'état et reçus d'achat. Cela améliore leur valeur et fournit un enregistrement clair pour les ventes futures ou l'héritage."
+      },
+      "homeInventory": {
+        "title": "Inventaire Domestique",
+        "description": "Créez un inventaire numérique des objets de valeur dans votre maison, comme l'électronique, bijoux ou œuvres d'art. En cas d'incendie, vol ou catastrophe naturelle, vous avez un enregistrement vérifiable à des fins d'assurance."
+      }
+    },
+    "cta": {
+      "title": "Commencez à Protéger Vos Actifs Aujourd'hui",
+      "description": "Rejoignez des milliers d'utilisateurs qui font confiance à TagMyThing pour documenter et sécuriser leurs biens précieux.",
+      "tagFirstItem": "Marquez Votre Premier Objet",
+      "createAccount": "Créer un Compte"
+    }
+  },
+  "nftTagging": {
+    "navigation": {
+      "referralCode": "Code de Parrainage :",
+      "joinNow": "Rejoindre Maintenant",
+      "signIn": "Se Connecter",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "title": "Actifs Numériques & NFT",
+      "titleHighlight": "Marquage",
+      "subtitle": "Déverrouillez la Puissance de TagMyThing pour Vos Œuvres Créatives et Inventives",
+      "description": "Bienvenue dans une nouvelle ère d'authenticité et de protection pour vos chefs-d'œuvre créatifs et inventions novatrices. Avec TagMyThing, vous pouvez garantir que votre travail est marqué de manière sécurisée et facilement vérifiable.",
+      "startTagging": "Commencer le Marquage",
+      "getStartedFree": "Commencer Gratuitement"
+    },
+    "benefits": {
+      "title": "Protégez Votre Travail Créatif",
+      "subtitle": "Empreintes numériques sécurisées pour toutes vos œuvres créatives et inventives",
+      "songwriters": {
+        "title": "Pour les Auteurs-Compositeurs et Musiciens",
+        "description": "Marquez les paroles, mélodies et enregistrements. Chaque marquage crée une empreinte numérique pour vérifier la paternité."
+      },
+      "inventors": {
+        "title": "Pour les Inventeurs",
+        "description": "Protégez les innovations en marquant les spécifications et prototypes. Créez un enregistrement daté confirmant l'originalité."
+      },
+      "artists": {
+        "title": "Pour les Artistes et Créateurs NFT",
+        "description": "Donnez à chaque pièce une identité numérique vérifiée pour la protéger et augmenter la confiance du marché."
+      },
+      "qrCodes": {
+        "title": "Codes QR (Bientôt Disponible)",
+        "description": "Générez des codes QR pour les objets physiques afin que quiconque puisse rapidement vérifier l'authenticité."
+      }
+    },
+    "signup": {
+      "welcomeWithReferral": "Bienvenue ! Vous avez été invité(e) sur TagMyThing NFT",
+      "referralDescription": "Créez votre compte ci-dessous pour commencer le marquage de vos actifs numériques et obtenir votre bonus de parrainage !",
+      "referralCodeLabel": "Code de Parrainage :",
+      "becomeMember": "Devenez Membre TagMyThing et commencez le marquage",
+      "memberDescription": "Créez votre compte ici — sans changement de page.",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signInHere": "Connectez-vous ici",
+      "fullName": "Votre nom",
+      "fullNamePlaceholder": "Marie Dupont",
+      "email": "Email",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "emailLocked": "Email verrouillé par invitation.",
+      "applyingReferralCode": "Application du code de parrainage :",
+      "createAccount": "Créer un compte et commencer le marquage",
+      "creatingAccount": "Création de votre compte…",
+      "termsAgreement": "En continuant, vous acceptez nos Conditions et reconnaissez notre Politique de Confidentialité."
+    },
+    "cta": {
+      "title": "Rejoignez la Communauté Créative",
+      "description": "Les créateurs et innovateurs font confiance à TagMyThing pour protéger et authentifier leur travail le plus précieux.",
+      "tagCreation": "Marquez Votre Création",
+      "createAccount": "Créer un Compte"
+    }
+  },
+  "myWillTagging": {
+    "navigation": {
+      "referralCode": "Code de Parrainage :",
+      "joinNow": "Rejoindre Maintenant",
+      "signIn": "Se Connecter",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "title": "Héritage Numérique &",
+      "titleHighlight": "Marquage Testament",
+      "subtitle": "Sécurisez Votre Héritage pour les Générations Futures",
+      "description": "Vos biens racontent une histoire, et vos intentions pour eux sont profondément personnelles. Le Marquage Héritage/Testament avec TagMyThing vous permet de créer un enregistrement vivant et vérifiable de vos souhaits pour les actifs physiques et numériques, garantissant que votre héritage est préservé et vos intentions clairement comprises par ceux que vous laissez derrière vous.",
+      "extendedDescription": "Ce n'est pas seulement un endroit pour laisser votre dernier testament—c'est un endroit pour enregistrer votre premier testament, et chaque intention entre les deux.",
+      "startTagging": "Commencer la Préservation",
+      "getStartedFree": "Commencer Gratuitement"
+    },
+    "benefits": {
+      "title": "Préservez Ce Qui Compte le Plus",
+      "subtitle": "Gestion complète de l'héritage numérique pour vos biens les plus précieux",
+      "familyHeirlooms": {
+        "title": "Héritages Familiaux et Trésors",
+        "description": "Documentez et préservez les histoires derrière les objets les plus précieux de votre famille."
+      },
+      "digitalAssets": {
+        "title": "Actifs Numériques et Comptes",
+        "description": "Sécurisez les instructions d'accès pour les comptes numériques, cryptomonnaies et actifs en ligne."
+      },
+      "importantDocuments": {
+        "title": "Documents Importants",
+        "description": "Stockez et partagez des documents critiques comme testaments, polices d'assurance et papiers légaux."
+      },
+      "memories": {
+        "title": "Souvenirs et Messages",
+        "description": "Laissez des messages personnels, photos et vidéos pour que vos proches les découvrent."
+      }
+    },
+    "examples": {
+      "title": "Exemples d'Héritage",
+      "subtitle": "Voyez comment TagMyThing peut préserver vos intentions et souvenirs",
+      "familyHeirlooms": {
+        "title": "Héritages Familiaux",
+        "description": "Marquez une montre antique avec une vidéo sur son histoire et qui devrait la recevoir, préservant l'histoire + l'intention."
+      },
+      "digitalPhotos": {
+        "title": "Archives Photo Numériques",
+        "description": "Stockez où vivent les albums et comment y accéder/les partager pour que les souvenirs ne soient pas perdus."
+      },
+      "cryptocurrency": {
+        "title": "Portefeuilles Cryptomonnaie",
+        "description": "Enregistrez les détails du portefeuille et les instructions de transfert pour que la richesse numérique atteigne les bénéficiaires."
+      }
+    },
+    "signup": {
+      "welcomeWithReferral": "Bienvenue ! Vous avez été invité(e) sur TagMyThing Héritage",
+      "referralDescription": "Créez votre compte ci-dessous pour commencer à préserver votre héritage et obtenir votre bonus de parrainage !",
+      "referralCodeLabel": "Code de Parrainage :",
+      "becomeMember": "Devenez Membre TagMyThing et commencez à préserver",
+      "memberDescription": "Créez votre compte ici — sans changement de page.",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signInHere": "Connectez-vous ici",
+      "fullName": "Votre nom",
+      "fullNamePlaceholder": "Marie Dupont",
+      "email": "Email",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "emailLocked": "Email verrouillé par invitation.",
+      "applyingReferralCode": "Application du code de parrainage :",
+      "createAccount": "Créer un compte et commencer à préserver",
+      "creatingAccount": "Création de votre compte…",
+      "termsAgreement": "En continuant, vous acceptez nos Conditions et reconnaissez notre Politique de Confidentialité."
+    },
+    "cta": {
+      "title": "Commencez à Construire Votre Héritage Numérique",
+      "description": "Assurez-vous que vos souhaits sont préservés et que vos proches comprennent vos intentions.",
+      "createLegacy": "Créer Votre Héritage",
+      "startLegacy": "Commencer Mon Héritage",
+      "createAccount": "Créer un Compte"
+    }
+  },
+  "businessTagging": {
+    "navigation": {
+      "referralCode": "Code de Parrainage :",
+      "joinNow": "Rejoindre Maintenant",
+      "signIn": "Se Connecter",
+      "getStarted": "Commencer"
+    },
+    "hero": {
+      "title": "Inventaire & Étiquetage",
+      "titleHighlight": "d'Entreprise",
+      "subtitle": "TagMyThing pour les Entreprises : Authentification Simple et Sécurisée de Produits avec Codes QR",
+      "description": "TagMyThing offre un système de vérification de produits léger conçu pour les entreprises. Chaque produit reçoit un numéro de série unique et un code QR généré automatiquement. Lorsque les clients scannent le code, ils peuvent instantanément vérifier l'authenticité du produit et consulter son historique de scan. Cela aide à identifier les contrefaçons grâce à des modèles de scan ou des emplacements inhabituels, donnant confiance aux clients et protégeant votre marque—le tout sans systèmes cryptographiques complexes.",
+      "startTagging": "Commencer à Protéger les Produits",
+      "getStartedFree": "Commencer Gratuitement"
+    },
+    "benefits": {
+      "title": "Authentification de Niveau Entreprise",
+      "subtitle": "Solutions complètes de vérification de produits pour les entreprises de toutes tailles",
+      "antiFraud": {
+        "title": "Protection Anti-Fraude",
+        "description": "Créez des certificats numériques inviolables que les clients peuvent vérifier instantanément."
+      },
+      "brandTrust": {
+        "title": "Confiance et Réputation de Marque",
+        "description": "Renforcez la confiance des clients avec une authenticité de produit transparente et vérifiable."
+      },
+      "supplyChain": {
+        "title": "Transparence de la Chaîne d'Approvisionnement",
+        "description": "Suivez les produits de la fabrication à la livraison client avec une visibilité complète."
+      },
+      "customerExperience": {
+        "title": "Expérience Client Améliorée",
+        "description": "Scan de code QR facile pour vérification instantanée de produit et enregistrement de garantie."
+      }
+    },
+    "sections": {
+      "howItWorks": {
+        "title": "Comment Ça Marche",
+        "subtitle": "Un processus simple en quatre étapes pour sécuriser vos produits contre la contrefaçon"
+      },
+      "whyChoose": {
+        "title": "Pourquoi Choisir TagMyThing ?",
+        "description": "Notre système simple mais efficace attribue à chaque produit un numéro de série unique et un code QR. Lorsque les clients scannent le code, ils voient instantanément la page de vérification du produit avec son historique de scan complet. Les modèles de scan inhabituels—comme des scans multiples depuis différents pays ou une fréquence suspecte—aident à identifier les contrefaçons potentielles. Cette transparence renforce la confiance des clients tout en protégeant la réputation de votre marque.",
+        "cardTitle": "Simple & Transparent",
+        "cardDescription": "Notre système de codes QR léger offre une protection efficace grâce à la transparence et au suivi de l'historique de scan, évoluant sans effort avec la croissance de votre entreprise.",
+        "cardButton": "Commencer l'Authentification Simple de Produits"
+      },
+      "features": [
+        "Système de codes QR simple ne nécessitant aucune configuration complexe",
+        "Vérification instantanée avec historique de scan complet",
+        "Les modèles inhabituels aident à identifier les contrefaçons potentielles",
+        "Évolutif pour tout volume de production",
+        "Renforce la confiance des clients grâce à la transparence"
+      ]
+    },
+    "signup": {
+      "welcomeWithReferral": "Bienvenue ! Vous avez été invité(e) sur TagMyThing Entreprise",
+      "referralDescription": "Créez votre compte entreprise ci-dessous pour commencer l'authentification de produits et obtenir votre bonus de parrainage !",
+      "referralCodeLabel": "Code de Parrainage :",
+      "becomeMember": "Devenez Membre Entreprise TagMyThing",
+      "memberDescription": "Créez votre compte entreprise ici — sans changement de page.",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signInHere": "Connectez-vous ici",
+      "fullName": "Votre nom",
+      "fullNamePlaceholder": "Marie Dupont",
+      "email": "Email entreprise",
+      "emailPlaceholder": "vous@entreprise.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "emailLocked": "Email verrouillé par invitation.",
+      "applyingReferralCode": "Application du code de parrainage :",
+      "createAccount": "Créer un compte entreprise",
+      "creatingAccount": "Création de votre compte…",
+      "termsAgreement": "En continuant, vous acceptez nos Conditions et reconnaissez notre Politique de Confidentialité."
+    },
+    "cta": {
+      "title": "Protégez Vos Produits Aujourd'hui",
+      "description": "Rejoignez les entreprises avant-gardistes qui font confiance à l'authentification QR simple de TagMyThing pour protéger leurs produits et renforcer la confiance client.",
+      "authenticateProducts": "Commencer l'Authentification Produit",
+      "createAccount": "Créer un Compte Entreprise"
+    }
+  }
+}

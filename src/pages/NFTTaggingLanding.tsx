@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Camera, ArrowRight, Palette, Mail, Phone, Music, Lightbulb, QrCode } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -13,6 +14,11 @@ export const NFTTaggingLanding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, hasProfile } = useAuth();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return <div>Loading...</div>;
+  }
 
   // URL params
   const urlParams = new URLSearchParams(location.search);
@@ -84,27 +90,23 @@ export const NFTTaggingLanding: React.FC = () => {
   const benefits = [
     {
       icon: <Music className="h-8 w-8 text-primary-600" />,
-      title: 'For Songwriters and Musicians',
-      description:
-        'Tag lyrics, melodies, and recordings. Each tag creates a digital fingerprint to verify authorship.',
+      title: t('nftTagging.benefits.songwriters.title'),
+      description: t('nftTagging.benefits.songwriters.description'),
     },
     {
       icon: <Lightbulb className="h-8 w-8 text-secondary-600" />,
-      title: 'For Inventors',
-      description:
-        "Protect innovations by tagging specs and prototypes. Create a dated record confirming originality.",
+      title: t('nftTagging.benefits.inventors.title'),
+      description: t('nftTagging.benefits.inventors.description'),
     },
     {
       icon: <Palette className="h-8 w-8 text-accent-600" />,
-      title: 'For Artists & NFT Creators',
-      description:
-        'Give every piece a verified digital identity to protect it and increase marketplace trust.',
+      title: t('nftTagging.benefits.artists.title'),
+      description: t('nftTagging.benefits.artists.description'),
     },
     {
       icon: <QrCode className="h-8 w-8 text-success-600" />,
-      title: 'QR Codes (Coming Soon)',
-      description:
-        'Generate QR codes for physical items so anyone can quickly verify authenticity.',
+      title: t('nftTagging.benefits.qrCodes.title'),
+      description: t('nftTagging.benefits.qrCodes.description'),
     },
   ];
 
@@ -258,10 +260,10 @@ export const NFTTaggingLanding: React.FC = () => {
                 // New user with referral code - no sign-in option, just signup
                 <>
                   <div className="hidden sm:flex items-center text-sm text-gray-600 bg-green-50 px-3 py-1 rounded-full">
-                    <span className="text-green-600 font-medium">Referral: {refCode}</span>
+                    <span className="text-green-600 font-medium">{t('nftTagging.navigation.referralCode')} {refCode}</span>
                   </div>
                   <Button size="sm" onClick={scrollToForm}>
-                    Join Now
+                    {t('nftTagging.navigation.joinNow')}
                   </Button>
                 </>
               ) : (
@@ -272,10 +274,10 @@ export const NFTTaggingLanding: React.FC = () => {
                     size="sm" 
                     onClick={() => navigate('/auth')}
                   >
-                    Sign In
+                    {t('nftTagging.navigation.signIn')}
                   </Button>
                   <Button size="sm" onClick={scrollToForm}>
-                    Get Started
+                    {t('nftTagging.navigation.getStarted')}
                   </Button>
                 </>
               )}
@@ -290,15 +292,14 @@ export const NFTTaggingLanding: React.FC = () => {
           <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Digital Asset & NFT
-                <span className="block text-primary-600">Tagging</span>
+                {t('nftTagging.hero.title')}
+                <span className="block text-primary-600">{t('nftTagging.hero.titleHighlight')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-                Unlock the Power of TagMyThing for Your Creative and Inventive Works
+                {t('nftTagging.hero.subtitle')}
               </p>
               <p className="text-lg text-gray-700 max-w-4xl mx-auto mb-12 leading-relaxed">
-                Welcome to a new era of authenticity and protection for your creative masterpieces and innovative inventions.
-                With TagMyThing, you can ensure that your work is securely tagged and easily verifiable.
+                {t('nftTagging.hero.description')}
               </p>
             </motion.div>
 
@@ -310,10 +311,10 @@ export const NFTTaggingLanding: React.FC = () => {
             >
               <Button size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Start Tagging Now
+                {t('nftTagging.hero.startTagging')}
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
-                Get Started Free
+                {t('nftTagging.hero.getStartedFree')}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </motion.div>
@@ -331,9 +332,9 @@ export const NFTTaggingLanding: React.FC = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Protect Your Creative Work</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{t('nftTagging.benefits.title')}</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Secure digital fingerprints for all your creative and inventive works
+              {t('nftTagging.benefits.subtitle')}
             </p>
           </motion.div>
 
@@ -374,34 +375,29 @@ export const NFTTaggingLanding: React.FC = () => {
             {refCode ? (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Welcome! You've been invited to{' '}
-                  <span className="text-primary-600">Tag</span>
-                  <span className="text-primary-700">My</span>
-                  <span className="text-primary-600">Thing</span>
-                  {' '}NFT
+                  {t('nftTagging.signup.welcomeWithReferral')}
                 </h2>
                 <p className="mt-3 text-gray-600">
-                  Create your account below to start tagging your digital assets and get your referral bonus!
+                  {t('nftTagging.signup.referralDescription')}
                 </p>
                 <div className="mt-4 inline-flex items-center bg-green-50 px-4 py-2 rounded-full">
-                  <span className="text-green-700 font-medium">Referral Code: {refCode}</span>
+                  <span className="text-green-700 font-medium">{t('nftTagging.signup.referralCodeLabel')} {refCode}</span>
                 </div>
               </>
             ) : (
               <>
                 <h2 className="text-3xl font-semibold text-gray-900">
-                  Become a Tag<span className="text-primary-600">My</span>Thing{' '}
-                  <span className="text-primary-700 font-medium">Member</span> and start tagging
+                  {t('nftTagging.signup.becomeMember')}
                 </h2>
-                <p className="mt-3 text-gray-600">Create your account here — no page hopping.</p>
+                <p className="mt-3 text-gray-600">{t('nftTagging.signup.memberDescription')}</p>
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-700">
-                    Already have an account?{' '}
+                    {t('nftTagging.signup.alreadyHaveAccount')}{' '}
                     <button 
                       onClick={() => navigate('/auth')}
                       className="font-medium text-blue-800 hover:text-blue-900 underline"
                     >
-                      Sign in here
+                      {t('nftTagging.signup.signInHere')}
                     </button>
                   </p>
                 </div>
@@ -458,14 +454,14 @@ export const NFTTaggingLanding: React.FC = () => {
             >
             <div>
               <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
-                Your name
+                {t('nftTagging.signup.fullName')}
               </label>
               <input
                 id="full_name"
                 name="full_name"
                 type="text"
                 autoComplete="name"
-                placeholder="Jane Doe"
+                placeholder={t('nftTagging.signup.fullNamePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={submitting}
@@ -475,33 +471,33 @@ export const NFTTaggingLanding: React.FC = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-                Email
+                {t('nftTagging.signup.email')}
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t('nftTagging.signup.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={submitting || Boolean(nokInviteEmail)}
                 readOnly={Boolean(nokInviteEmail)}
                 className="mt-1 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70"
               />
-              {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">Email locked by invitation.</p>}
+              {nokInviteEmail && <p className="mt-1 text-xs text-gray-500">{t('nftTagging.signup.emailLocked')}</p>}
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                Password
+                {t('nftTagging.signup.password')}
               </label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
-                placeholder="At least 8 characters"
+                placeholder={t('nftTagging.signup.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={submitting}
@@ -511,7 +507,7 @@ export const NFTTaggingLanding: React.FC = () => {
 
             {refCode && (
               <p className="text-xs text-gray-500">
-                Applying referral code: <span className="font-medium">{refCode}</span>
+                {t('nftTagging.signup.applyingReferralCode')} <span className="font-medium">{refCode}</span>
               </p>
             )}
 
@@ -520,16 +516,16 @@ export const NFTTaggingLanding: React.FC = () => {
 
             <Button type="submit" className="w-full rounded-2xl" disabled={submitting}>
               {submitting ? (
-                'Creating your account…'
+                t('nftTagging.signup.creatingAccount')
               ) : (
                 <span className="inline-flex items-center">
-                  Create account & start tagging <ArrowRight className="h-4 w-4 ml-2" />
+                  {t('nftTagging.signup.createAccount')} <ArrowRight className="h-4 w-4 ml-2" />
                 </span>
               )}
             </Button>
 
             <p className="text-center text-xs text-gray-500">
-              By continuing you agree to our Terms and acknowledge our Privacy Policy.
+              {t('nftTagging.signup.termsAgreement')}
             </p>
           </motion.form>
           ) : (
@@ -557,14 +553,14 @@ export const NFTTaggingLanding: React.FC = () => {
       <section className="py-16 lg:py-24 bg-gradient-to-r from-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Join the Creative Community</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{t('nftTagging.cta.title')}</h2>
             <p className="text-xl text-purple-100 mb-8">
-              Creators and innovators trust TagMyThing to protect and authenticate their most valuable work.
+              {t('nftTagging.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="secondary" size="lg" className="w-full sm:w-auto" onClick={scrollToForm}>
                 <Camera className="h-5 w-5 mr-2" />
-                Tag Your Creation
+                {t('nftTagging.cta.tagCreation')}
               </Button>
               <Button
                 variant="outline"
@@ -572,7 +568,7 @@ export const NFTTaggingLanding: React.FC = () => {
                 className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-purple-600"
                 onClick={scrollToForm}
               >
-                Create Account
+                {t('nftTagging.cta.createAccount')}
               </Button>
             </div>
           </motion.div>

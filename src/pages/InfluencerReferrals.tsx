@@ -1,5 +1,6 @@
 // src/pages/InfluencerReferrals.tsx
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -40,6 +41,7 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 export const InfluencerReferrals: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [referralUrl, setReferralUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [urlLoading, setUrlLoading] = useState(false);
@@ -66,23 +68,23 @@ export const InfluencerReferrals: React.FC = () => {
   const landingPageOptions = [
     {
       value: '/general-tagging',
-      label: 'General Ownership Tagging (Recommended)',
-      description: 'Document and verify ownership'
+      label: ready ? t('referrals.generalTagging') : 'General Ownership Tagging (Recommended)',
+      description: ready ? t('referrals.generalTaggingDesc') : 'Document and verify ownership'
     },
     {
       value: '/nft-tagging',
-      label: 'Digital Assets & NFT Tagging',
-      description: 'Protect creative works and NFTs'
+      label: ready ? t('referrals.nftTagging') : 'Digital Assets & NFT Tagging',
+      description: ready ? t('referrals.nftTaggingDesc') : 'Protect creative works and NFTs'
     },
     {
       value: '/mywill-tagging',
-      label: 'MyWill & Legacy Tagging',
-      description: 'Secure your digital legacy'
+      label: ready ? t('referrals.myWillTagging') : 'MyWill & Legacy Tagging',
+      description: ready ? t('referrals.myWillTaggingDesc') : 'Secure your digital legacy'
     },
     {
       value: '/business-tagging',
-      label: 'Business & Inventory Tagging',
-      description: 'Product authentication for businesses'
+      label: ready ? t('referrals.businessTagging') : 'Business & Inventory Tagging',
+      description: ready ? t('referrals.businessTaggingDesc') : 'Product authentication for businesses'
     }
   ];
 
@@ -211,25 +213,25 @@ export const InfluencerReferrals: React.FC = () => {
 
   const statsCards = [
     {
-      title: 'Total Referred',
+      title: ready ? t('referrals.totalReferred') : 'Total Referred',
       value: stats.totalReferred.toString(),
       icon: <Users className="h-8 w-8 text-primary-600" />,
       color: 'text-primary-600',
-      description: 'Users you\'ve referred'
+      description: ready ? t('referrals.usersReferred') : 'Users you\'ve referred'
     },
     {
-      title: 'Total Earned',
+      title: ready ? t('referrals.totalEarned') : 'Total Earned',
       value: `${stats.totalEarned} TMT`,
       icon: <Award className="h-8 w-8 text-success-600" />,
       color: 'text-success-600',
-      description: 'Tokens earned from referrals'
+      description: ready ? t('referrals.tokensEarned') : 'Tokens earned from referrals'
     },
     {
-      title: 'Pending Rewards',
+      title: ready ? t('referrals.pendingRewards') : 'Pending Rewards',
       value: `${stats.pendingRewards} TMT`,
       icon: <Clock className="h-8 w-8 text-warning-600" />,
       color: 'text-warning-600',
-      description: 'Rewards being processed'
+      description: ready ? t('referrals.rewardsProcessing') : 'Rewards being processed'
     },
     {
       title: 'Conversion Rate',
@@ -288,10 +290,10 @@ export const InfluencerReferrals: React.FC = () => {
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <Crown className="h-8 w-8 text-yellow-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Influencer Referrals</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{ready ? t('referrals.title') : 'Influencer Referrals'}</h1>
             </div>
             <p className="text-gray-600">
-              Earn tokens by referring new users to TagMyThing
+              {ready ? t('wallet.earnTokensByReferring') : 'Earn tokens by referring new users to TagMyThing'}
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
@@ -306,7 +308,7 @@ export const InfluencerReferrals: React.FC = () => {
               disabled={dataLoading}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${dataLoading ? 'animate-spin' : ''}`} />
-              Refresh Data
+              {ready ? t('referrals.refreshStats') : 'Refresh Data'}
             </Button>
             
             {/* Debug buttons for admin_influencer only */}
@@ -365,7 +367,7 @@ export const InfluencerReferrals: React.FC = () => {
           {/* Referral URL Section */}
           <div className="lg:col-span-1">
             <Card>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Referral Link</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{ready ? t('referrals.shareReferralLink') : 'Your Referral Link'}</h2>
               
               <div className="space-y-4">
                 <div>
@@ -422,7 +424,7 @@ export const InfluencerReferrals: React.FC = () => {
                     disabled={!referralUrl || urlLoading}
                   >
                     <Share2 className="h-4 w-4 mr-2" />
-                    Share Link
+                    {ready ? t('referrals.shareLink') : 'Share Link'}
                   </Button>
                   <Button
                     onClick={handleShowQRCode}
@@ -430,7 +432,7 @@ export const InfluencerReferrals: React.FC = () => {
                     disabled={!referralUrl || urlLoading}
                   >
                     <QrCode className="h-4 w-4 mr-2" />
-                    Show QR Code
+                    {ready ? t('referrals.showQRCode') : 'Show QR Code'}
                   </Button>
                 </div>
                 
@@ -441,19 +443,19 @@ export const InfluencerReferrals: React.FC = () => {
                   disabled={!referralUrl || urlLoading}
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  Copy Link
+                  {ready ? t('referrals.copyLink') : 'Copy Link'}
                 </Button>
 
                 <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
                   <div className="flex items-start">
                     <Gift className="h-5 w-5 text-primary-600 mt-0.5 mr-2 flex-shrink-0" />
                     <div className="text-sm text-primary-700">
-                      <p className="font-medium mb-1">How it works:</p>
+                      <p className="font-medium mb-1">{ready ? t('referrals.howItWorks') : 'How it works:'}:</p>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>Choose your preferred landing page from the dropdown</li>
-                        <li>Share your customized referral link or QR code</li>
-                        <li>New users sign up using your link</li>
-                        <li>Earn tokens for each successful referral</li>
+                        <li>{ready ? t('referrals.selectLandingPage') + ' from the dropdown' : 'Choose your preferred landing page from the dropdown'}</li>
+                        <li>{ready ? t('referrals.step1') : 'Share your customized referral link or QR code'}</li>
+                        <li>{ready ? t('referrals.step2') : 'New users sign up using your link'}</li>
+                        <li>{ready ? t('referrals.step3') : 'Earn tokens for each successful referral'}</li>
                         <li>Get rewards up to 5 levels deep!</li>
                       </ul>
                     </div>
@@ -464,7 +466,7 @@ export const InfluencerReferrals: React.FC = () => {
 
             {/* Reward Structure */}
             <Card className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Reward Structure</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{ready ? t('referrals.rewardStructure') : 'Reward Structure'}</h3>
               
               <div className="space-y-3">
                 {referralSettings.map((setting) => (
@@ -480,7 +482,7 @@ export const InfluencerReferrals: React.FC = () => {
                         {setting.referral_level}
                       </div>
                       <span className="text-sm font-medium text-gray-900">
-                        Level {setting.referral_level}
+                        {ready ? t('referrals.level') : 'Level'} {setting.referral_level}
                       </span>
                     </div>
                     <span className="text-sm font-semibold text-gray-900">
@@ -503,7 +505,7 @@ export const InfluencerReferrals: React.FC = () => {
           <div className="lg:col-span-2">
             {/* Level Breakdown */}
             <Card className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance by Level</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{ready ? t('referrals.rewardStructure') : 'Performance by Level'}</h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
                 {stats.levelBreakdown.map((levelData) => (
@@ -528,27 +530,27 @@ export const InfluencerReferrals: React.FC = () => {
             {/* Referred Users */}
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Referred Users</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{ready ? t('referrals.recentReferrals') : 'Referred Users'}</h3>
                 <span className="text-sm text-gray-600">
-                  {referredUsers.length} total referrals
+                  {referredUsers.length} {ready ? t('referrals.totalReferrals').toLowerCase() : 'total referrals'}
                 </span>
               </div>
 
               {referredUsers.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No referrals yet</h4>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">{ready ? t('referrals.noReferralsYet') : 'No referrals yet'}</h4>
                   <p className="text-gray-600 mb-4">
-                    Start sharing your referral link to earn tokens!
+                    {ready ? t('referrals.startReferring') : 'Start sharing your referral link to earn tokens!'}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button onClick={shareReferralUrl} disabled={!referralUrl}>
                       <Share2 className="h-4 w-4 mr-2" />
-                      Share Referral Link
+                      {ready ? t('referrals.shareReferralLink') : 'Share Referral Link'}
                     </Button>
                     <Button onClick={handleShowQRCode} variant="outline" disabled={!referralUrl}>
                       <QrCode className="h-4 w-4 mr-2" />
-                      Show QR Code
+                      {ready ? t('referrals.generateQRCode') : 'Show QR Code'}
                     </Button>
                   </div>
                 </div>

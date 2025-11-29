@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Lock, Globe, Users, Tag, DollarSign, Image, Film, FileText, Coins, AlertCircle, CheckCircle, Trash2, Eye, Timer, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -279,7 +280,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                 <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Image className="h-5 w-5 text-primary-600" />
-                    <span className="font-medium text-primary-900">Photos</span>
+                    <span className="font-medium text-primary-900">{ready ? t('tagAsset.photos') : 'Photos'}</span>
                   </div>
                   <div className="text-sm text-primary-700">
                     <div>{tokenCalculation.breakdown.photos.count} files</div>
@@ -293,7 +294,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                 <div className="bg-secondary-50 border border-secondary-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <Film className="h-5 w-5 text-secondary-600" />
-                    <span className="font-medium text-secondary-900">Videos</span>
+                    <span className="font-medium text-secondary-900">{ready ? t('tagAsset.videos') : 'Videos'}</span>
                   </div>
                   <div className="text-sm text-secondary-700">
                     <div>{tokenCalculation.breakdown.videos.count} files</div>
@@ -307,7 +308,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
                 <div className="bg-accent-50 border border-accent-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <FileText className="h-5 w-5 text-accent-600" />
-                    <span className="font-medium text-accent-900">Documents</span>
+                    <span className="font-medium text-accent-900">{ready ? t('tagAsset.documents') : 'Documents'}</span>
                   </div>
                   <div className="text-sm text-accent-700">
                     <div>{tokenCalculation.breakdown.pdfs.count} files</div>
@@ -321,14 +322,14 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
             <div className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-lg font-semibold mb-1">Total Token Cost</h4>
+                  <h4 className="text-lg font-semibold mb-1">{ready ? t('tagAsset.totalTokenCost') : 'Total Token Cost'}</h4>
                   <p className="text-primary-100 text-sm">
-                    {tokenCalculation.calculatedMediaItems.length} media files
+                    {tokenCalculation.calculatedMediaItems.length} {ready ? t('tagAsset.mediaFiles') : 'media files'}
                   </p>
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold">{tokenCalculation.totalTokens} TMT</div>
-                  <div className="text-primary-100 text-sm">Required to save</div>
+                  <div className="text-primary-100 text-sm">{ready ? t('tagAsset.requiredToSave') : 'Required to save'}</div>
                 </div>
               </div>
             </div>
@@ -340,27 +341,27 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
       <Card>
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Asset Details
+            {ready ? t('tagAsset.assetDetails') : 'Asset Details'}
           </h2>
 
           <Input
-            label="Title *"
+            label={ready ? t('tagAsset.title') + ' *' : 'Title *'}
             value={formData.title}
             onChange={(e) => handleChange('title', e.target.value)}
-            placeholder="Give your asset a descriptive title"
+            placeholder={ready ? t('tagAsset.titlePlaceholder') : 'Give your asset a descriptive title'}
             required
           />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              {ready ? t('tagAsset.description') : 'Description'}
             </label>
             <textarea
               id="asset-description"
               name="description"
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Add any additional details about this asset"
+              placeholder={ready ? t('tagAsset.descriptionPlaceholder') : 'Add any additional details about this asset'}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
@@ -406,7 +407,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
           </div>
 
           <Input
-            label="Estimated Value (£)"
+            label={ready ? t('tagAsset.estimatedValue') : 'Estimated Value (£)'}
             type="number"
             name="estimated-value"
             value={formData.estimatedValue || ''}
@@ -416,11 +417,11 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
           />
 
           <Input
-            label="Location"
+            label={ready ? t('tagAsset.location') : 'Location'}
             name="location"
             value={formData.location}
             onChange={(e) => handleChange('location', e.target.value)}
-            placeholder="Where is this asset located?"
+            placeholder={ready ? t('tagAsset.locationPlaceholder') : 'Where is this asset located?'}
             icon={<MapPin className="h-5 w-5 text-gray-400" />}
           />
 
@@ -584,7 +585,7 @@ export const TagAssetForm: React.FC<TagAssetFormProps> = ({
               disabled={hasErrors || calculationLoading || !tokenCalculation}
               className="flex-1"
             >
-              {hasErrors ? 'Fix Errors to Continue' : 'Save Asset'}
+              {hasErrors ? 'Fix Errors to Continue' : (ready ? t('tagAsset.saveAsset') : 'Save Asset')}
             </Button>
           </div>
         </form>

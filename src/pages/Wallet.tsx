@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
   Wallet as WalletIcon, 
@@ -47,6 +48,7 @@ interface Transaction {
 }
 
 export const Wallet: React.FC = () => {
+  const { t, ready } = useTranslation();
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all' | 'earned' | 'spent'>('all');
@@ -200,25 +202,25 @@ export const Wallet: React.FC = () => {
 
   const stats = [
     {
-      title: 'Current Balance',
+      title: ready ? t('wallet.currentBalance') : 'Current Balance',
       value: `${balance} TMT`,
       icon: <WalletIcon className="h-8 w-8 text-primary-600" />,
       color: 'text-primary-600'
     },
     {
-      title: 'Total Earned',
+      title: ready ? t('wallet.totalEarned') : 'Total Earned',
       value: `${transactions.filter((tx: any) => tx.type === 'earned').reduce((sum: number, tx: any) => sum + tx.amount, 0)} TMT`,
       icon: <TrendingUp className="h-8 w-8 text-success-600" />,
       color: 'text-success-600'
     },
     {
-      title: 'Total Spent',
+      title: ready ? t('wallet.totalSpent') : 'Total Spent',
       value: `${Math.abs(transactions.filter((tx: any) => tx.type === 'spent').reduce((sum: number, tx: any) => sum + tx.amount, 0))} TMT`,
       icon: <TrendingDown className="h-8 w-8 text-error-600" />,
       color: 'text-error-600'
     },
     {
-      title: 'Transactions',
+      title: ready ? t('wallet.transactions') : 'Transactions',
       value: transactions.length.toString(),
       icon: <ArrowUpRight className="h-8 w-8 text-secondary-600" />,
       color: 'text-secondary-600'
@@ -234,22 +236,22 @@ export const Wallet: React.FC = () => {
 const quickActions = [
   // ✅ NEW: Referral program available to ALL users
   {
-    title: 'Referral Program',
-    description: 'Earn tokens by referring friends',
+    title: ready ? t('wallet.referralProgram') : 'Referral Program',
+    description: ready ? t('wallet.earnTokensByReferring') : 'Earn tokens by referring friends',
     icon: <Share2 className="h-4 w-4" />,
     action: () => {
       window.location.href = '/referrals';
     }
   },
   {
-    title: 'Daily Check-in',
-    description: 'Get daily bonus tokens',
+    title: ready ? t('wallet.dailyCheckIn') : 'Daily Check-in',
+    description: ready ? t('wallet.getDailyBonus') : 'Get daily bonus tokens',
     icon: <Calendar className="h-4 w-4" />,
     action: () => toast.info('Daily check-in coming soon!')
   },
   {
-    title: 'View Rewards',
-    description: 'See all available rewards',
+    title: ready ? t('wallet.viewRewards') : 'View Rewards',
+    description: ready ? t('wallet.seeAllRewards') : 'See all available rewards',
     icon: <Award className="h-4 w-4" />,
     action: () => toast.info('Rewards page coming soon!')
   }
@@ -273,7 +275,7 @@ const quickActions = [
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your wallet...</p>
+            <p className="text-gray-600">{ready ? t('wallet.loadingWallet') : 'Loading your wallet...'}</p>
           </div>
         </div>
       </Layout>
@@ -286,9 +288,9 @@ const quickActions = [
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">TMT Wallet</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{ready ? t('wallet.title') : 'TMT Wallet'}</h1>
             <p className="text-gray-600">
-              Manage your TagMyThing tokens and view transaction history
+              {ready ? t('wallet.subtitle') : 'Manage your TagMyThing tokens and view transaction history'}
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
@@ -298,7 +300,7 @@ const quickActions = [
               className="flex items-center"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {ready ? t('wallet.refresh') : 'Refresh'}
             </Button>
             <Button 
               onClick={() => {
@@ -315,7 +317,7 @@ const quickActions = [
               className="lg:hidden"
             >
               <Plus className="h-5 w-5 mr-2" />
-              {processingPayment ? 'Processing...' : 'Buy Tokens'}
+              {processingPayment ? (ready ? t('wallet.processing') : 'Processing...') : (ready ? t('wallet.buyTokens') : 'Buy Tokens')}
             </Button>
           </div>
         </div>
@@ -349,17 +351,17 @@ const quickActions = [
           <div className="lg:col-span-2">
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Transaction History</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{ready ? t('wallet.transactionHistory') : 'Transaction History'}</h2>
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4 mr-2" />
-                  Export
+                  {ready ? t('wallet.export') : 'Export'}
                 </Button>
               </div>
 
               {/* Filters */}
               <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-6">
                 <Input
-                  placeholder="Search transactions..."
+                  placeholder={ready ? t('wallet.searchTransactions') : 'Search transactions...'}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   name="transaction-search"
@@ -373,9 +375,9 @@ const quickActions = [
                   name="transaction-type-filter"
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">All Types</option>
-                  <option value="earned">Earned</option>
-                  <option value="spent">Spent</option>
+                  <option value="all">{ready ? t('wallet.allTypes') : 'All Types'}</option>
+                  <option value="earned">{ready ? t('wallet.earned') : 'Earned'}</option>
+                  <option value="spent">{ready ? t('wallet.spent') : 'Spent'}</option>
                 </select>
 
                 <select
@@ -385,7 +387,7 @@ const quickActions = [
                   name="transaction-source-filter"
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">All Sources</option>
+                  <option value="all">{ready ? t('wallet.allSources') : 'All Sources'}</option>
                   {uniqueSources.map(source => (
                     <option key={source} value={source}>
                       {formatSource(source)}
@@ -399,7 +401,7 @@ const quickActions = [
                 {filteredTransactions.length === 0 ? (
                   <div className="text-center py-8">
                     <Coins className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No transactions found</p>
+                    <p className="text-gray-600">{ready ? t('wallet.noTransactionsFound') : 'No transactions found'}</p>
                   </div>
                 ) : (
                   filteredTransactions.map((transaction: any, index) => (
@@ -447,7 +449,7 @@ const quickActions = [
             <Card>
               <div id="buy-tokens-section">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Buy Tokens</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{ready ? t('wallet.buyTokens') : 'Buy Tokens'}</h2>
               </div>
               </div>
 
@@ -484,7 +486,7 @@ const quickActions = [
                       size="sm"
                       disabled={processingPayment}
                     >
-                      {processingPayment ? 'Processing...' : 'Buy Now'}
+                      {processingPayment ? (ready ? t('wallet.processing') : 'Processing...') : (ready ? t('wallet.buyNow') : 'Buy Now')}
                     </Button>
                   </motion.div>
                 ))}
@@ -492,7 +494,7 @@ const quickActions = [
 
               {/* Subscription Plans Section */}
               <div className="mt-8 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Business Subscriptions</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{ready ? t('wallet.businessSubscriptions') : 'Business Subscriptions'}</h3>
                 <div className="space-y-4">
                   {TOKEN_PACKAGES.filter(pkg => pkg.id === 'pro_business' || pkg.id === 'enterprise').map((pkg, index) => (
                     <motion.div
@@ -511,7 +513,7 @@ const quickActions = [
                       
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Monthly Tokens:</span>
+                          <span className="text-gray-600">{ready ? t('wallet.monthlyTokens') : 'Monthly Tokens'}:</span>
                           <span className="font-medium">{pkg.token_amount} TMT</span>
                         </div>
                         <div className="text-xs text-gray-500">
@@ -527,7 +529,7 @@ const quickActions = [
                         disabled={processingPayment}
                         variant={pkg.id === 'pro_business' ? 'primary' : 'secondary'}
                       >
-                        {processingPayment ? 'Processing...' : 'Subscribe Now'}
+                        {processingPayment ? (ready ? t('wallet.processing') : 'Processing...') : (ready ? t('wallet.subscribeNow') : 'Subscribe Now')}
                       </Button>
                     </motion.div>
                   ))}
@@ -536,7 +538,7 @@ const quickActions = [
 
               {/* Payment Methods */}
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Payment Methods</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">{ready ? t('wallet.paymentMethods') : 'Payment Methods'}</h3>
                 <div className="flex items-center space-x-4 text-xs text-gray-600">
                   <div className="flex items-center">
                     <CreditCard className="h-4 w-4 mr-1" />
@@ -552,7 +554,7 @@ const quickActions = [
 
             {/* Quick Actions - Available to ALL users now */}
 <Card className="mt-6">
-  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+  <h3 className="text-lg font-semibold text-gray-900 mb-4">{ready ? t('wallet.quickActions') : 'Quick Actions'}</h3>
   <div className="space-y-3">
     {quickActions.map((action, index) => (
       <Button 

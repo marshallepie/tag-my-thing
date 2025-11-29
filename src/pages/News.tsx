@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Calendar, User, ArrowRight, Tag, Image as ImageIcon } from 'lucide-react';
 import { useNews } from '../hooks/useNews';
@@ -11,6 +12,7 @@ import { Modal } from '../components/ui/Modal';
 import { format } from 'date-fns';
 
 export const News: React.FC = () => {
+  const { t, ready } = useTranslation();
   const { articles, loading, error } = useNews();
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -63,7 +65,7 @@ export const News: React.FC = () => {
       <Layout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-error-600">Failed to load news articles</p>
+            <p className="text-error-600">{ready ? t('news.failedToLoad') : 'Failed to load news articles'}</p>
           </div>
         </div>
       </Layout>
@@ -76,9 +78,9 @@ export const News: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Latest News</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{ready ? t('news.title') : 'Latest News'}</h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Stay updated with the latest developments, features, and insights from TagMyThing
+              {ready ? t('news.subtitle') : 'Stay updated with the latest developments, features, and insights from TagMyThing'}
             </p>
           </div>
 
@@ -95,7 +97,7 @@ export const News: React.FC = () => {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {category}
+                  {ready ? (t(`news.categories.${category}`) || category) : category}
                 </button>
               ))}
             </div>
@@ -105,11 +107,11 @@ export const News: React.FC = () => {
           {filteredArticles.length === 0 ? (
             <div className="text-center py-16">
               <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No articles yet</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{ready ? t('news.noArticlesYet') : 'No articles yet'}</h3>
               <p className="text-gray-600">
                 {selectedCategory === 'All' 
-                  ? 'Check back soon for the latest news and updates!'
-                  : `No articles found in "${selectedCategory}" category.`
+                  ? (ready ? t('news.checkBackSoon') : 'Check back soon for the latest news and updates!')
+                  : (ready ? t('news.noArticlesInCategory', { category: selectedCategory }) : `No articles found in "${selectedCategory}" category.`)
                 }
               </p>
             </div>
@@ -148,7 +150,7 @@ export const News: React.FC = () => {
                         <div className="flex items-center justify-between mb-3">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                             <Tag className="h-3 w-3 mr-1" />
-                            {article.news_category}
+                            {ready ? (t(`news.categories.${article.news_category}`) || article.news_category) : article.news_category}
                           </span>
                         </div>
 
@@ -181,7 +183,7 @@ export const News: React.FC = () => {
                           onClick={() => handleReadMore(article)}
                           className="w-full"
                         >
-                          Read More
+                          {ready ? t('news.readMore') : 'Read More'}
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Button>
                       </div>
@@ -206,7 +208,7 @@ export const News: React.FC = () => {
                   <div className="flex items-center space-x-2 mb-3">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                       <Tag className="h-3 w-3 mr-1" />
-                      {selectedArticle.news_category}
+                      {ready ? (t(`news.categories.${selectedArticle.news_category}`) || selectedArticle.news_category) : selectedArticle.news_category}
                     </span>
                   </div>
                   

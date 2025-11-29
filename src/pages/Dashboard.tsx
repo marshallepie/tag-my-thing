@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Camera, Wallet, Package, Users, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -18,11 +19,33 @@ const err  = (...args: any[]) => console.error('%cDashboard', 'color:#ef4444;fon
 export const Dashboard: React.FC = () => {
   console.log('🚀 Dashboard: Component mounting...');
   
+  const { t, ready } = useTranslation();
   const { profile, user } = useAuth();
   console.log(' Dashboard: useAuth hook completed, profile:', !!profile, 'user:', !!user);
   
   const { balance, transactions } = useTokens();
   const { stats: _nokStatsRaw, loading: nokLoading } = useNOKAssignments();
+
+  // Helper function to translate transaction sources
+  const translateTransactionSource = (source: string) => {
+    if (!ready) return source.replace('_', ' ');
+    
+    switch (source) {
+      case 'tag_asset':
+        return t('activity.tagAsset');
+      case 'referral':
+      case 'referral_reward':
+        return t('activity.referralReward');
+      case 'signup':
+        return t('activity.signup');
+      case 'purchase':
+        return t('activity.purchase');
+      case 'blockchain_publish':
+        return t('activity.blockchainPublish');
+      default:
+        return source.replace('_', ' ');
+    }
+  };
 
   // Defensive defaulting to avoid undefined access during first render
   const nokStats = useMemo(() => _nokStatsRaw ?? { incoming_count: 0, outgoing_count: 0, upcoming_dms_count: 0 }, [_nokStatsRaw]);
@@ -134,9 +157,9 @@ export const Dashboard: React.FC = () => {
         {/* Welcome Section */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {profile?.full_name || user?.email || 'User'}!
+            {ready ? t('dashboard.welcomeBackUser', { name: profile?.full_name || user?.email || 'User' }) : `Welcome back, ${profile?.full_name || user?.email || 'User'}!`}
           </h1>
-          <p className="text-gray-600">Manage your assets and track your digital legacy.</p>
+          <p className="text-gray-600">{ready ? t('dashboard.dashboardSubtitle') : 'Manage your assets and track your digital legacy.'}</p>
         </motion.div>
 
         {/* Stats Cards */}
@@ -148,7 +171,7 @@ export const Dashboard: React.FC = () => {
                   <Wallet className="h-8 w-8 text-primary-600" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">TMT Balance</h3>
+                  <h3 className="text-lg font-medium text-gray-900">{ready ? t('dashboard.totalBalance') : 'TMT Balance'}</h3>
                   <p className="text-2xl font-bold text-primary-600">{balance}</p>
                 </div>
               </div>
@@ -162,9 +185,9 @@ export const Dashboard: React.FC = () => {
                   <Package className="h-8 w-8 text-secondary-600" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Total Assets</h3>
+                  <h3 className="text-lg font-medium text-gray-900">{ready ? t('dashboard.totalAssets') : 'Total Assets'}</h3>
                   <p className="text-2xl font-bold text-secondary-600">
-                    {assetsLoading ? '...' : totalAssets}
+                    {assetsLoading ? (ready ? t('dashboard.loading') : '...') : totalAssets}
                   </p>
                 </div>
               </div>
@@ -178,9 +201,9 @@ export const Dashboard: React.FC = () => {
                   <ArrowLeft className="h-8 w-8 text-accent-600" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Incoming NOK</h3>
+                  <h3 className="text-lg font-medium text-gray-900">{ready ? t('dashboard.incoming') : 'Incoming NOK'}</h3>
                   <p className="text-2xl font-bold text-accent-600">
-                    {nokLoading ? '...' : nokStats.incoming_count}
+                    {nokLoading ? (ready ? t('dashboard.loading') : '...') : nokStats.incoming_count}
                   </p>
                 </div>
               </div>
@@ -194,9 +217,9 @@ export const Dashboard: React.FC = () => {
                   <ArrowRight className="h-8 w-8 text-success-600" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Outgoing NOK</h3>
+                  <h3 className="text-lg font-medium text-gray-900">{ready ? t('dashboard.outgoing') : 'Outgoing NOK'}</h3>
                   <p className="text-2xl font-bold text-success-600">
-                    {nokLoading ? '...' : nokStats.outgoing_count}
+                    {nokLoading ? (ready ? t('dashboard.loading') : '...') : nokStats.outgoing_count}
                   </p>
                 </div>
               </div>
@@ -237,7 +260,7 @@ export const Dashboard: React.FC = () => {
                 <Link to="/nok">
                   <Button variant="outline" size="sm">
                     <Users className="h-4 w-4 mr-2" />
-                    Manage NOK
+                    {ready ? t('dashboard.manageNok') : 'Manage NOK'}
                   </Button>
                 </Link>
               </div>
@@ -248,12 +271,30 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
           <div className="lg:col-span-2">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{ready ? t('dashboard.quickActions') : 'Quick Actions'}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               {[
-                { title: 'Tag New Asset', description: 'Capture and tag a new asset', icon: <Camera className="h-8 w-8" />, link: '/tag', color: 'bg-primary-600' },
-                { title: 'View Assets', description: 'Browse your tagged assets', icon: <Package className="h-8 w-8" />, link: '/assets', color: 'bg-secondary-600' },
-                { title: 'Next of Kin', description: 'Manage your digital legacy', icon: <Shield className="h-8 w-8" />, link: '/nok', color: 'bg-accent-600' },
+                { 
+                  title: ready ? t('dashboard.tagNewAsset') : 'Tag New Asset', 
+                  description: ready ? t('dashboard.tagDescription') : 'Capture and tag a new asset', 
+                  icon: <Camera className="h-8 w-8" />, 
+                  link: '/tag', 
+                  color: 'bg-primary-600' 
+                },
+                { 
+                  title: ready ? t('dashboard.viewAssets') : 'View Assets', 
+                  description: ready ? t('dashboard.viewDescription') : 'Browse your tagged assets', 
+                  icon: <Package className="h-8 w-8" />, 
+                  link: '/assets', 
+                  color: 'bg-secondary-600' 
+                },
+                { 
+                  title: ready ? t('navigation.nextOfKin') : 'Next of Kin', 
+                  description: ready ? t('dashboard.nokDescription') : 'Manage your digital legacy', 
+                  icon: <Shield className="h-8 w-8" />, 
+                  link: '/nok', 
+                  color: 'bg-accent-600' 
+                },
               ].map((action, index) => (
                 <motion.div key={action.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + index * 0.1 }}>
                   <Link to={action.link}>
@@ -272,12 +313,12 @@ export const Dashboard: React.FC = () => {
             {/* Get Started Section */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
               <Card className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
-                <h3 className="text-xl font-semibold mb-2">Ready to start tagging?</h3>
+                <h3 className="text-xl font-semibold mb-2">{ready ? t('dashboard.getStarted') : 'Ready to start tagging?'}</h3>
                 <p className="text-primary-100 mb-4">Capture your first asset and experience the power of TagMyThing.</p>
                 <Link to="/tag">
                   <Button variant="secondary" size="lg">
                     <Plus className="h-5 w-5 mr-2" />
-                    Tag Your First Asset
+                    {ready ? t('dashboard.tagFirstAsset') : 'Tag Your First Asset'}
                   </Button>
                 </Link>
               </Card>
@@ -286,7 +327,7 @@ export const Dashboard: React.FC = () => {
 
           {/* Recent Activity */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{ready ? t('dashboard.recentActivity') : 'Recent Activity'}</h2>
             <Card>
               {recentTransactions.length > 0 ? (
                 <div className="space-y-4">
@@ -294,7 +335,7 @@ export const Dashboard: React.FC = () => {
                     <div key={transaction.id} className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900 capitalize">
-                          {transaction.source.replace('_', ' ')}
+                          {translateTransactionSource(transaction.source)}
                         </p>
                         <p className="text-sm text-gray-600">
                           {new Date(transaction.created_at).toLocaleDateString()}
@@ -307,15 +348,15 @@ export const Dashboard: React.FC = () => {
                   ))}
                   <Link to="/wallet" className="block text-center">
                     <Button variant="outline" size="sm" className="w-full">
-                      View All Transactions
+                      {ready ? t('activity.viewAllTransactions') : 'View All Transactions'}
                     </Button>
                   </Link>
                 </div>
               ) : (
                 <div className="text-center py-8">
                   <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No transactions yet</p>
-                  <p className="text-sm text-gray-500 mt-1">Start tagging assets to see your activity</p>
+                  <p className="text-gray-600">{ready ? t('dashboard.noTransactions') : 'No transactions yet'}</p>
+                  <p className="text-sm text-gray-500 mt-1">{ready ? t('dashboard.startTagging') : 'Start tagging assets to see your activity'}</p>
                 </div>
               )}
             </Card>

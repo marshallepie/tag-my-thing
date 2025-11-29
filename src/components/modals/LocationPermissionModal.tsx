@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Shield, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useGeolocation } from '../../hooks/useGeolocation';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { useTranslatedToast } from '../../hooks/useTranslatedToast';
 
 interface LocationPermissionModalProps {
   isOpen: boolean;
@@ -15,6 +20,8 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
   onPermissionSet,
   showOnSignup = false
 }) => {
+  const { t } = useTranslation();
+  const toast = useTranslatedToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'intro' | 'requesting' | 'success' | 'denied'>('intro');
 
@@ -119,11 +126,10 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
                 <MapPin size={32} className="text-blue-600" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
-                {showOnSignup ? 'Enable Location Tracking?' : 'Location Services'}
+                {t('gps.permissionTitle')}
               </h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                TagMyThing can automatically capture GPS coordinates when you tag assets, 
-                making them easier to find and providing better context for your items.
+                {t('gps.permissionMessage')}
               </p>
             </div>
 
@@ -131,27 +137,27 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
               <div className="flex items-start space-x-3">
                 <Shield size={16} className="text-green-500 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-sm">Privacy Protected</p>
+                  <p className="font-medium text-sm">{t('gps.benefitPrivacyTitle')}</p>
                   <p className="text-xs text-gray-600">
-                    Your location is only stored for your tagged assets and never shared
+                    {t('gps.benefitPrivacyDescription')}
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin size={16} className="text-blue-500 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-sm">Better Asset Context</p>
+                  <p className="font-medium text-sm">{t('gps.benefitContextTitle')}</p>
                   <p className="text-xs text-gray-600">
-                    Know exactly where you tagged each item with precise GPS coordinates
+                    {t('gps.benefitContextDescription')}
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <CheckCircle size={16} className="text-purple-500 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-sm">Always Your Choice</p>
+                  <p className="font-medium text-sm">{t('gps.benefitChoiceTitle')}</p>
                   <p className="text-xs text-gray-600">
-                    You can enable or disable this feature at any time in settings
+                    {t('gps.benefitChoiceDescription')}
                   </p>
                 </div>
               </div>
@@ -163,14 +169,14 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
                 disabled={loading}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Enable Location Services
+                {t('gps.enableButton')}
               </button>
               <button
                 onClick={showOnSignup ? handleSkip : handleDisableLocation}
                 disabled={loading}
                 className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {showOnSignup ? 'Skip for Now' : 'Disable Location Services'}
+                {showOnSignup ? t('gps.skipButton') : t('gps.disableButton')}
               </button>
             </div>
           </>
@@ -181,9 +187,9 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
             <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
               <MapPin size={32} className="text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Requesting Location Access</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('gps.requestingTitle')}</h3>
             <p className="text-gray-600 text-sm">
-              Please allow location access in your browser when prompted
+              {t('gps.requestingMessage')}
             </p>
             <div className="mt-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -196,9 +202,9 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle size={32} className="text-green-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2 text-green-800">Location Enabled!</h3>
+            <h3 className="text-lg font-semibold mb-2 text-green-800">{t('gps.successTitle')}</h3>
             <p className="text-gray-600 text-sm">
-              Your assets will now automatically include GPS coordinates when tagged
+              {t('gps.successMessage')}
             </p>
           </div>
         )}
@@ -208,15 +214,15 @@ export const LocationPermissionModal: React.FC<LocationPermissionModalProps> = (
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <AlertCircle size={32} className="text-red-600" />
             </div>
-            <h3 className="text-lg font-semibold mb-2 text-red-800">Location Access Denied</h3>
+            <h3 className="text-lg font-semibold mb-2 text-red-800">{t('gps.deniedTitle')}</h3>
             <p className="text-gray-600 text-sm mb-4">
-              You can enable location services later in your browser settings or profile preferences
+              {t('gps.deniedMessage')}
             </p>
             <button
               onClick={handleSkip}
               className="bg-gray-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-700"
             >
-              Continue Without Location
+              {t('gps.continueButton')}
             </button>
           </div>
         )}
