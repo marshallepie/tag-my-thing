@@ -281,9 +281,13 @@
     "all": "Tout",
     "categories": {
       "Company News": "Actualités de l'Entreprise",
-      "Product Updates": "Mises à Jour Produit", 
+      "Product Updates": "Mises à Jour Produit",
       "All": "Tout"
-    }
+    },
+    "translatedFrom": "Traduit de {{language}}",
+    "originallyPublished": "Publié initialement en {{language}}",
+    "autoTranslating": "Traduction automatique...",
+    "translationError": "Traduction indisponible"
   },
   "wallet": {
     "title": "Portefeuille TMT",

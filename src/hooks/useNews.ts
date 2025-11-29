@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { NewsArticle, getPublishedArticles, getAllArticles } from '../lib/newsApi';
+import { NewsArticle, getPublishedArticles, getAllArticles, getLocalizedArticles } from '../lib/newsApi';
 import { useAuth } from './useAuth';
 
-export const useNews = () => {
+export const useNews = (userLanguage?: 'en' | 'fr') => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,19 @@ export const useNews = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = isAdmin ? await getAllArticles() : await getPublishedArticles();
+      
+      let data: NewsArticle[];
+      if (isAdmin) {
+        // Admins see all articles without localization
+        data = await getAllArticles();
+      } else if (userLanguage) {
+        // Regular users get localized articles
+        data = await getLocalizedArticles(userLanguage);
+      } else {
+        // Fallback to standard published articles
+        data = await getPublishedArticles();
+      }
+      
       setArticles(data);
     } catch (err: any) {
       console.error('Error fetching articles:', err);
@@ -27,7 +39,7 @@ export const useNews = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, isAuthenticated]);
+  }, [isAdmin, isAuthenticated, userLanguage]);
 
   useEffect(() => {
     fetchArticles();

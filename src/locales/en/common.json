@@ -283,7 +283,11 @@
       "Company News": "Company News",
       "Product Updates": "Product Updates",
       "All": "All"
-    }
+    },
+    "translatedFrom": "Translated from {{language}}",
+    "originallyPublished": "Originally published in {{language}}",
+    "autoTranslating": "Auto-translating...",
+    "translationError": "Translation unavailable"
   },
   "wallet": {
     "title": "TMT Wallet",

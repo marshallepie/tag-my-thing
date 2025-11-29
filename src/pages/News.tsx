@@ -12,8 +12,9 @@ import { Modal } from '../components/ui/Modal';
 import { format } from 'date-fns';
 
 export const News: React.FC = () => {
-  const { t, ready } = useTranslation();
-  const { articles, loading, error } = useNews();
+  const { t, ready, i18n } = useTranslation();
+  const currentLanguage = i18n.language as 'en' | 'fr';
+  const { articles, loading, error } = useNews(currentLanguage);
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [categories, setCategories] = useState<string[]>([]);
@@ -48,6 +49,26 @@ export const News: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+  };
+
+  // Check if article is translated or original
+  const isTranslated = (article: NewsArticle): boolean => {
+    if (currentLanguage === 'fr') {
+      return article.original_language === 'fr' || !!(article.title_fr && article.content_fr);
+    }
+    return article.original_language === 'en';
+  };
+
+  const getLanguageIndicator = (article: NewsArticle): string | null => {
+    if (!ready) return null;
+    
+    if (currentLanguage === 'fr' && article.original_language === 'en' && article.title_fr) {
+      return t('news.translatedFrom', { language: 'anglais' });
+    }
+    if (currentLanguage === 'en' && article.original_language === 'fr') {
+      return t('news.originallyPublished', { language: 'French' });
+    }
+    return null;
   };
 
   if (loading) {
@@ -153,6 +174,15 @@ export const News: React.FC = () => {
                             {ready ? (t(`news.categories.${article.news_category}`) || article.news_category) : article.news_category}
                           </span>
                         </div>
+
+                        {/* Translation Indicator */}
+                        {getLanguageIndicator(article) && (
+                          <div className="mb-2">
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                              {getLanguageIndicator(article)}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Title */}
                         <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
