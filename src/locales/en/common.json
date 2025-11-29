@@ -164,7 +164,13 @@
     "enableLocation": "Enable Location",
     "skipLocation": "Skip for Now",
     "locationEnabled": "Location tracking enabled successfully!",
-    "locationDenied": "Location access denied. You can enable it later in settings."
+    "locationDenied": "Location access denied. You can enable it later in settings.",
+    "locationToggle": {
+      "title": "Location Services",
+      "gpsEnabled": "GPS tracking enabled",
+      "gpsDisabled": "GPS tracking disabled",
+      "enableDescription": "Enable location services to see your current position and automatically tag assets with GPS coordinates."
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -280,9 +286,11 @@
     "failedToLoad": "Failed to load news articles",
     "all": "All",
     "categories": {
+      "All": "All",
       "Company News": "Company News",
+      "General": "General",
       "Product Updates": "Product Updates",
-      "All": "All"
+      "Security Alerts": "Security Alerts"
     },
     "translatedFrom": "Translated from {{language}}",
     "originallyPublished": "Originally published in {{language}}",
@@ -1218,7 +1226,7 @@
     },
     "hero": {
       "title": "Digital Legacy &",
-      "titleHighlight": "Will Tagging",
+      "titleHighlight": " Will Tagging",
       "subtitle": "Secure Your Legacy for Future Generations",
       "description": "Your possessions tell a story, and your intentions for them are deeply personal. MyWill/Legacy Tagging with TagMyThing allows you to create a living, verifiable record of your wishes for physical and digital assets, ensuring your legacy is preserved and your intentions are clearly understood by those you leave behind.",
       "extendedDescription": "This is not just a place to leave your last will—it's a place to record your first will, and every intention in between.",

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Settings, RefreshCw, Clock } from 'lucide-react';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 interface LocationToggleProps {
   userId: string;
@@ -16,6 +17,7 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
   onLocationChange,
   className = ""
 }) => {
+  const { t } = useTranslation();
   const [isEnabled, setIsEnabled] = useState(initialEnabled);
   const [showDetails, setShowDetails] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -110,9 +112,9 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
             />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">Location Services</h3>
+            <h3 className="font-medium text-gray-900">{t('locationToggle.title')}</h3>
             <p className="text-sm text-gray-500">
-              {isEnabled ? 'GPS tracking enabled' : 'GPS tracking disabled'}
+              {isEnabled ? t('locationToggle.gpsEnabled') : t('locationToggle.gpsDisabled')}
             </p>
           </div>
         </div>
@@ -207,7 +209,7 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
           ) : (
             <div className="text-center py-4">
               <p className="text-sm text-gray-500">
-                Enable location services to see your current position and automatically tag assets with GPS coordinates.
+                {t('locationToggle.enableDescription')}
               </p>
             </div>
           )}

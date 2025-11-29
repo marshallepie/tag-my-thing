@@ -164,7 +164,13 @@
     "enableLocation": "Activer la Localisation",
     "skipLocation": "Passer pour Maintenant",
     "locationEnabled": "Suivi de localisation activé avec succès!",
-    "locationDenied": "Accès à la localisation refusé. Vous pouvez l'activer plus tard dans les paramètres."
+    "locationDenied": "Accès à la localisation refusé. Vous pouvez l'activer plus tard dans les paramètres.",
+    "locationToggle": {
+      "title": "Services de localisation",
+      "gpsEnabled": "Suivi GPS activé",
+      "gpsDisabled": "Suivi GPS désactivé",
+      "enableDescription": "Activez les services de localisation pour voir votre position actuelle et étiqueter automatiquement les biens avec les coordonnées GPS."
+    }
   },
   "dashboard": {
     "title": "Tableau de Bord",
@@ -203,7 +209,7 @@
     "title": "Mes Biens",
     "addNew": "Ajouter un Nouveau Bien",
     "photoTag": "Étiquette Photo",
-    "videoTag": "Étiquette Vidéo",
+    "videoTag": "Étiquetez Vidéo",
     "assetTitle": "Titre du Bien",
     "description": "Description",
     "estimatedValue": "Valeur Estimée",
@@ -280,9 +286,11 @@
     "failedToLoad": "Échec du chargement des articles",
     "all": "Tout",
     "categories": {
-      "Company News": "Actualités de l'Entreprise",
-      "Product Updates": "Mises à Jour Produit",
-      "All": "Tout"
+      "All": "Tous",
+      "Company News": "Actualités de l'entreprise",
+      "General": "Général",
+      "Product Updates": "Mises à jour produit",
+      "Security Alerts": "Alertes de sécurité"
     },
     "translatedFrom": "Traduit de {{language}}",
     "originallyPublished": "Publié initialement en {{language}}",
