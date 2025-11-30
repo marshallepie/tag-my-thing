@@ -5,14 +5,14 @@ import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
 interface LocationToggleProps {
-  userId: string;
+  userId?: string;
   initialEnabled?: boolean;
   onLocationChange?: (location: any) => void;
   className?: string;
 }
 
 export const LocationToggle: React.FC<LocationToggleProps> = ({
-  userId,
+  userId: userIdProp,
   initialEnabled = false,
   onLocationChange,
   className = ""
@@ -21,6 +21,7 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
   const [isEnabled, setIsEnabled] = useState(initialEnabled);
   const [showDetails, setShowDetails] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [userId, setUserId] = useState<string | null>(userIdProp || null);
   
   const { 
     location, 
@@ -37,6 +38,19 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
     maximumAge: 300000 // 5 minutes
   });
 
+  // Get user ID from session if not provided
+  useEffect(() => {
+    const getUserId = async () => {
+      if (!userIdProp) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      }
+    };
+    getUserId();
+  }, [userIdProp]);
+
   // Update location change callback
   useEffect(() => {
     if (onLocationChange && location) {
@@ -46,8 +60,13 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
 
   // Handle toggle change
   const handleToggleChange = async (enabled: boolean) => {
+    if (!userId) {
+      console.error('Cannot toggle location: No user ID available');
+      return;
+    }
+
     setSaving(true);
-    
+
     try {
       // Update database
       await supabase
@@ -112,9 +131,9 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
             />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{t('locationToggle.title')}</h3>
+            <h3 className="font-medium text-gray-900">{t('dashboard.locationToggle.title')}</h3>
             <p className="text-sm text-gray-500">
-              {isEnabled ? t('locationToggle.gpsEnabled') : t('locationToggle.gpsDisabled')}
+              {isEnabled ? t('dashboard.locationToggle.gpsEnabled') : t('dashboard.locationToggle.gpsDisabled')}
             </p>
           </div>
         </div>
@@ -209,7 +228,7 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
           ) : (
             <div className="text-center py-4">
               <p className="text-sm text-gray-500">
-                {t('locationToggle.enableDescription')}
+                {t('dashboard.locationToggle.enableDescription')}
               </p>
             </div>
           )}

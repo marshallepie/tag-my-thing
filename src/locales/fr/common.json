@@ -167,9 +167,9 @@
     "locationDenied": "Accès à la localisation refusé. Vous pouvez l'activer plus tard dans les paramètres.",
     "locationToggle": {
       "title": "Services de localisation",
-      "gpsEnabled": "Suivi GPS activé",
-      "gpsDisabled": "Suivi GPS désactivé",
-      "enableDescription": "Activez les services de localisation pour voir votre position actuelle et étiqueter automatiquement les biens avec les coordonnées GPS."
+      "gpsEnabled": "Le suivi GPS est activé.",
+      "gpsDisabled": "Le suivi GPS est désactivé.",
+      "enableDescription": "Activez le suivi de localisation pour associer vos biens à des coordonnées GPS."
     }
   },
   "dashboard": {
@@ -203,7 +203,13 @@
     "nokTooltip": "Assignations Proche Aidant et activations imminentes du commutateur de sécurité",
     "loading": "Chargement...",
     "welcomeBackUser": "Bon retour, {{name}} !",
-    "dashboardSubtitle": "Gérez vos biens et suivez votre héritage numérique."
+    "dashboardSubtitle": "Gérez vos biens et suivez votre héritage numérique.",
+    "locationToggle": {
+      "title": "Services de localisation",
+      "gpsEnabled": "Le suivi GPS est activé.",
+      "gpsDisabled": "Le suivi GPS est désactivé.",
+      "enableDescription": "Activez le suivi de localisation pour associer vos biens à des coordonnées GPS."
+    }
   },
   "assets": {
     "title": "Mes Biens",

@@ -18,7 +18,10 @@ i18n
         common: frCommon
       }
     },
-    fallbackLng: 'en',
+    fallbackLng: {
+      'en-GB': ['en'],
+      'default': ['en']
+    },
     defaultNS: 'common',
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],

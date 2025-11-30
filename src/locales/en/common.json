@@ -167,9 +167,9 @@
     "locationDenied": "Location access denied. You can enable it later in settings.",
     "locationToggle": {
       "title": "Location Services",
-      "gpsEnabled": "GPS tracking enabled",
-      "gpsDisabled": "GPS tracking disabled",
-      "enableDescription": "Enable location services to see your current position and automatically tag assets with GPS coordinates."
+      "gpsEnabled": "GPS tracking is enabled.",
+      "gpsDisabled": "GPS tracking is disabled.",
+      "enableDescription": "Enable location tracking to tag your assets with GPS coordinates."
     }
   },
   "dashboard": {
@@ -199,6 +199,12 @@
     "assets": "Assets",
     "incoming": "Incoming",
     "outgoing": "Outgoing",
+    "locationToggle": {
+      "title": "Location Services",
+      "gpsEnabled": "GPS tracking is enabled.",
+      "gpsDisabled": "GPS tracking is disabled.",
+      "enableDescription": "Enable location tracking to tag your assets with GPS coordinates."
+    },
     "assignmentsTooltip": "Assets assigned to you vs assets you've assigned to others",
     "nokTooltip": "Next of Kin assignments and upcoming Dead Man's Switch activations",
     "loading": "Loading...",
