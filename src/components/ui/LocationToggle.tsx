@@ -38,17 +38,34 @@ export const LocationToggle: React.FC<LocationToggleProps> = ({
     maximumAge: 300000 // 5 minutes
   });
 
-  // Get user ID from session if not provided
+  // Get user ID and initial location tracking state from database
   useEffect(() => {
-    const getUserId = async () => {
-      if (!userIdProp) {
+    const getUserIdAndSettings = async () => {
+      try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          setUserId(user.id);
+          const effectiveUserId = userIdProp || user.id;
+          setUserId(effectiveUserId);
+
+          // Fetch user's location tracking preference from database
+          const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .select('location_tracking_enabled')
+            .eq('id', effectiveUserId)
+            .single();
+
+          if (error) {
+            console.error('Failed to fetch location tracking preference:', error);
+          } else if (profile) {
+            // Initialize toggle state with database value
+            setIsEnabled(profile.location_tracking_enabled || false);
+          }
         }
+      } catch (err) {
+        console.error('Error initializing LocationToggle:', err);
       }
     };
-    getUserId();
+    getUserIdAndSettings();
   }, [userIdProp]);
 
   // Update location change callback
