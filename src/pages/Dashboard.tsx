@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Camera, Wallet, Package, Users, Plus, ArrowLeft, ArrowRight, Timer, Shield } from 'lucide-react';
+import { Camera, Wallet, Package, Users, Plus, ArrowLeft, ArrowRight, Timer, Shield, Coins } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTokens } from '../hooks/useTokens';
 import { useNOKAssignments } from '../hooks/useNOKAssignments';
@@ -272,28 +272,35 @@ export const Dashboard: React.FC = () => {
           {/* Quick Actions */}
           <div className="lg:col-span-2">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">{ready ? t('dashboard.quickActions') : 'Quick Actions'}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {[
-                { 
-                  title: ready ? t('dashboard.tagNewAsset') : 'Tag New Asset', 
-                  description: ready ? t('dashboard.tagDescription') : 'Capture and tag a new asset', 
-                  icon: <Camera className="h-8 w-8" />, 
-                  link: '/tag', 
-                  color: 'bg-primary-600' 
+                {
+                  title: ready ? t('dashboard.tagNewAsset') : 'Tag New Asset',
+                  description: ready ? t('dashboard.tagDescription') : 'Capture and tag a new asset',
+                  icon: <Camera className="h-8 w-8" />,
+                  link: '/tag',
+                  color: 'bg-primary-600'
                 },
-                { 
-                  title: ready ? t('dashboard.viewAssets') : 'View Assets', 
-                  description: ready ? t('dashboard.viewDescription') : 'Browse your tagged assets', 
-                  icon: <Package className="h-8 w-8" />, 
-                  link: '/assets', 
-                  color: 'bg-secondary-600' 
+                {
+                  title: ready ? t('dashboard.viewAssets') : 'View Assets',
+                  description: ready ? t('dashboard.viewDescription') : 'Browse your tagged assets',
+                  icon: <Package className="h-8 w-8" />,
+                  link: '/assets',
+                  color: 'bg-secondary-600'
                 },
-                { 
-                  title: ready ? t('navigation.nextOfKin') : 'Next of Kin', 
-                  description: ready ? t('dashboard.nokDescription') : 'Manage your digital legacy', 
-                  icon: <Shield className="h-8 w-8" />, 
-                  link: '/nok', 
-                  color: 'bg-accent-600' 
+                {
+                  title: ready ? t('navigation.nextOfKin') : 'Next of Kin',
+                  description: ready ? t('dashboard.nokDescription') : 'Manage your digital legacy',
+                  icon: <Shield className="h-8 w-8" />,
+                  link: '/nok',
+                  color: 'bg-accent-600'
+                },
+                {
+                  title: ready ? t('navigation.buyTokens') : 'Buy Tokens',
+                  description: ready ? t('dashboard.buyTokensDescription') : 'Purchase TMT tokens',
+                  icon: <Coins className="h-8 w-8" />,
+                  link: '/buy-tokens',
+                  color: 'bg-success-600'
                 },
               ].map((action, index) => (
                 <motion.div key={action.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + index * 0.1 }}>

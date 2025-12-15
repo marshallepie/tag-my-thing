@@ -154,7 +154,7 @@ Test that the functions are accessible:
 curl https://YOUR_SUPABASE_PROJECT_REF.supabase.co/functions/v1/paystack-webhook
 
 # Test verification (should return 400 without parameters)
-curl https://YOUR_SUPABASE_PROJECT_REF.supabase.co/functions/v1/verify-paystack-payment
+curl https://uylayywjytfztihrvogb.supabase.co/functions/v1/verify-paystack-payment
 ```
 
 ---

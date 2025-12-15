@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Coins, CreditCard, Smartphone, Check } from 'lucide-react';
 import { useMTNMomo, TokenPackage } from '@/hooks/useMTNMomo';
+import { usePaystackPayment } from '@/hooks/usePaystack';
 import { MTNMomoPaymentModal } from './MTNMomoPaymentModal';
 import { useTranslation } from 'react-i18next';
 import { useTokens } from '@/hooks/useTokens';
@@ -9,9 +10,10 @@ export function TokenPurchasePage() {
   const { t } = useTranslation();
   const { tokenPackages } = useMTNMomo();
   const { balance, refreshBalance } = useTokens();
+  const { initiatePayment: initiatePaystackPayment, loading: paystackLoading } = usePaystackPayment();
 
   const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'mtn_momo' | 'paystack' | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'mtn_momo' | 'paystack' | 'stripe' | null>(null);
   const [showMTNMomoModal, setShowMTNMomoModal] = useState(false);
 
   const handlePackageSelect = (pkg: TokenPackage) => {
@@ -19,15 +21,32 @@ export function TokenPurchasePage() {
     setSelectedPaymentMethod(null);
   };
 
-  const handlePaymentMethodSelect = (method: 'mtn_momo' | 'paystack') => {
+  const handlePaymentMethodSelect = (method: 'mtn_momo' | 'paystack' | 'stripe') => {
     setSelectedPaymentMethod(method);
 
     if (method === 'mtn_momo') {
       setShowMTNMomoModal(true);
     } else if (method === 'paystack') {
-      // Handle Paystack payment (existing implementation)
-      // You can integrate with your existing Paystack flow here
-      console.log('Paystack payment selected');
+      // Convert MTN MOMO package format to Paystack package format
+      if (selectedPackage) {
+        const paystackPackage = {
+          id: selectedPackage.id,
+          tokens: selectedPackage.tmtTokens,
+          price: selectedPackage.priceGBP * 1500, // Convert GBP to NGN (approximate rate)
+          currency: 'NGN',
+        };
+        initiatePaystackPayment(paystackPackage);
+      }
+    } else if (method === 'stripe') {
+      // Handle Stripe payment link redirect
+      if (selectedPackage?.stripePaymentLink) {
+        const baseUrl = window.location.origin;
+        const successUrl = `${baseUrl}/wallet?session_id={CHECKOUT_SESSION_ID}`;
+        const cancelUrl = `${baseUrl}/buy-tokens?canceled=true`;
+
+        const paymentUrl = `${selectedPackage.stripePaymentLink}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+        window.location.href = paymentUrl;
+      }
     }
   };
 
@@ -73,12 +92,12 @@ export function TokenPurchasePage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t('payments.selectPackage', 'Select a Package')}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
             {tokenPackages.map((pkg) => (
               <button
                 key={pkg.id}
                 onClick={() => handlePackageSelect(pkg)}
-                className={`relative bg-white rounded-xl shadow-lg p-6 transition-all transform hover:scale-105 ${
+                className={`relative bg-white rounded-xl shadow-lg p-6 transition-all transform hover:scale-105 w-full sm:w-64 ${
                   selectedPackage?.id === pkg.id
                     ? 'ring-4 ring-blue-500 shadow-2xl'
                     : 'hover:shadow-xl'
@@ -123,11 +142,11 @@ export function TokenPurchasePage() {
 
         {/* Payment Methods */}
         {selectedPackage && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               {t('payments.selectPaymentMethod', 'Select Payment Method')}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* MTN Mobile Money */}
               <button
                 onClick={() => handlePaymentMethodSelect('mtn_momo')}
@@ -150,24 +169,50 @@ export function TokenPurchasePage() {
                 </div>
               </button>
 
+              {/* Stripe */}
+              <button
+                onClick={() => handlePaymentMethodSelect('stripe')}
+                className={`bg-white rounded-xl shadow-lg p-6 transition-all transform hover:scale-105 ${
+                  selectedPaymentMethod === 'stripe'
+                    ? 'ring-4 ring-purple-500 shadow-2xl'
+                    : 'hover:shadow-xl border border-gray-200'
+                }`}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+                    <CreditCard className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {t('payments.stripe.title', 'Stripe Checkout')}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {t('payments.stripe.description', 'Pay with card via Stripe')}
+                  </p>
+                </div>
+              </button>
+
               {/* Paystack */}
               <button
                 onClick={() => handlePaymentMethodSelect('paystack')}
+                disabled={paystackLoading}
                 className={`bg-white rounded-xl shadow-lg p-6 transition-all transform hover:scale-105 ${
                   selectedPaymentMethod === 'paystack'
                     ? 'ring-4 ring-blue-500 shadow-2xl'
                     : 'hover:shadow-xl border border-gray-200'
-                }`}
+                } ${paystackLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
                     <CreditCard className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {t('payments.paystack.title', 'Card Payment')}
+                    {t('payments.paystack.title', 'Paystack')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {t('payments.paystack.description', 'Pay with credit/debit card via Paystack')}
+                    {paystackLoading
+                      ? t('payments.processing', 'Processing...')
+                      : t('payments.paystack.description', 'Pay with card via Paystack')
+                    }
                   </p>
                 </div>
               </button>

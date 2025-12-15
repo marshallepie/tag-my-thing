@@ -4,6 +4,7 @@
     "news": "News",
     "assets": "Assets",
     "wallet": "Wallet",
+    "buyTokens": "Buy Tokens",
     "referrals": "Referrals",
     "tagAsset": "Tag Asset",
     "myAssets": "My Assets",
@@ -191,6 +192,7 @@
     "viewDescription": "Browse your tagged assets",
     "manageNok": "Manage Next of Kin",
     "nokDescription": "Set up asset inheritance",
+    "buyTokensDescription": "Purchase TMT tokens",
     "walletOverview": "Wallet Overview",
     "walletDescription": "View your token balance",
     "welcomeBack": "Welcome back",
@@ -364,8 +366,12 @@
       "tryAgain": "Try again"
     },
     "paystack": {
-      "title": "Card Payment",
-      "description": "Pay with credit/debit card via Paystack"
+      "title": "Paystack",
+      "description": "Pay with card via Paystack"
+    },
+    "stripe": {
+      "title": "Stripe Checkout",
+      "description": "Pay with card via Stripe"
     }
   },
   "wallet": {

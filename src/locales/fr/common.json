@@ -4,6 +4,7 @@
     "news": "Actualités",
     "assets": "Biens",
     "wallet": "Portefeuille",
+    "buyTokens": "Acheter des Jetons",
     "referrals": "Parrainages",
     "tagAsset": "Étiqueter un Bien",
     "myAssets": "Mes Biens",
@@ -191,6 +192,7 @@
     "viewDescription": "Parcourir vos biens étiquetés",
     "manageNok": "Gérer Proche Aidant",
     "nokDescription": "Configurer l'héritage des biens",
+    "buyTokensDescription": "Acheter des jetons TMT",
     "walletOverview": "Aperçu Portefeuille",
     "walletDescription": "Voir votre solde de jetons",
     "welcomeBack": "Bon retour",
@@ -364,8 +366,12 @@
       "tryAgain": "Réessayer"
     },
     "paystack": {
-      "title": "Paiement par Carte",
-      "description": "Payez avec carte de crédit/débit via Paystack"
+      "title": "Paystack",
+      "description": "Payez avec carte via Paystack"
+    },
+    "stripe": {
+      "title": "Stripe Checkout",
+      "description": "Payez avec carte via Stripe"
     }
   },
   "wallet": {

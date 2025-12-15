@@ -302,17 +302,10 @@ const quickActions = [
               <RefreshCw className="h-4 w-4 mr-2" />
               {ready ? t('wallet.refresh') : 'Refresh'}
             </Button>
-            <Button 
+            <Button
               onClick={() => {
-               console.log('Buy Tokens button clicked!');
-                const buyTokensSection = document.getElementById('buy-tokens-section');
-                if (buyTokensSection) {
-                 console.log('Found buy-tokens-section element:', buyTokensSection);
-                  buyTokensSection.scrollIntoView({ behavior: 'smooth' });
-               } else {
-                 console.log('buy-tokens-section element not found!');
-                }
-              }} 
+                window.location.href = '/buy-tokens';
+              }}
               disabled={processingPayment}
               className="lg:hidden"
             >
@@ -444,111 +437,42 @@ const quickActions = [
             </Card>
           </div>
 
-          {/* Token Packages */}
+          {/* Buy Tokens CTA */}
           <div>
-            <Card>
-              <div id="buy-tokens-section">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">{ready ? t('wallet.buyTokens') : 'Buy Tokens'}</h2>
-              </div>
-              </div>
-
-              <div className="space-y-4">
-                {TOKEN_PACKAGES.filter(pkg => pkg.id !== 'pro_business' && pkg.id !== 'enterprise').map((pkg, index) => (
-                  <motion.div
-                    key={pkg.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
-                      <span className="text-lg font-bold text-primary-600">
-                        £{pkg.price_gbp.toFixed(2)}
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Tokens:</span>
-                        <span className="font-medium">{pkg.token_amount} TMT</span>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        <div>≈ {pkg.price_xaf.toLocaleString()} XAF</div>
-                        <div>≈ {pkg.price_ngn.toLocaleString()} NGN</div>
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={() => handlePurchase(pkg.id)}
-                      className="w-full"
-                      size="sm"
-                      disabled={processingPayment}
-                    >
-                      {processingPayment ? (ready ? t('wallet.processing') : 'Processing...') : (ready ? t('wallet.buyNow') : 'Buy Now')}
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Subscription Plans Section */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">{ready ? t('wallet.businessSubscriptions') : 'Business Subscriptions'}</h3>
-                <div className="space-y-4">
-                  {TOKEN_PACKAGES.filter(pkg => pkg.id === 'pro_business' || pkg.id === 'enterprise').map((pkg, index) => (
-                    <motion.div
-                      key={pkg.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors bg-gradient-to-r from-primary-50 to-secondary-50"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
-                        <span className="text-lg font-bold text-primary-600">
-                          £{pkg.price_gbp.toFixed(2)}/month
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">{ready ? t('wallet.monthlyTokens') : 'Monthly Tokens'}:</span>
-                          <span className="font-medium">{pkg.token_amount} TMT</span>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          <div>≈ {pkg.price_xaf.toLocaleString()} XAF/month</div>
-                          <div>≈ {pkg.price_ngn.toLocaleString()} NGN/month</div>
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={() => handlePurchase(pkg.id)}
-                        className="w-full"
-                        size="sm"
-                        disabled={processingPayment}
-                        variant={pkg.id === 'pro_business' ? 'primary' : 'secondary'}
-                      >
-                        {processingPayment ? (ready ? t('wallet.processing') : 'Processing...') : (ready ? t('wallet.subscribeNow') : 'Subscribe Now')}
-                      </Button>
-                    </motion.div>
-                  ))}
+            <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200">
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+                  <Coins className="w-8 h-8 text-white" />
                 </div>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">{ready ? t('wallet.paymentMethods') : 'Payment Methods'}</h3>
-                <div className="flex items-center space-x-4 text-xs text-gray-600">
-                  <div className="flex items-center">
-                    <CreditCard className="h-4 w-4 mr-1" />
-                    Stripe
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {ready ? t('wallet.buyTokens') : 'Buy TMT Tokens'}
+                </h2>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  {ready
+                    ? t('wallet.buyTokensDescription', 'Choose from multiple payment methods and token packages')
+                    : 'Choose from multiple payment methods and token packages'
+                  }
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <CreditCard className="h-5 w-5 text-purple-600" />
+                    <span>Stripe</span>
                   </div>
-                  <div className="flex items-center">
-                    <Smartphone className="h-4 w-4 mr-1" />
-                    Mobile Money
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Smartphone className="h-5 w-5 text-yellow-600" />
+                    <span>MTN MOMO</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <CreditCard className="h-5 w-5 text-blue-600" />
+                    <span>Paystack</span>
                   </div>
                 </div>
+                <Link to="/buy-tokens">
+                  <Button size="lg" className="font-semibold">
+                    <Plus className="h-5 w-5 mr-2" />
+                    {ready ? t('wallet.buyTokens') : 'Buy Tokens'}
+                  </Button>
+                </Link>
               </div>
             </Card>
 

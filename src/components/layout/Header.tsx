@@ -46,6 +46,7 @@ export const Header: React.FC = () => {
     { name: ready ? t('navigation.dashboard') : 'Dashboard', href: '/dashboard' },
     { name: ready ? t('navigation.news') : 'News', href: '/news' },
     { name: ready ? t('navigation.wallet') : 'Wallet', href: '/wallet' },
+    { name: ready ? t('navigation.buyTokens') : 'Buy Tokens', href: '/buy-tokens' },
   ];
 
   // All users can access referrals now

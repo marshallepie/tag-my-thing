@@ -26,46 +26,40 @@ export interface TokenPackage {
   name: string;
   tmtTokens: number;
   priceXAF: number;
+  priceGBP: number;
   savingsPercent?: number;
   popular?: boolean;
+  stripePaymentLink?: string;
 }
 
-// Predefined token packages with pricing in XAF (Central African Franc)
+// Predefined token packages with pricing in XAF (Central African Franc) and GBP
 export const TOKEN_PACKAGES: TokenPackage[] = [
   {
     id: 'starter',
     name: 'Starter',
     tmtTokens: 100,
-    priceXAF: 1000, // ~$1.60 USD
+    priceXAF: 750, // Aligned with existing Stripe package
+    priceGBP: 1.00,
+    stripePaymentLink: 'https://buy.stripe.com/00w4gA4hJ8lm7mr9k1ak000',
   },
   {
     id: 'basic',
     name: 'Basic',
     tmtTokens: 500,
-    priceXAF: 4500, // ~$7.20 USD (10% savings)
+    priceXAF: 3375, // ~£4.50 (10% savings)
+    priceGBP: 4.50,
     savingsPercent: 10,
+    stripePaymentLink: 'https://buy.stripe.com/5kQ9AU8xZcBC4afdAhak001',
   },
   {
     id: 'popular',
     name: 'Popular',
-    tmtTokens: 1000,
-    priceXAF: 8000, // ~$12.80 USD (20% savings)
+    tmtTokens: 5000,
+    priceXAF: 29993, // ~£39.99 (aligned with mega package)
+    priceGBP: 39.99,
     savingsPercent: 20,
     popular: true,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    tmtTokens: 2500,
-    priceXAF: 18750, // ~$30 USD (25% savings)
-    savingsPercent: 25,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    tmtTokens: 5000,
-    priceXAF: 35000, // ~$56 USD (30% savings)
-    savingsPercent: 30,
+    stripePaymentLink: 'https://buy.stripe.com/6oU5kE6pR6de2273ZHak002',
   },
 ];
 

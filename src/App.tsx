@@ -27,6 +27,9 @@ const Assets = React.lazy(() =>
 const Wallet = React.lazy(() =>
   import('./pages/Wallet').then(module => ({ default: module.Wallet }))
 );
+const BuyTokens = React.lazy(() =>
+  import('./components/payments/TokenPurchasePage').then(module => ({ default: module.TokenPurchasePage }))
+);
 const Profile = React.lazy(() =>
   import('./pages/Profile').then(module => ({ default: module.Profile }))
 );
@@ -222,7 +225,13 @@ function App() {
               <Wallet />
             </ProtectedRoute>
           } />
-          
+
+          <Route path="/buy-tokens" element={
+            <ProtectedRoute>
+              <BuyTokens />
+            </ProtectedRoute>
+          } />
+
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
