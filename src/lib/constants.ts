@@ -13,7 +13,6 @@ export const TOKEN_PACKAGES = [
     price_gbp: 1.00,
     price_xaf: Math.round(1.00 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(1.00 * CURRENCY_RATES.NGN_RATE),
-    stripe_payment_link: 'https://buy.stripe.com/00w4gA4hJ8lm7mr9k1ak000'
   },
   {
     id: 'power',
@@ -22,7 +21,6 @@ export const TOKEN_PACKAGES = [
     price_gbp: 4.50,
     price_xaf: Math.round(4.50 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(4.50 * CURRENCY_RATES.NGN_RATE),
-    stripe_payment_link: 'https://buy.stripe.com/5kQ9AU8xZcBC4afdAhak001'
   },
   {
     id: 'mega',
@@ -31,7 +29,6 @@ export const TOKEN_PACKAGES = [
     price_gbp: 39.99,
     price_xaf: Math.round(39.99 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(39.99 * CURRENCY_RATES.NGN_RATE),
-    stripe_payment_link: 'https://buy.stripe.com/6oU5kE6pR6de2273ZHak002'
   },
   {
     id: 'pro_business',
@@ -40,7 +37,6 @@ export const TOKEN_PACKAGES = [
     price_gbp: 8.00,
     price_xaf: Math.round(8.00 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(8.00 * CURRENCY_RATES.NGN_RATE),
-    stripe_payment_link: 'https://buy.stripe.com/8x228seWn1WYeOTgMtak004'
   },
   {
     id: 'enterprise',
@@ -49,6 +45,5 @@ export const TOKEN_PACKAGES = [
     price_gbp: 40.00,
     price_xaf: Math.round(40.00 * CURRENCY_RATES.XAF_RATE),
     price_ngn: Math.round(40.00 * CURRENCY_RATES.NGN_RATE),
-    stripe_payment_link: 'https://buy.stripe.com/7sYeVedSj8lm22753Lak003'
   },
 ] as const; 

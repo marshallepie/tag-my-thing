@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@ardrive/turbo-sdk": "^1.36.0",
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.6.0",
     "@supabase/supabase-js": "^2.39.0",
     "arbundles": "^0.11.2",
     "arweave": "^1.15.7",

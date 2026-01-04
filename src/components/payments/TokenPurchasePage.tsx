@@ -3,18 +3,20 @@ import { Coins, CreditCard, Smartphone, Check } from 'lucide-react';
 import { useMTNMomo, TokenPackage } from '@/hooks/useMTNMomo';
 import { usePaystackPayment } from '@/hooks/usePaystack';
 import { MTNMomoPaymentModal } from './MTNMomoPaymentModal';
+import { StripePaymentModal } from './StripePaymentModal';
 import { useTranslation } from 'react-i18next';
 import { useTokens } from '@/hooks/useTokens';
 
 export function TokenPurchasePage() {
   const { t } = useTranslation();
   const { tokenPackages } = useMTNMomo();
-  const { balance, refreshBalance } = useTokens();
+  const { balance, refreshWallet } = useTokens();
   const { initiatePayment: initiatePaystackPayment, loading: paystackLoading } = usePaystackPayment();
 
   const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'mtn_momo' | 'paystack' | 'stripe' | null>(null);
   const [showMTNMomoModal, setShowMTNMomoModal] = useState(false);
+  const [showStripeModal, setShowStripeModal] = useState(false);
 
   const handlePackageSelect = (pkg: TokenPackage) => {
     setSelectedPackage(pkg);
@@ -38,21 +40,14 @@ export function TokenPurchasePage() {
         initiatePaystackPayment(paystackPackage);
       }
     } else if (method === 'stripe') {
-      // Handle Stripe payment link redirect
-      if (selectedPackage?.stripePaymentLink) {
-        const baseUrl = window.location.origin;
-        const successUrl = `${baseUrl}/wallet?session_id={CHECKOUT_SESSION_ID}`;
-        const cancelUrl = `${baseUrl}/buy-tokens?canceled=true`;
-
-        const paymentUrl = `${selectedPackage.stripePaymentLink}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
-        window.location.href = paymentUrl;
-      }
+      // Open Stripe payment modal (in-app checkout)
+      setShowStripeModal(true);
     }
   };
 
   const handlePaymentSuccess = () => {
     // Refresh token balance
-    refreshBalance();
+    refreshWallet();
 
     // Reset selection
     setSelectedPackage(null);
@@ -186,7 +181,7 @@ export function TokenPurchasePage() {
                     {t('payments.stripe.title', 'Stripe Checkout')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {t('payments.stripe.description', 'Pay with card via Stripe')}
+                    {t('payments.stripe.description', 'Pay with Card, Apple Pay, or Google Pay')}
                   </p>
                 </div>
               </button>
@@ -293,6 +288,21 @@ export function TokenPurchasePage() {
         selectedPackage={selectedPackage}
         onSuccess={handlePaymentSuccess}
       />
+
+      {/* Stripe Payment Modal */}
+      {selectedPackage && (
+        <StripePaymentModal
+          isOpen={showStripeModal}
+          onClose={() => setShowStripeModal(false)}
+          selectedPackage={{
+            id: selectedPackage.id,
+            token_amount: selectedPackage.tmtTokens,
+            price_gbp: selectedPackage.priceGBP,
+            name: selectedPackage.name,
+          }}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

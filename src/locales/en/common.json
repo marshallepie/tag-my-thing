@@ -50,6 +50,11 @@
     "update": "Update",
     "viewAll": "View All"
   },
+  "common": {
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "tryAgain": "Try Again"
+  },
   "messages": {
     "welcome": "Welcome to TagMyThing",
     "signUpSuccess": "Account created successfully!",
@@ -404,7 +409,18 @@
     "dailyCheckIn": "Daily Check-in",
     "getDailyBonus": "Get daily bonus tokens",
     "viewRewards": "View Rewards",
-    "seeAllRewards": "See all available rewards"
+    "seeAllRewards": "See all available rewards",
+    "stripeCheckout": "Stripe Checkout",
+    "securePayment": "Secure Payment",
+    "package": "Package",
+    "amount": "Amount",
+    "payNow": "Pay Now",
+    "processingPayment": "Processing Payment",
+    "pleaseWait": "Please wait while we process your payment...",
+    "paymentSuccessful": "Payment Successful!",
+    "tokensAdded": "tokens have been added to your wallet",
+    "paymentFailed": "Payment Failed",
+    "paymentError": "There was an issue processing your payment. Please try again."
   },
   "referrals": {
     "title": "Referral Program",

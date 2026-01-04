@@ -38,7 +38,88 @@ serve(async (req) => {
       });
     }
 
-    // Handle completed checkout session
+    // Handle Payment Intent succeeded (new modal flow)
+    if (event.type === "payment_intent.succeeded") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+      // Extract metadata
+      const userId = paymentIntent.metadata.user_id;
+      const tokenAmount = parseInt(paymentIntent.metadata.token_amount || "0");
+      const customerEmail = paymentIntent.metadata.customer_email;
+
+      if (!userId || tokenAmount <= 0) {
+        console.error("⚠️ Missing user_id or invalid token amount in Payment Intent metadata", {
+          userId,
+          tokenAmount,
+          metadata: paymentIntent.metadata,
+        });
+        return new Response(JSON.stringify({ error: "Invalid Payment Intent metadata" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Check idempotency - has this Payment Intent already been processed?
+      const { data: existingTransaction } = await supabase
+        .from("payment_transactions")
+        .select("status, tokens_purchased")
+        .eq("stripe_payment_intent_id", paymentIntent.id)
+        .single();
+
+      if (existingTransaction?.status === "successful") {
+        console.log(`⏭️ Payment Intent ${paymentIntent.id} already processed, skipping`);
+        return new Response(JSON.stringify({ received: true, already_processed: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Update payment_transactions status
+      const { error: updateTxError } = await supabase
+        .from("payment_transactions")
+        .update({
+          status: "successful",
+          completed_at: new Date().toISOString(),
+        })
+        .eq("stripe_payment_intent_id", paymentIntent.id);
+
+      if (updateTxError) {
+        console.error("❌ Error updating payment transaction:", updateTxError);
+      }
+
+      // Update wallet balance
+      const { data: wallet } = await supabase
+        .from("user_wallets")
+        .select("balance")
+        .eq("user_id", userId)
+        .single();
+
+      if (wallet) {
+        await supabase
+          .from("user_wallets")
+          .update({ balance: wallet.balance + tokenAmount })
+          .eq("user_id", userId);
+      } else {
+        console.error("⚠️ No wallet found for user:", userId);
+        return new Response(JSON.stringify({ error: "User wallet not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Log token transaction
+      await supabase.from("token_transactions").insert({
+        user_id: userId,
+        amount: tokenAmount,
+        type: "earned",
+        source: "purchase",
+        description: `Purchased ${tokenAmount} TMT tokens via Stripe Payment Intent`,
+      });
+
+      console.log(`✅ Credited ${tokenAmount} tokens to user ${userId} (${customerEmail}) via Payment Intent`);
+    }
+
+    // Handle completed checkout session (legacy Payment Links flow)
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
