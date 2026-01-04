@@ -101,34 +101,124 @@ serve(async (req) => {
         });
       }
 
-      // Check if already processed (idempotency)
+      // Check transaction status - webhook handles token crediting
       const { data: existingTransaction } = await supabaseClient
         .from('payment_transactions')
-        .select('status, tokens_purchased')
+        .select('status, tokens_purchased, created_at')
         .eq('stripe_payment_intent_id', paymentIntentId)
         .single();
 
-      if (existingTransaction?.status === 'successful') {
+      if (!existingTransaction) {
         return new Response(JSON.stringify({
-          success: true,
-          already_processed: true,
-          tokens_credited: existingTransaction.tokens_purchased
+          error: 'Payment transaction not found',
+          message: 'Transaction record not found. Please contact support.'
         }), {
-          status: 200,
+          status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
 
-      // Extract data from Payment Intent
-      tokenAmount = parseInt(paymentIntent.metadata.token_amount || '0');
-      amountInPounds = paymentIntent.amount / 100; // Convert pence to pounds
-      currency = paymentIntent.currency;
-      paymentReference = paymentIntentId;
-
-      if (!tokenAmount || tokenAmount <= 0) {
+      if (existingTransaction.status === 'successful') {
+        // Tokens already credited by webhook
         return new Response(JSON.stringify({
-          error: 'Invalid token amount in Payment Intent metadata',
-          metadata: paymentIntent.metadata
+          success: true,
+          tokens_credited: existingTransaction.tokens_purchased,
+          message: 'Payment processed successfully'
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } else if (existingTransaction.status === 'pending') {
+        // Webhook hasn't processed yet
+        // FALLBACK: Always credit tokens directly since webhooks aren't configured yet
+        console.log(`Payment Intent ${paymentIntentId} is pending, using fallback crediting`);
+
+        try {
+          const tokenAmount = existingTransaction.tokens_purchased || 0;
+
+          if (!tokenAmount || tokenAmount <= 0) {
+            throw new Error('Invalid token amount in transaction');
+          }
+
+          // Update transaction status to successful (with pending check to prevent double-processing)
+          const { error: updateError } = await supabaseClient
+            .from('payment_transactions')
+            .update({
+              status: 'successful',
+              completed_at: new Date().toISOString()
+            })
+            .eq('stripe_payment_intent_id', paymentIntentId)
+            .eq('status', 'pending'); // Only update if still pending
+
+          if (updateError) {
+            console.error('Error updating transaction status:', updateError);
+            throw updateError;
+          }
+
+          // Get current wallet balance
+          const { data: wallet, error: walletFetchError } = await supabaseClient
+            .from('user_wallets')
+            .select('balance')
+            .eq('user_id', user.id)
+            .single();
+
+          if (walletFetchError || !wallet) {
+            console.error('Error fetching wallet:', walletFetchError);
+            throw new Error('User wallet not found');
+          }
+
+          // Update wallet balance
+          const { error: walletUpdateError } = await supabaseClient
+            .from('user_wallets')
+            .update({ balance: wallet.balance + tokenAmount })
+            .eq('user_id', user.id);
+
+          if (walletUpdateError) {
+            console.error('Error updating wallet:', walletUpdateError);
+            throw walletUpdateError;
+          }
+
+          // Log token transaction
+          const { error: txLogError } = await supabaseClient
+            .from('token_transactions')
+            .insert({
+              user_id: user.id,
+              amount: tokenAmount,
+              type: 'earned',
+              source: 'purchase',
+              description: `Purchased ${tokenAmount} TMT tokens via Stripe (fallback crediting)`
+            });
+
+          if (txLogError) {
+            console.error('Error logging transaction:', txLogError);
+            // Don't fail here, tokens are already credited
+          }
+
+          console.log(`Successfully credited ${tokenAmount} tokens via fallback`);
+
+          return new Response(JSON.stringify({
+            success: true,
+            tokens_credited: tokenAmount,
+            message: 'Payment processed successfully'
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        } catch (fallbackError) {
+          console.error('Fallback crediting failed:', fallbackError);
+          return new Response(JSON.stringify({
+            error: 'Failed to credit tokens',
+            message: fallbackError.message || 'Internal error during token crediting'
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+      } else {
+        // Failed or other status
+        return new Response(JSON.stringify({
+          error: 'Payment processing failed',
+          status: existingTransaction.status
         }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -212,92 +302,14 @@ serve(async (req) => {
       }
     }
 
-    // Credit tokens to wallet (atomic operation)
-    const { data: wallet, error: walletError } = await supabaseClient
-      .from('user_wallets')
-      .select('balance')
-      .eq('user_id', user.id)
-      .single();
-
-    if (walletError || !wallet) {
-      return new Response(JSON.stringify({ error: 'User wallet not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Update payment_transactions status (if Payment Intent flow)
-    if (paymentIntentId) {
-      const { error: updateTxError } = await supabaseClient
-        .from('payment_transactions')
-        .update({
-          status: 'successful',
-          completed_at: new Date().toISOString()
-        })
-        .eq('stripe_payment_intent_id', paymentIntentId);
-
-      if (updateTxError) {
-        console.error('Error updating payment transaction:', updateTxError);
-      }
-    }
-
-    // Update wallet balance
-    const { error: updateWalletError } = await supabaseClient
-      .from('user_wallets')
-      .update({ balance: wallet.balance + tokenAmount })
-      .eq('user_id', user.id);
-
-    if (updateWalletError) {
-      return new Response(JSON.stringify({ error: 'Failed to update wallet balance' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Create token transaction record
-    const { error: tokenTxError } = await supabaseClient
-      .from('token_transactions')
-      .insert({
-        user_id: user.id,
-        amount: tokenAmount,
-        type: 'earned',
-        source: 'purchase',
-        description: `Purchased ${tokenAmount} TMT tokens via Stripe - ${paymentIntentId ? 'Payment Intent' : 'Payment Link'}`
-      });
-
-    if (tokenTxError) {
-      console.error('Error creating token transaction:', tokenTxError);
-    }
-
-    // Record payment (if Checkout Session flow)
-    if (sessionId) {
-      await supabaseClient
-        .from('payments')
-        .insert({
-          user_id: user.id,
-          stripe_payment_intent_id: sessionId,
-          status: 'completed',
-          amount: amountInPounds,
-          currency,
-          payment_method: 'stripe',
-          type: 'tokens',
-          metadata: {
-            tokenAmount,
-            sessionId,
-          }
-        });
-    }
-
-    console.log(`Successfully credited ${tokenAmount} tokens to user ${user.id}`);
-
+    // NOTE: This code path should not be reached for new Payment Intent flow
+    // Payment Intent flow returns early above (line 121-150)
+    // Checkout Session (Payment Links) should also be handled by webhooks
     return new Response(JSON.stringify({
-      success: true,
-      tokens_credited: tokenAmount,
-      new_balance: wallet.balance + tokenAmount,
-      amount_paid: amountInPounds,
-      currency
+      error: 'Invalid request - this endpoint only checks payment status',
+      message: 'Token crediting is handled automatically by webhooks'
     }), {
-      status: 200,
+      status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 

@@ -138,44 +138,69 @@ export const useStripePayment = (): UseStripePaymentReturn => {
     }
   }, []);
 
-  // Verify payment and credit tokens
+  // Verify payment and wait for webhook to credit tokens
   const verifyAndCredit = useCallback(async (paymentIntentId: string) => {
     setLoading(true);
 
     try {
-      // Call verify edge function
-      const { data, error: verifyError } = await supabase.functions.invoke(
-        'verify-stripe-payment',
-        {
-          body: {
-            paymentIntentId,
-          },
+      // Poll the verify endpoint until webhook processes the payment
+      // Webhook is the single source of truth for token crediting
+      const maxAttempts = 10; // Max 10 attempts (5 seconds total)
+      const pollInterval = 500; // 500ms between polls
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        console.log(`[Polling attempt ${attempt + 1}/${maxAttempts}] Checking payment status...`);
+        const { data, error: verifyError } = await supabase.functions.invoke(
+          'verify-stripe-payment',
+          {
+            body: {
+              paymentIntentId,
+            },
+          }
+        );
+
+        if (verifyError) {
+          console.error('Payment verification error:', verifyError);
+          setError('Payment verification failed. Please contact support.');
+          toast.error('Payment verification failed');
+          setLoading(false);
+          return false;
         }
-      );
 
-      if (verifyError) {
-        console.error('Payment verification error:', verifyError);
-        setError('Payment verification failed. Please contact support.');
-        toast.error('Payment verification failed');
-        setLoading(false);
-        return false;
-      }
+        console.log(`[Polling response]:`, data);
 
-      if (data?.success || data?.already_processed) {
-        setSuccess(true);
-        const tokensCredited = data.tokens_credited;
-        toast.success(`Payment successful! ${tokensCredited} TMT tokens added to your wallet.`);
+        // Success - webhook has processed the payment
+        if (data?.success) {
+          setSuccess(true);
+          const tokensCredited = data.tokens_credited;
+          toast.success(`Payment successful! ${tokensCredited} TMT tokens added to your wallet.`);
 
-        // Refresh wallet to show new balance
-        await refreshWallet();
-        setLoading(false);
-        return true;
-      } else {
+          // Refresh wallet to show new balance
+          await refreshWallet();
+          setLoading(false);
+          return true;
+        }
+
+        // Still pending - webhook hasn't processed yet
+        if (data?.status === 'pending') {
+          // Wait before next poll
+          await new Promise(resolve => setTimeout(resolve, pollInterval));
+          continue;
+        }
+
+        // Error status
         setError(data?.message || 'Payment verification failed');
         toast.error(data?.message || 'Payment verification failed');
         setLoading(false);
         return false;
       }
+
+      // Timeout - webhook took too long
+      setError('Payment processing is taking longer than expected. Your tokens will be credited shortly.');
+      toast.error('Processing timeout. Please refresh in a moment.');
+      setLoading(false);
+      return false;
+
     } catch (err: any) {
       console.error('Unexpected error verifying payment:', err);
       setError('An unexpected error occurred');

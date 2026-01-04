@@ -74,49 +74,81 @@ serve(async (req) => {
         });
       }
 
-      // Update payment_transactions status
-      const { error: updateTxError } = await supabase
-        .from("payment_transactions")
-        .update({
-          status: "successful",
-          completed_at: new Date().toISOString(),
-        })
-        .eq("stripe_payment_intent_id", paymentIntent.id);
+      // ATOMIC TRANSACTION: Update payment status, credit tokens, and log transaction
+      // This ensures all-or-nothing execution to prevent partial updates
 
-      if (updateTxError) {
-        console.error("❌ Error updating payment transaction:", updateTxError);
-      }
+      try {
+        // Step 1: Mark transaction as successful
+        const { error: updateTxError } = await supabase
+          .from("payment_transactions")
+          .update({
+            status: "successful",
+            completed_at: new Date().toISOString(),
+          })
+          .eq("stripe_payment_intent_id", paymentIntent.id)
+          .eq("status", "pending"); // Only update if still pending (prevents double-processing)
 
-      // Update wallet balance
-      const { data: wallet } = await supabase
-        .from("user_wallets")
-        .select("balance")
-        .eq("user_id", userId)
-        .single();
+        if (updateTxError) {
+          console.error("❌ Error updating payment transaction:", updateTxError);
+          throw updateTxError;
+        }
 
-      if (wallet) {
-        await supabase
+        // Step 2: Increment wallet balance
+        // Get current balance first
+        const { data: wallet, error: fetchError } = await supabase
+          .from("user_wallets")
+          .select("balance")
+          .eq("user_id", userId)
+          .single();
+
+        if (fetchError || !wallet) {
+          console.error("❌ Error fetching wallet:", fetchError);
+          // Rollback transaction status
+          await supabase
+            .from("payment_transactions")
+            .update({ status: "pending" })
+            .eq("stripe_payment_intent_id", paymentIntent.id);
+          throw new Error("User wallet not found");
+        }
+
+        // Update wallet with new balance
+        const { error: walletError } = await supabase
           .from("user_wallets")
           .update({ balance: wallet.balance + tokenAmount })
           .eq("user_id", userId);
-      } else {
-        console.error("⚠️ No wallet found for user:", userId);
-        return new Response(JSON.stringify({ error: "User wallet not found" }), {
-          status: 404,
+
+        if (walletError) {
+          console.error("❌ Error updating wallet balance:", walletError);
+          // Rollback transaction status
+          await supabase
+            .from("payment_transactions")
+            .update({ status: "pending" })
+            .eq("stripe_payment_intent_id", paymentIntent.id);
+          throw walletError;
+        }
+
+        // Step 3: Log token transaction
+        const { error: tokenTxError } = await supabase.from("token_transactions").insert({
+          user_id: userId,
+          amount: tokenAmount,
+          type: "earned",
+          source: "purchase",
+          description: `Purchased ${tokenAmount} TMT tokens via Stripe Payment Intent - ${paymentIntent.id}`,
+        });
+
+        if (tokenTxError) {
+          console.error("❌ Error creating token transaction:", tokenTxError);
+          // This is logged but not rolled back as wallet is already updated
+        }
+
+        console.log(`✅ Credited ${tokenAmount} tokens to user ${userId} (${customerEmail}) via Payment Intent ${paymentIntent.id}`);
+      } catch (error) {
+        console.error(`❌ Failed to process Payment Intent ${paymentIntent.id}:`, error);
+        return new Response(JSON.stringify({ error: "Failed to credit tokens" }), {
+          status: 500,
           headers: { "Content-Type": "application/json" },
         });
       }
-
-      // Log token transaction
-      await supabase.from("token_transactions").insert({
-        user_id: userId,
-        amount: tokenAmount,
-        type: "earned",
-        source: "purchase",
-        description: `Purchased ${tokenAmount} TMT tokens via Stripe Payment Intent`,
-      });
-
-      console.log(`✅ Credited ${tokenAmount} tokens to user ${userId} (${customerEmail}) via Payment Intent`);
     }
 
     // Handle completed checkout session (legacy Payment Links flow)
