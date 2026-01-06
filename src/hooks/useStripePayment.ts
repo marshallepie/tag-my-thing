@@ -149,7 +149,6 @@ export const useStripePayment = (): UseStripePaymentReturn => {
       const pollInterval = 500; // 500ms between polls
 
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        console.log(`[Polling attempt ${attempt + 1}/${maxAttempts}] Checking payment status...`);
         const { data, error: verifyError } = await supabase.functions.invoke(
           'verify-stripe-payment',
           {
@@ -166,8 +165,6 @@ export const useStripePayment = (): UseStripePaymentReturn => {
           setLoading(false);
           return false;
         }
-
-        console.log(`[Polling response]:`, data);
 
         // Success - webhook has processed the payment
         if (data?.success) {

@@ -130,9 +130,7 @@ serve(async (req) => {
         });
       } else if (existingTransaction.status === 'pending') {
         // Webhook hasn't processed yet
-        // FALLBACK: Always credit tokens directly since webhooks aren't configured yet
-        console.log(`Payment Intent ${paymentIntentId} is pending, using fallback crediting`);
-
+        // FALLBACK: Credit tokens directly if webhook hasn't processed
         try {
           const tokenAmount = existingTransaction.tokens_purchased || 0;
 
@@ -193,8 +191,6 @@ serve(async (req) => {
             console.error('Error logging transaction:', txLogError);
             // Don't fail here, tokens are already credited
           }
-
-          console.log(`Successfully credited ${tokenAmount} tokens via fallback`);
 
           return new Response(JSON.stringify({
             success: true,

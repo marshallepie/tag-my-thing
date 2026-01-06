@@ -145,8 +145,6 @@ serve(async (req) => {
       // The webhook will handle token crediting as fallback
     }
 
-    console.log(`Payment Intent created: ${paymentIntent.id} for user ${user.id}`);
-
     return new Response(
       JSON.stringify({
         client_secret: paymentIntent.client_secret,

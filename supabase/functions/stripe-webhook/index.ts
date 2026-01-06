@@ -67,7 +67,6 @@ serve(async (req) => {
         .single();
 
       if (existingTransaction?.status === "successful") {
-        console.log(`⏭️ Payment Intent ${paymentIntent.id} already processed, skipping`);
         return new Response(JSON.stringify({ received: true, already_processed: true }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -140,8 +139,6 @@ serve(async (req) => {
           console.error("❌ Error creating token transaction:", tokenTxError);
           // This is logged but not rolled back as wallet is already updated
         }
-
-        console.log(`✅ Credited ${tokenAmount} tokens to user ${userId} (${customerEmail}) via Payment Intent ${paymentIntent.id}`);
       } catch (error) {
         console.error(`❌ Failed to process Payment Intent ${paymentIntent.id}:`, error);
         return new Response(JSON.stringify({ error: "Failed to credit tokens" }), {
@@ -232,8 +229,6 @@ serve(async (req) => {
         source: "purchase",
         description: `Purchased ${tokenAmount} TMT tokens via Stripe Payment Link`,
       });
-
-      console.log(`✅ Credited ${tokenAmount} tokens to ${email}`);
     }
 
     return new Response(JSON.stringify({ received: true }), {

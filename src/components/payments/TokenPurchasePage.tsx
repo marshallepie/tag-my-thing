@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Coins, CreditCard, Smartphone, Check } from 'lucide-react';
 import { useMTNMomo, TokenPackage } from '@/hooks/useMTNMomo';
-import { usePaystackPayment } from '@/hooks/usePaystack';
 import { MTNMomoPaymentModal } from './MTNMomoPaymentModal';
 import { StripePaymentModal } from './StripePaymentModal';
+import { PaystackPaymentModal } from './PaystackPaymentModal';
 import { useTranslation } from 'react-i18next';
 import { useTokens } from '@/hooks/useTokens';
 
@@ -11,12 +11,12 @@ export function TokenPurchasePage() {
   const { t } = useTranslation();
   const { tokenPackages } = useMTNMomo();
   const { balance, refreshWallet } = useTokens();
-  const { initiatePayment: initiatePaystackPayment, loading: paystackLoading } = usePaystackPayment();
 
   const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'mtn_momo' | 'paystack' | 'stripe' | null>(null);
   const [showMTNMomoModal, setShowMTNMomoModal] = useState(false);
   const [showStripeModal, setShowStripeModal] = useState(false);
+  const [showPaystackModal, setShowPaystackModal] = useState(false);
 
   const handlePackageSelect = (pkg: TokenPackage) => {
     setSelectedPackage(pkg);
@@ -29,16 +29,8 @@ export function TokenPurchasePage() {
     if (method === 'mtn_momo') {
       setShowMTNMomoModal(true);
     } else if (method === 'paystack') {
-      // Convert MTN MOMO package format to Paystack package format
-      if (selectedPackage) {
-        const paystackPackage = {
-          id: selectedPackage.id,
-          tokens: selectedPackage.tmtTokens,
-          price: selectedPackage.priceGBP * 1500, // Convert GBP to NGN (approximate rate)
-          currency: 'NGN',
-        };
-        initiatePaystackPayment(paystackPackage);
-      }
+      // Open Paystack payment modal (in-app checkout)
+      setShowPaystackModal(true);
     } else if (method === 'stripe') {
       // Open Stripe payment modal (in-app checkout)
       setShowStripeModal(true);
@@ -189,12 +181,11 @@ export function TokenPurchasePage() {
               {/* Paystack */}
               <button
                 onClick={() => handlePaymentMethodSelect('paystack')}
-                disabled={paystackLoading}
                 className={`bg-white rounded-xl shadow-lg p-6 transition-all transform hover:scale-105 ${
                   selectedPaymentMethod === 'paystack'
                     ? 'ring-4 ring-blue-500 shadow-2xl'
                     : 'hover:shadow-xl border border-gray-200'
-                } ${paystackLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                }`}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
@@ -204,10 +195,7 @@ export function TokenPurchasePage() {
                     {t('payments.paystack.title', 'Paystack')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {paystackLoading
-                      ? t('payments.processing', 'Processing...')
-                      : t('payments.paystack.description', 'Pay with card via Paystack')
-                    }
+                    {t('payments.paystack.description', 'Pay with card via Paystack')}
                   </p>
                 </div>
               </button>
@@ -299,6 +287,21 @@ export function TokenPurchasePage() {
             token_amount: selectedPackage.tmtTokens,
             price_gbp: selectedPackage.priceGBP,
             name: selectedPackage.name,
+          }}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {/* Paystack Payment Modal */}
+      {selectedPackage && (
+        <PaystackPaymentModal
+          isOpen={showPaystackModal}
+          onClose={() => setShowPaystackModal(false)}
+          selectedPackage={{
+            id: selectedPackage.id,
+            tokens: selectedPackage.tmtTokens,
+            price: selectedPackage.priceGBP * 1500, // Convert GBP to NGN (approximate rate)
+            currency: 'NGN',
           }}
           onSuccess={handlePaymentSuccess}
         />
