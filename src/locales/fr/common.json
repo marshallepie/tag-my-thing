@@ -383,6 +383,7 @@
     "transactions": "Transactions",
     "transactionHistory": "Historique des Transactions",
     "buyTokens": "Acheter des Jetons",
+    "backToDashboard": "Retour au Tableau de Bord",
     "refresh": "Actualiser",
     "export": "Exporter",
     "searchTransactions": "Rechercher des transactions...",

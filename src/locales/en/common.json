@@ -388,6 +388,7 @@
     "transactions": "Transactions",
     "transactionHistory": "Transaction History",
     "buyTokens": "Buy Tokens",
+    "backToDashboard": "Back to Dashboard",
     "refresh": "Refresh",
     "export": "Export",
     "searchTransactions": "Search transactions...",

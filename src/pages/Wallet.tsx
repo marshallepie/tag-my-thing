@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { 
-  Wallet as WalletIcon, 
-  Coins, 
-  TrendingUp, 
-  TrendingDown, 
-  Plus, 
-  ArrowUpRight, 
+import {
+  Wallet as WalletIcon,
+  Coins,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  ArrowUpRight,
   ArrowDownLeft,
   Calendar,
   Filter,

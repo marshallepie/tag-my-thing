@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Coins, CreditCard, Smartphone, Check } from 'lucide-react';
+import { Coins, CreditCard, Smartphone, Check, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useMTNMomo, TokenPackage } from '@/hooks/useMTNMomo';
 import { MTNMomoPaymentModal } from './MTNMomoPaymentModal';
 import { StripePaymentModal } from './StripePaymentModal';
@@ -49,6 +50,16 @@ export function TokenPurchasePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-8">
+          <Link to="/dashboard">
+            <button className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-lg transition-colors duration-200 border border-gray-200 hover:border-gray-300">
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t('wallet.backToDashboard', 'Back to Dashboard')}</span>
+            </button>
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
