@@ -47,7 +47,13 @@ serve(async (req) => {
       )
     }
 
-    // Get user from auth header
+    // Initialize Supabase client with service role key
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // Get authenticated user from JWT token
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -56,32 +62,29 @@ serve(async (req) => {
       )
     }
 
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    )
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser()
+    // Extract user from JWT
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
 
     if (userError || !user) {
+      console.error('User authentication failed:', {
+        hasUser: !!user,
+        error: userError?.message || 'Unknown error',
+        authHeaderPresent: !!authHeader,
+      })
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({
+          error: 'Unauthorized',
+          details: userError?.message || 'Invalid or expired session'
+        }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Generate unique reference ID
-    const referenceId = `TMT-${Date.now()}-${user.id.substring(0, 8)}`
+    console.log('User authenticated successfully:', { userId: user.id })
+
+    // Generate unique reference ID (must be a valid UUID for MTN MOMO)
+    const referenceId = crypto.randomUUID()
 
     // Get MTN MOMO API credentials from environment
     const MTN_MOMO_SUBSCRIPTION_KEY = Deno.env.get('MTN_MOMO_SUBSCRIPTION_KEY')
@@ -91,12 +94,22 @@ serve(async (req) => {
     const MTN_MOMO_CALLBACK_URL = Deno.env.get('MTN_MOMO_CALLBACK_URL')
 
     if (!MTN_MOMO_SUBSCRIPTION_KEY || !MTN_MOMO_API_USER || !MTN_MOMO_API_KEY) {
-      console.error('Missing MTN MOMO credentials')
+      console.error('Missing MTN MOMO credentials:', {
+        hasSubscriptionKey: !!MTN_MOMO_SUBSCRIPTION_KEY,
+        hasApiUser: !!MTN_MOMO_API_USER,
+        hasApiKey: !!MTN_MOMO_API_KEY,
+      })
       return new Response(
-        JSON.stringify({ error: 'Payment gateway configuration error' }),
+        JSON.stringify({ error: 'Payment gateway configuration error - missing credentials' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    console.log('MTN MOMO Request:', {
+      baseUrl: MTN_MOMO_BASE_URL,
+      environment: Deno.env.get('MTN_MOMO_ENVIRONMENT'),
+      hasCallbackUrl: !!MTN_MOMO_CALLBACK_URL,
+    })
 
     // Step 1: Get OAuth access token
     const tokenResponse = await fetch(`${MTN_MOMO_BASE_URL}/collection/token/`, {
@@ -109,9 +122,17 @@ serve(async (req) => {
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
-      console.error('MTN MOMO token error:', errorText)
+      console.error('MTN MOMO token error:', {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        error: errorText,
+        url: `${MTN_MOMO_BASE_URL}/collection/token/`,
+      })
       return new Response(
-        JSON.stringify({ error: 'Failed to authenticate with payment gateway' }),
+        JSON.stringify({
+          error: 'Failed to authenticate with payment gateway',
+          details: `Status ${tokenResponse.status}: ${tokenResponse.statusText}`,
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -119,9 +140,13 @@ serve(async (req) => {
     const { access_token } = await tokenResponse.json()
 
     // Step 2: Request payment (requestToPay)
+    // Note: Sandbox only supports EUR, production supports XAF for Cameroon
+    const environment = Deno.env.get('MTN_MOMO_ENVIRONMENT') || 'sandbox'
+    const currency = environment === 'sandbox' ? 'EUR' : 'XAF'
+
     const paymentPayload = {
       amount: amount.toString(),
-      currency: 'XAF',
+      currency: currency,
       externalId: referenceId,
       payer: {
         partyIdType: 'MSISDN',
@@ -131,6 +156,14 @@ serve(async (req) => {
       payeeNote: `TagMyThing token purchase - ${referenceId}`,
     }
 
+    console.log('Sending payment request to MTN MOMO:', {
+      payload: paymentPayload,
+      phoneNumber: phoneNumber,
+      amount: amount,
+      referenceId: referenceId,
+    })
+
+    const paymentBody = JSON.stringify(paymentPayload)
     const paymentResponse = await fetch(
       `${MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay`,
       {
@@ -141,18 +174,30 @@ serve(async (req) => {
           'X-Target-Environment': Deno.env.get('MTN_MOMO_ENVIRONMENT') || 'sandbox',
           'Ocp-Apim-Subscription-Key': MTN_MOMO_SUBSCRIPTION_KEY,
           'Content-Type': 'application/json',
+          'Content-Length': paymentBody.length.toString(),
           ...(MTN_MOMO_CALLBACK_URL && { 'X-Callback-Url': MTN_MOMO_CALLBACK_URL }),
         },
-        body: JSON.stringify(paymentPayload),
+        body: paymentBody,
       }
     )
 
     // MTN MOMO returns 202 Accepted for successful payment requests
     if (paymentResponse.status !== 202) {
       const errorText = await paymentResponse.text()
-      console.error('MTN MOMO payment request error:', errorText)
+      console.error('MTN MOMO payment request error:', {
+        status: paymentResponse.status,
+        statusText: paymentResponse.statusText,
+        errorBody: errorText,
+        url: `${MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay`,
+        referenceId: referenceId,
+        environment: Deno.env.get('MTN_MOMO_ENVIRONMENT'),
+      })
       return new Response(
-        JSON.stringify({ error: 'Failed to initiate payment request' }),
+        JSON.stringify({
+          error: 'Failed to initiate payment request',
+          details: `HTTP ${paymentResponse.status}: ${paymentResponse.statusText}`,
+          mtnError: errorText || 'No error details provided',
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -167,7 +212,7 @@ serve(async (req) => {
         reference_id: referenceId,
         phone_number: phoneNumber,
         amount: amount,
-        currency: 'XAF',
+        currency: currency,
         tmt_tokens_amount: tmtTokensAmount,
         status: 'pending',
         expires_at: expiresAt.toISOString(),

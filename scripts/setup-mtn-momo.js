@@ -110,7 +110,7 @@ async function createAPIUser() {
   };
 
   const postData = {
-    providerCallbackHost: 'webhook.site', // Dummy host for sandbox
+    providerCallbackHost: 'example.com', // Valid domain required by MTN MOMO
   };
 
   try {

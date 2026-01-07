@@ -29,7 +29,13 @@ serve(async (req) => {
       )
     }
 
-    // Get user from auth header
+    // Initialize Supabase client with service role key
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // Get authenticated user from JWT token
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -38,22 +44,9 @@ serve(async (req) => {
       )
     }
 
-    // Initialize Supabase client with user auth
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    )
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser()
+    // Extract user from JWT
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
 
     if (userError || !user) {
       return new Response(
@@ -61,12 +54,6 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
-
-    // Initialize service role client for privileged operations
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
 
     // Get transaction from database
     const { data: transaction, error: txError } = await supabaseClient
@@ -128,6 +115,7 @@ serve(async (req) => {
       headers: {
         'Ocp-Apim-Subscription-Key': MTN_MOMO_SUBSCRIPTION_KEY,
         'Authorization': `Basic ${btoa(`${MTN_MOMO_API_USER}:${MTN_MOMO_API_KEY}`)}`,
+        'Content-Length': '0',
       },
     })
 
@@ -175,7 +163,8 @@ serve(async (req) => {
       newStatus = 'successful'
 
       // Credit TMT tokens to user wallet
-      const { error: tokenError } = await supabaseAdmin
+      // Step 1: Insert transaction record (audit trail)
+      const { error: tokenError } = await supabaseClient
         .from('token_transactions')
         .insert({
           user_id: user.id,
@@ -190,8 +179,35 @@ serve(async (req) => {
         })
 
       if (tokenError) {
-        console.error('Failed to credit tokens:', tokenError)
+        console.error('Failed to insert token transaction:', tokenError)
         // Don't fail the verification, but log it for manual processing
+      }
+
+      // Step 2: Update wallet balance
+      // Fetch current balance first
+      const { data: wallet, error: fetchWalletError } = await supabaseClient
+        .from('user_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single()
+
+      if (fetchWalletError || !wallet) {
+        console.error('Failed to fetch wallet:', fetchWalletError)
+      } else {
+        // Update with new balance
+        const newBalance = (wallet.balance || 0) + transaction.tmt_tokens_amount
+        const { error: walletError } = await supabaseClient
+          .from('user_wallets')
+          .update({
+            balance: newBalance,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+
+        if (walletError) {
+          console.error('Failed to update wallet balance:', walletError)
+          // Don't fail the verification, but log it for manual processing
+        }
       }
     } else if (paymentStatus.status === 'FAILED') {
       newStatus = 'failed'
@@ -201,7 +217,7 @@ serve(async (req) => {
     }
 
     // Update transaction in database
-    const { data: updatedTransaction, error: updateError } = await supabaseAdmin
+    const { data: updatedTransaction, error: updateError } = await supabaseClient
       .from('mtn_momo_transactions')
       .update({
         status: newStatus,
