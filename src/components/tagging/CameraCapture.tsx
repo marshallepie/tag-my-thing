@@ -235,8 +235,15 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
   };
 
   const handleProceed = () => {
+    console.log('CameraCapture: handleProceed called', {
+      mediaFilesCount: mediaFiles.length,
+      mediaFiles: mediaFiles.map(f => ({ name: f.file.name, type: f.type }))
+    });
     if (mediaFiles.length > 0) {
+      console.log('CameraCapture: Calling onCapture with media files');
       onCapture(mediaFiles);
+    } else {
+      console.log('CameraCapture: No media files to proceed with');
     }
   };
 
@@ -276,64 +283,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
             )}
           </div>
         </div>
-
-        {/* Media Preview Modal */}
-        <Modal
-          isOpen={!!selectedMediaForPreview}
-          onClose={() => setSelectedMediaForPreview(null)}
-          title={selectedMediaForPreview?.file.name || 'Media Preview'}
-          size="xl"
-        >
-          {selectedMediaForPreview && (
-            <div className="space-y-4">
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                {selectedMediaForPreview.type === 'photo' ? (
-                  <img
-                    src={selectedMediaForPreview.preview}
-                    alt="Preview"
-                    className="w-full h-full object-contain"
-                  />
-                ) : selectedMediaForPreview.type === 'video' ? (
-                  <video
-                    src={selectedMediaForPreview.preview}
-                    controls
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <iframe
-                    src={selectedMediaForPreview.preview}
-                    className="w-full h-full border-0"
-                    title="PDF Preview"
-                  />
-                )}
-              </div>
-              
-              {/* File Details */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-900">Type:</span>
-                    <span className="ml-2 text-gray-600 capitalize">{selectedMediaForPreview.type}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-900">Size:</span>
-                    <span className="ml-2 text-gray-600">{formatFileSize(selectedMediaForPreview.file.size)}</span>
-                  </div>
-                  {selectedMediaForPreview.duration && (
-                    <div>
-                      <span className="font-medium text-gray-900">Duration:</span>
-                      <span className="ml-2 text-gray-600">{formatDuration(selectedMediaForPreview.duration)}</span>
-                    </div>
-                  )}
-                  <div>
-                    <span className="font-medium text-gray-900">Name:</span>
-                    <span className="ml-2 text-gray-600 truncate">{selectedMediaForPreview.file.name}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </Modal>
         <div className="bg-black bg-opacity-90 p-4">
           <div className="flex justify-center space-x-4">
             <Button
@@ -517,7 +466,11 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
           <h1 className="text-white text-lg font-semibold">Tag Your Asset</h1>
           <Button
             variant="ghost"
-            onClick={onCancel}
+            onClick={() => {
+              console.log('CameraCapture: Cancel button clicked from main interface');
+              stopCamera();
+              onCancel();
+            }}
             className="text-white hover:bg-gray-800"
           >
             <X className="h-6 w-6" />
@@ -672,6 +625,64 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onCance
         onChange={handleFileUpload}
         className="hidden"
       />
+
+      {/* Media Preview Modal */}
+      <Modal
+        isOpen={!!selectedMediaForPreview}
+        onClose={() => setSelectedMediaForPreview(null)}
+        title={selectedMediaForPreview?.file.name || 'Media Preview'}
+        size="xl"
+      >
+        {selectedMediaForPreview && (
+          <div className="space-y-4">
+            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+              {selectedMediaForPreview.type === 'photo' ? (
+                <img
+                  src={selectedMediaForPreview.preview}
+                  alt="Preview"
+                  className="w-full h-full object-contain"
+                />
+              ) : selectedMediaForPreview.type === 'video' ? (
+                <video
+                  src={selectedMediaForPreview.preview}
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <iframe
+                  src={selectedMediaForPreview.preview}
+                  className="w-full h-full border-0"
+                  title="PDF Preview"
+                />
+              )}
+            </div>
+
+            {/* File Details */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-900">Type:</span>
+                  <span className="ml-2 text-gray-600 capitalize">{selectedMediaForPreview.type}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-900">Size:</span>
+                  <span className="ml-2 text-gray-600">{formatFileSize(selectedMediaForPreview.file.size)}</span>
+                </div>
+                {selectedMediaForPreview.duration && (
+                  <div>
+                    <span className="font-medium text-gray-900">Duration:</span>
+                    <span className="ml-2 text-gray-600">{formatDuration(selectedMediaForPreview.duration)}</span>
+                  </div>
+                )}
+                <div>
+                  <span className="font-medium text-gray-900">Name:</span>
+                  <span className="ml-2 text-gray-600 truncate">{selectedMediaForPreview.file.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

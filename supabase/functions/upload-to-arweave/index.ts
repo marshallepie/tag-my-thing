@@ -2,7 +2,7 @@
 
 import { serve } from "https://deno.land/std@0.203.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { TurboFactory } from "https://esm.sh/@ardrive/turbo-sdk@1.19.0";
+import Arweave from "https://esm.sh/arweave@1.14.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -108,14 +108,11 @@ serve(async (req) => {
     // In production, implement client-side encryption before upload
     const wasEncrypted = encrypt;
 
-    // Initialize Turbo client (unauthenticated for now)
-    const turbo = TurboFactory.unauthenticated();
-
     // Prepare file buffer
     const fileBuffer = await uploadBlob.arrayBuffer();
     const fileUint8Array = new Uint8Array(fileBuffer);
 
-    // Prepare tags
+    // Prepare tags for Arweave
     const tags = [
       { name: 'Content-Type', value: fileData.type },
       { name: 'App-Name', value: 'TagMyThing' },
@@ -129,17 +126,163 @@ serve(async (req) => {
       ...(wasCompressed ? [{ name: 'Compressed', value: 'true' }] : [])
     ];
 
-    // Upload to Arweave via Turbo
-    const uploadResult = await (turbo as any).uploadFile({
-      fileStreamFactory: () => fileUint8Array,
-      fileSizeFactory: () => uploadBlob.size,
-      dataItemOpts: {
-        tags: tags
-      }
-    });
+    // Upload to Arweave using funded wallet from Supabase secrets
+    console.log('Starting REAL Arweave upload, file size:', uploadBlob.size);
 
-    const dataItemId = uploadResult.id;
-    const turboUploadId = uploadResult.id; // Turbo returns data item ID
+    let dataItemId: string;
+    let costWinston = 0;
+
+    try {
+      // Get Arweave wallet from environment
+      const walletKeyJson = Deno.env.get('ARWEAVE_WALLET_KEY');
+      if (!walletKeyJson) {
+        throw new Error('ARWEAVE_WALLET_KEY not configured in Supabase secrets');
+      }
+
+      console.log('Wallet key length:', walletKeyJson.length);
+      console.log('First 100 chars:', walletKeyJson.substring(0, 100));
+      console.log('Last 100 chars:', walletKeyJson.substring(walletKeyJson.length - 100));
+
+      // Try to parse wallet JWK - handle potential encoding issues
+      let jwk;
+      try {
+        // Try direct parse first
+        jwk = JSON.parse(walletKeyJson);
+        console.log('Successfully parsed wallet JWK directly');
+      } catch (parseError: any) {
+        console.error('Failed to parse wallet directly:', parseError.message);
+
+        // The error says "after JSON at position 3164" which means there's valid JSON
+        // followed by extra content. Let's extract just the first valid JSON object.
+        try {
+          // Find the first complete JSON object by parsing character by character
+          let depth = 0;
+          let inString = false;
+          let escape = false;
+          let jsonEnd = -1;
+
+          for (let i = 0; i < walletKeyJson.length; i++) {
+            const char = walletKeyJson[i];
+
+            if (escape) {
+              escape = false;
+              continue;
+            }
+
+            if (char === '\\') {
+              escape = true;
+              continue;
+            }
+
+            if (char === '"') {
+              inString = !inString;
+              continue;
+            }
+
+            if (!inString) {
+              if (char === '{') depth++;
+              if (char === '}') {
+                depth--;
+                if (depth === 0) {
+                  jsonEnd = i + 1;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (jsonEnd > 0) {
+            const extracted = walletKeyJson.substring(0, jsonEnd);
+            console.log('Extracted JSON up to position:', jsonEnd);
+            jwk = JSON.parse(extracted);
+            console.log('Successfully parsed wallet JWK after extraction');
+          } else {
+            throw new Error('Could not find complete JSON object');
+          }
+        } catch (extractError: any) {
+          console.error('Failed to extract and parse wallet:', extractError.message);
+          throw new Error(`Could not parse ARWEAVE_WALLET_KEY: ${parseError.message}`);
+        }
+      }
+
+      console.log('Loaded Arweave wallet, has keys:', Object.keys(jwk).join(', '));
+
+      // Initialize Arweave
+      const arweave = Arweave.init({
+        host: 'arweave.net',
+        port: 443,
+        protocol: 'https'
+      });
+
+      // Check wallet address
+      const walletAddress = await arweave.wallets.jwkToAddress(jwk);
+      const balance = await arweave.wallets.getBalance(walletAddress);
+      console.log('Wallet address:', walletAddress);
+      console.log('Wallet balance (winston):', balance);
+      // Note: Skip AR conversion to avoid BigNum issues in edge runtime
+
+      // Create an Arweave transaction with data
+      const transaction = await arweave.createTransaction({
+        data: fileUint8Array
+      }, jwk);
+
+      // Add tags to the transaction
+      for (const tag of tags) {
+        transaction.addTag(tag.name, tag.value);
+      }
+
+      console.log('Transaction created with', tags.length, 'tags');
+      console.log('Transaction size:', fileUint8Array.length, 'bytes');
+      console.log('Estimated reward (winston):', transaction.reward);
+
+      // Sign the transaction
+      await arweave.transactions.sign(transaction, jwk);
+      console.log('Transaction signed, ID:', transaction.id);
+
+      // Post transaction to Arweave network
+      const response = await arweave.transactions.post(transaction);
+
+      console.log('Transaction post response:', response.status, response.statusText);
+
+      if (response.status !== 200 && response.status !== 208) {
+        // 208 = already submitted
+        const responseText = await response.text();
+        console.error('Arweave response:', responseText);
+        throw new Error(`Arweave rejected transaction: ${response.status} ${response.statusText} - ${responseText}`);
+      }
+
+      // Get the transaction ID
+      dataItemId = transaction.id;
+
+      // Calculate actual cost
+      costWinston = parseInt(transaction.reward);
+
+      console.log('✅ Upload successful to Arweave!');
+      console.log('Transaction ID:', dataItemId);
+      console.log('Cost (winston):', costWinston);
+      console.log('View at: https://arweave.net/' + dataItemId);
+
+    } catch (uploadError: any) {
+      console.error('Arweave upload error:', uploadError);
+      console.error('Error stack:', uploadError.stack);
+
+      // Update asset status to failed
+      await supabase
+        .from('assets')
+        .update({
+          archive_status: 'failed',
+          archive_metadata: {
+            error: uploadError.message,
+            stack: uploadError.stack,
+            timestamp: new Date().toISOString()
+          }
+        })
+        .eq('id', assetId);
+
+      throw new Error(`Arweave upload failed: ${uploadError.message || 'Unknown error'}`);
+    }
+
+    const turboUploadId = dataItemId;
 
     // Call database function to update asset
     const { data: updateResult, error: updateError } = await supabase.rpc(
@@ -148,7 +291,7 @@ serve(async (req) => {
         asset_id: assetId,
         turbo_id: turboUploadId,
         data_item_id: dataItemId,
-        cost_winston: uploadResult.winc || 0,
+        cost_winston: costWinston,
         file_size: originalSize,
         was_compressed: wasCompressed,
         was_encrypted: wasEncrypted
@@ -171,7 +314,7 @@ serve(async (req) => {
         wasEncrypted: wasEncrypted,
         cost: {
           isFree: uploadBlob.size < 100 * 1024,
-          winston: uploadResult.winc || 0
+          winston: costWinston
         },
         arweaveUrl: `https://arweave.net/${dataItemId}`,
         viewBlockUrl: `https://viewblock.io/arweave/tx/${dataItemId}`

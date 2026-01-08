@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Filter, 
-  Grid, 
-  List, 
-  Calendar, 
-  Tag, 
-  MapPin, 
-  DollarSign, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Archive, 
+import {
+  Package,
+  Plus,
+  Search,
+  Filter,
+  Grid,
+  List,
+  Calendar,
+  Tag,
+  MapPin,
+  DollarSign,
+  Eye,
+  Edit,
+  Trash2,
+  Archive,
   Users,
   Mail,
   Phone,
@@ -30,7 +30,13 @@ import {
   Film,
   FileText,
   Globe,
-  Lock
+  Lock,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Copy,
+  Check as CheckIcon
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -43,7 +49,7 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { getViewBlockUrl } from '../lib/arweaveUtils';
+import { getArweaveUrl } from '../lib/arweaveUtils';
 
 interface Asset {
   id: string;
@@ -94,6 +100,9 @@ export const Assets: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showAddNOKAndAssignModal, setShowAddNOKAndAssignModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [copiedTxId, setCopiedTxId] = useState(false);
   const [selectedAssetForNOK, setSelectedAssetForNOK] = useState<Asset | null>(null);
   const [nokFormData, setNokFormData] = useState<NOKFormData>({
     name: '',
@@ -109,6 +118,7 @@ export const Assets: React.FC = () => {
   const { user } = useAuth();
   const { balance, spendTokens } = useTokens();
   const { assignNOKToAsset, refreshAssignments } = useNOKAssignments();
+  const { t, ready } = useTranslation();
 
   useEffect(() => {
     if (user) {
@@ -161,7 +171,7 @@ export const Assets: React.FC = () => {
 
     // Media type filter
     if (filterMediaType !== 'all') {
-      filtered = filtered.filter(asset => asset.media_type === filterMediaType);
+      filtered = filtered.filter(asset => getAssetMediaType(asset) === filterMediaType);
     }
 
     // Sort
@@ -188,9 +198,50 @@ export const Assets: React.FC = () => {
     setFilteredAssets(filtered);
   };
 
+  const handleAssetClick = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setCurrentMediaIndex(0);
+    setShowDetailModal(true);
+    setCopiedTxId(false);
+  };
+
+  const handleCopyTxId = async (txId: string) => {
+    try {
+      await navigator.clipboard.writeText(txId);
+      setCopiedTxId(true);
+      setTimeout(() => setCopiedTxId(false), 2000);
+      toast.success('Transaction ID copied!');
+    } catch (error) {
+      toast.error('Failed to copy');
+    }
+  };
+
   const handleAssignNOKClick = (asset: Asset) => {
     setSelectedAssetForNOK(asset);
     setShowAddNOKAndAssignModal(true);
+  };
+
+  const handleResetStuckUpload = async (assetId: string) => {
+    try {
+      const { error } = await supabase
+        .from('assets')
+        .update({
+          archive_status: 'pending',
+          archive_metadata: {
+            reset_reason: 'stuck_in_uploading',
+            reset_at: new Date().toISOString()
+          }
+        })
+        .eq('id', assetId);
+
+      if (error) throw error;
+
+      toast.success('Upload reset. You can try archiving again.');
+      fetchAssets();
+    } catch (error: any) {
+      console.error('Error resetting upload:', error);
+      toast.error('Failed to reset upload');
+    }
   };
 
   const resetNOKForm = () => {
@@ -317,20 +368,24 @@ export const Assets: React.FC = () => {
 
       const result = await response.json();
 
-      // Success! Show the transaction details
+      // Success! Show the transaction details with TXID
       toast.success(
-        <div>
-          <p>Asset archived successfully to Arweave!</p>
-          <a 
-            href={result.viewBlockUrl} 
-            target="_blank" 
+        <div className="space-y-2">
+          <p className="font-semibold">Asset archived successfully to Arweave!</p>
+          <div className="text-xs">
+            <div className="text-gray-600">Transaction ID:</div>
+            <code className="text-xs bg-white px-2 py-1 rounded">{result.transactionId}</code>
+          </div>
+          <a
+            href={result.arweaveUrl}
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 underline"
+            className="text-blue-400 underline text-sm inline-block mt-2"
           >
-            View Transaction
+            View on Arweave →
           </a>
         </div>,
-        { duration: 8000 }
+        { duration: 10000 }
       );
 
       setShowArchiveModal(false);
@@ -405,7 +460,10 @@ export const Assets: React.FC = () => {
       data-testid="asset-card"
     >
       <Card hover className="overflow-hidden h-full">
-        <div className="aspect-video bg-gray-100 overflow-hidden relative">
+        <div
+          className="aspect-video bg-gray-100 overflow-hidden relative cursor-pointer"
+          onClick={() => handleAssetClick(asset)}
+        >
           {getAssetMediaType(asset) === 'video' ? (
             <video
               src={getAssetMediaUrl(asset)}
@@ -521,6 +579,32 @@ export const Assets: React.FC = () => {
                 Archive
               </Button>
             )}
+
+            {asset.archive_status === 'uploading' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleResetStuckUpload(asset.id)}
+                className="text-warning-600 hover:text-warning-700 hover:bg-warning-50"
+                title="Reset stuck upload"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Reset Upload
+              </Button>
+            )}
+
+            {asset.archive_status === 'failed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleResetStuckUpload(asset.id)}
+                className="text-error-600 hover:text-error-700 hover:bg-error-50"
+                title="Retry failed upload"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Retry Upload
+              </Button>
+            )}
             
             {asset.archive_status === 'upgrade_available' && (
               <Button
@@ -543,7 +627,7 @@ export const Assets: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(getViewBlockUrl(asset.arweave_tx_id!), '_blank')}
+                onClick={() => window.open(getArweaveUrl(asset.arweave_tx_id!), '_blank')}
                 className="text-success-600 hover:text-success-700 hover:bg-success-50"
               >
                 <Archive className="h-4 w-4 mr-1" />
@@ -578,7 +662,10 @@ export const Assets: React.FC = () => {
     >
       <Card className="p-4">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+          <div
+            className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"
+            onClick={() => handleAssetClick(asset)}
+          >
             {getAssetMediaType(asset) === 'video' ? (
               <video
                 src={getAssetMediaUrl(asset)}
@@ -645,7 +732,33 @@ export const Assets: React.FC = () => {
                     Archive
                   </Button>
                 )}
-                
+
+                {asset.archive_status === 'uploading' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleResetStuckUpload(asset.id)}
+                    className="text-warning-600 hover:text-warning-700 hover:bg-warning-50"
+                    title="Reset stuck upload"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Reset
+                  </Button>
+                )}
+
+                {asset.archive_status === 'failed' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleResetStuckUpload(asset.id)}
+                    className="text-error-600 hover:text-error-700 hover:bg-error-50"
+                    title="Retry failed upload"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Retry
+                  </Button>
+                )}
+
                 {asset.archive_status === 'upgrade_available' && (
                   <Button
                     variant="outline"
@@ -667,7 +780,7 @@ export const Assets: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(getViewBlockUrl(asset.arweave_tx_id!), '_blank')}
+                    onClick={() => window.open(getArweaveUrl(asset.arweave_tx_id!), '_blank')}
                     className="text-success-600 hover:text-success-700 hover:bg-success-50"
                   >
                     <Archive className="h-4 w-4 mr-1" />
@@ -862,15 +975,15 @@ export const Assets: React.FC = () => {
                 <h3 className="font-medium text-gray-900 mb-3">Asset to Assign</h3>
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                    {selectedAssetForNOK.media_type === 'video' ? (
+                    {getAssetMediaType(selectedAssetForNOK) === 'video' ? (
                       <video
-                        src={selectedAssetForNOK.media_url}
+                        src={getAssetMediaUrl(selectedAssetForNOK)}
                         className="w-full h-full object-cover"
                         muted
                       />
                     ) : (
                       <img
-                        src={selectedAssetForNOK.media_url}
+                        src={getAssetMediaUrl(selectedAssetForNOK)}
                         alt={selectedAssetForNOK.title}
                         className="w-full h-full object-cover"
                       />
@@ -1127,6 +1240,313 @@ export const Assets: React.FC = () => {
                 >
                   <Archive className="h-4 w-4 mr-2" />
                   Archive to Arweave
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Asset Detail View Modal */}
+        <Modal
+          isOpen={showDetailModal}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedAsset(null);
+            setCurrentMediaIndex(0);
+          }}
+          title="Asset Details"
+          size="xl"
+        >
+          {selectedAsset && (
+            <div className="space-y-6">
+              {/* Media Gallery */}
+              <div className="relative">
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                  {selectedAsset.media_items && selectedAsset.media_items.length > 0 ? (
+                    <>
+                      {selectedAsset.media_items[currentMediaIndex].type === 'video' ? (
+                        <video
+                          src={selectedAsset.media_items[currentMediaIndex].url}
+                          controls
+                          className="w-full h-full object-contain"
+                        />
+                      ) : selectedAsset.media_items[currentMediaIndex].type === 'photo' ? (
+                        <img
+                          src={selectedAsset.media_items[currentMediaIndex].url}
+                          alt={selectedAsset.title}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <iframe
+                          src={selectedAsset.media_items[currentMediaIndex].url}
+                          className="w-full h-full border-0"
+                          title="PDF Preview"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-16 w-16 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Media Navigation */}
+                {selectedAsset.media_items && selectedAsset.media_items.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentMediaIndex(prev => Math.max(0, prev - 1))}
+                      disabled={currentMediaIndex === 0}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full disabled:opacity-30 hover:bg-opacity-70 transition-all"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentMediaIndex(prev => Math.min(selectedAsset.media_items!.length - 1, prev + 1))}
+                      disabled={currentMediaIndex === selectedAsset.media_items.length - 1}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full disabled:opacity-30 hover:bg-opacity-70 transition-all"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm">
+                      {currentMediaIndex + 1} / {selectedAsset.media_items.length}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Asset Information */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedAsset.title}</h2>
+                {selectedAsset.description && (
+                  <p className="text-gray-600 mb-4">{selectedAsset.description}</p>
+                )}
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Privacy */}
+                <div className="flex items-center space-x-2">
+                  {getPrivacyIcon(selectedAsset.privacy)}
+                  <div>
+                    <div className="text-xs text-gray-500">Privacy</div>
+                    <div className="text-sm font-medium text-gray-900 capitalize">{selectedAsset.privacy}</div>
+                  </div>
+                </div>
+
+                {/* Created Date */}
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <div className="text-xs text-gray-500">Created</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {format(new Date(selectedAsset.created_at), 'PPP')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location */}
+                {selectedAsset.location && (
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <div>
+                      <div className="text-xs text-gray-500">Location</div>
+                      <div className="text-sm font-medium text-gray-900">{selectedAsset.location}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Estimated Value */}
+                {selectedAsset.estimated_value && (
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="h-4 w-4 text-gray-400" />
+                    <div>
+                      <div className="text-xs text-gray-500">Estimated Value</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        £{selectedAsset.estimated_value.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Archive Status */}
+                {selectedAsset.archive_status && (
+                  <div className="flex items-center space-x-2">
+                    <Archive className="h-4 w-4 text-gray-400" />
+                    <div>
+                      <div className="text-xs text-gray-500">Archive Status</div>
+                      <div className="text-sm font-medium">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getArchiveStatusColor(selectedAsset.archive_status)}`}>
+                          {selectedAsset.archive_status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              {selectedAsset.tags.length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-gray-700 mb-2">Tags</div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAsset.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800"
+                      >
+                        <Tag className="h-3 w-3 mr-1" />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Media Items List */}
+              {selectedAsset.media_items && selectedAsset.media_items.length > 1 && (
+                <div>
+                  <div className="text-sm font-medium text-gray-700 mb-2">Media Files ({selectedAsset.media_items.length})</div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {selectedAsset.media_items.map((media, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentMediaIndex(index)}
+                        className={`aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
+                          currentMediaIndex === index ? 'border-primary-500 ring-2 ring-primary-200' : 'border-transparent hover:border-gray-300'
+                        }`}
+                      >
+                        {media.type === 'video' ? (
+                          <video
+                            src={media.url}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : media.type === 'photo' ? (
+                          <img
+                            src={media.url}
+                            alt={`Media ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <FileText className="h-8 w-8 text-gray-400" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Arweave Archive Information */}
+              {selectedAsset.arweave_tx_id && (
+                <div className="bg-success-50 border-2 border-success-300 rounded-lg p-5">
+                  <div className="flex items-start space-x-3 mb-4">
+                    <div className="bg-success-100 p-2 rounded-full">
+                      <Archive className="h-6 w-6 text-success-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-base font-semibold text-success-900 mb-1">
+                        Permanently Archived on Arweave
+                      </div>
+                      <div className="text-sm text-success-700 mb-3">
+                        This asset is permanently stored on the Arweave blockchain and can never be deleted or modified.
+                      </div>
+
+                      {/* Transaction ID Display */}
+                      <div className="bg-white border border-success-200 rounded-lg p-3">
+                        <div className="text-xs font-medium text-gray-500 mb-1">Transaction ID (TXID)</div>
+                        <div className="flex items-center justify-between space-x-2">
+                          <code className="text-sm font-mono text-gray-900 break-all flex-1">
+                            {selectedAsset.arweave_tx_id}
+                          </code>
+                          <button
+                            onClick={() => handleCopyTxId(selectedAsset.arweave_tx_id!)}
+                            className="flex-shrink-0 p-2 hover:bg-success-50 rounded-md transition-colors"
+                            title="Copy Transaction ID"
+                          >
+                            {copiedTxId ? (
+                              <CheckIcon className="h-4 w-4 text-success-600" />
+                            ) : (
+                              <Copy className="h-4 w-4 text-gray-500" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(getArweaveUrl(selectedAsset.arweave_tx_id!), '_blank')}
+                      className="flex-1 text-success-600 hover:text-success-700 border-success-300 hover:border-success-400"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View on Arweave
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyTxId(selectedAsset.arweave_tx_id!)}
+                      className="text-success-600 hover:text-success-700 border-success-300 hover:border-success-400"
+                    >
+                      {copiedTxId ? (
+                        <>
+                          <CheckIcon className="h-4 w-4 mr-2" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy TXID
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleAssignNOKClick(selectedAsset);
+                  }}
+                  className="flex-1 text-secondary-600 hover:text-secondary-700"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Assign NOK
+                </Button>
+                {selectedAsset.archive_status === 'pending' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowDetailModal(false);
+                      setShowArchiveModal(true);
+                    }}
+                    disabled={balance < 300}
+                    className="flex-1 text-accent-600 hover:text-accent-700"
+                  >
+                    <Archive className="h-4 w-4 mr-2" />
+                    Archive
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    setShowDeleteModal(true);
+                  }}
+                  className="flex-1 text-error-600 hover:text-error-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
                 </Button>
               </div>
             </div>
