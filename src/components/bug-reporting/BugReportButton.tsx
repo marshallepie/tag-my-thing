@@ -153,6 +153,7 @@ export const BugReportButton: React.FC = () => {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error('Bug report submission failed. Full error response:', result);
         throw new Error(result.error || 'Failed to submit bug report');
       }
 
