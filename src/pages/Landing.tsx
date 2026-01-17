@@ -124,7 +124,7 @@ export const Landing: React.FC = () => {
           <Button size="lg" onClick={() => handleNavigation('/tag')}>
             <Camera className="h-5 w-5 mr-2" /> {ready ? t('landing.tagSomethingNow') : 'Tag Something Now'}
           </Button>
-          <Button variant="outline" size="lg" onClick={() => handleNavigation('/auth')}>
+          <Button variant="outline" size="lg" onClick={() => handleNavigation('/signup')}>
             {ready ? t('landing.createAccount') : 'Create Account'} <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
         </motion.div>
@@ -179,7 +179,7 @@ export const Landing: React.FC = () => {
               variant="outline"
               size="lg"
               className="border-white text-white hover:bg-white hover:text-primary-600"
-              onClick={() => handleNavigation('/auth')}
+              onClick={() => handleNavigation('/signup')}
             >
               {ready ? t('landing.createAccount') : 'Create Account'}
             </Button>
