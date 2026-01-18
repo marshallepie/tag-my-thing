@@ -1,9 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast'; 
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import { LanguageMetaTags } from './components/SEO/LanguageMetaTags';
 import { AuthCallback } from './pages/AuthCallback';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -148,6 +149,7 @@ function App() {
 
   return (
     <>
+      <LanguageMetaTags />
       <ScrollToTop />
       <React.Suspense fallback={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
