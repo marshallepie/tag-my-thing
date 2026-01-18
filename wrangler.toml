@@ -1,0 +1,24 @@
+# Cloudflare Workers Configuration for TagMyThing
+# This worker handles dynamic language-based OG tag injection
+
+name = "tagmything-language-worker"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-01-18"
+
+# Route configuration - applies worker to your domain
+# Uncomment and update with your actual domain after deployment
+# routes = [
+#   { pattern = "tagmything.com/*", zone_name = "tagmything.com" },
+#   { pattern = "www.tagmything.com/*", zone_name = "tagmything.com" }
+# ]
+
+# For development/testing, you can use workers.dev subdomain
+# workers_dev = true
+
+# Observability
+[observability]
+enabled = true
+
+# Limits
+[limits]
+cpu_ms = 50
