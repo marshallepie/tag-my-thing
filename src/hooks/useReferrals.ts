@@ -339,9 +339,7 @@ export const useReferrals = () => {
     });
     
     try {
-      console.log('🔍 STEP 0: Waiting 1 second for database session to stabilize...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('✅ STEP 0 COMPLETE - Database session stabilized');
+      console.log('🔍 STEP 0: Starting referral processing...');
 
       console.log('🔍 STEP 1: Looking up referrer with code:', referralCode);
       
@@ -391,9 +389,7 @@ export const useReferrals = () => {
         console.log('✅ STEP 1 SUCCESS - Found primary referrer:', finalReferrer.id);
       }
 
-      console.log('🔍 STEP 1.5: Waiting 3000ms for user profile to be fully committed...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      console.log('✅ STEP 1.5 COMPLETE - Extended wait finished');
+      console.log('🔍 STEP 1.5: Verifying user profile is committed...');
 
       console.log('🔍 STEP 1.6: Verifying new user exists in database');
       const { data: newUserProfile, error: newUserError } = await supabase
@@ -414,8 +410,8 @@ export const useReferrals = () => {
         console.log('❌ REFERRAL DEBUG - New user not found in database yet');
         console.log('❌ This might be a timing issue - user profile not yet committed');
         
-        console.log('🔍 STEP 1.7: Retrying after additional 5000ms delay...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log('🔍 STEP 1.7: Retrying user lookup with minimal delay...');
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         const { data: retryUserProfile, error: retryUserError } = await supabase
           .from('user_profiles')
@@ -522,9 +518,7 @@ export const useReferrals = () => {
       
       console.log('✅ STEP 2.5 SUCCESS - Referral record verified in database');
 
-      console.log('🔍 STEP 3: Waiting 2000ms for database commit...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('✅ STEP 3 COMPLETE - Database commit wait finished');
+      console.log('🔍 STEP 3: Database commit completed');
 
       console.log('🔍 STEP 4: Processing referral rewards via RPC function');
       
@@ -695,20 +689,20 @@ export const useReferrals = () => {
 
       console.log('✅ REFERRAL DEBUG - processReferralSignup COMPLETED');
       
-      console.log('🔍 FINAL STEP: Triggering data refresh in 2 seconds...');
+      console.log('🔍 FINAL STEP: Triggering data refresh...');
       setTimeout(() => {
         if (user?.id && profile) {
           fetchReferralData(user.id, profile).catch(error => {
             console.error('❌ Data refresh failed:', error);
           });
-          
+
           if (user.id === finalReferrer.id) {
             fetchWalletData(user.id).catch(error => {
               console.error('❌ Wallet refresh failed:', error);
             });
           }
         }
-      }, 2000);
+      }, 500);
       
     } catch (error: any) {
       console.error('❌ REFERRAL DEBUG - FATAL ERROR in processReferralSignup:', {

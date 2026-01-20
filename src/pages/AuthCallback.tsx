@@ -39,7 +39,7 @@ export const AuthCallback: React.FC = () => {
         if (error) {
           console.error('Auth callback error:', error);
           setMessage('Email verification failed. Please try again.');
-          setTimeout(() => navigate('/auth'), 3000);
+          setTimeout(() => navigate('/auth'), 1500);
           return;
         }
 
@@ -47,7 +47,7 @@ export const AuthCallback: React.FC = () => {
         if (!user) {
           console.log('No user found in session');
           setMessage('No user session found. Redirecting...');
-          setTimeout(() => navigate('/auth'), 2000);
+          setTimeout(() => navigate('/auth'), 1000);
           return;
         }
 
@@ -93,19 +93,17 @@ export const AuthCallback: React.FC = () => {
           setMessage('Email verified! Redirecting to your dashboard...');
         }
 
-        // Redirect to appropriate page after brief delay
-        setTimeout(() => {
-          if (fromParam && fromParam.includes('tagging')) {
-            navigate('/tag', { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        }, 2000);
+        // Redirect to appropriate page immediately
+        if (fromParam && fromParam.includes('tagging')) {
+          navigate('/tag', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
 
       } catch (error) {
         console.error('Callback processing error:', error);
         setMessage('Something went wrong. Redirecting...');
-        setTimeout(() => navigate('/auth'), 3000);
+        setTimeout(() => navigate('/auth'), 1500);
       } finally {
         setProcessing(false);
       }
