@@ -48,6 +48,7 @@ interface UserProfile {
   created_at: string;
   referral_code: string | null;
   balance?: number;
+  email_confirmed_at?: string | null;
 }
 
 interface DashboardStats {
@@ -92,6 +93,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [confirmationFilter, setConfirmationFilter] = useState<'all' | 'confirmed' | 'unconfirmed'>('all');
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
@@ -117,7 +119,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, roleFilter]);
+  }, [users, searchTerm, roleFilter, confirmationFilter]);
 
   const fetchDashboardData = async () => {
     const TIMEOUT_MS = 15000; // 15 second timeout
@@ -164,11 +166,32 @@ export const AdminInfluencerDashboard: React.FC = () => {
         console.log(`✅ Fetched ${walletsData?.length || 0} wallet records`);
       }
 
+      // Fetch email confirmation status from auth.users
+      console.log('🔍 Fetching email confirmation status...');
+      const { data: authUsersData, error: authUsersError } = await supabase
+        .from('users')
+        .select('id, email_confirmed_at')
+        .in('id', usersData?.map((u: any) => u.id) || []);
+
+      if (authUsersError) {
+        console.error('❌ Auth users fetch error:', authUsersError);
+      } else {
+        console.log(`✅ Fetched ${authUsersData?.length || 0} auth user records`);
+      }
+
       // Create a map of user_id to balance
       const balanceMap = new Map();
       if (walletsData) {
         walletsData.forEach((wallet: any) => {
           balanceMap.set(wallet.user_id, wallet.balance ?? 0);
+        });
+      }
+
+      // Create a map of user_id to email_confirmed_at
+      const confirmationMap = new Map();
+      if (authUsersData) {
+        authUsersData.forEach((authUser: any) => {
+          confirmationMap.set(authUser.id, authUser.email_confirmed_at);
         });
       }
 
@@ -182,7 +205,8 @@ export const AdminInfluencerDashboard: React.FC = () => {
         }
         return {
           ...user,
-          balance: balance ?? 0
+          balance: balance ?? 0,
+          email_confirmed_at: confirmationMap.get(user.id) || null
         };
       }) || [];
 
@@ -444,6 +468,13 @@ const fetchAssetsForArchiving = async () => {
       filtered = filtered.filter(user => user.role === roleFilter);
     }
 
+    // Confirmation filter
+    if (confirmationFilter === 'confirmed') {
+      filtered = filtered.filter(user => user.email_confirmed_at !== null);
+    } else if (confirmationFilter === 'unconfirmed') {
+      filtered = filtered.filter(user => user.email_confirmed_at === null);
+    }
+
     setFilteredUsers(filtered);
   };
 
@@ -523,13 +554,16 @@ const fetchAssetsForArchiving = async () => {
     }
   };
 
+  const confirmedCount = users.filter(u => u.email_confirmed_at !== null).length;
+  const unconfirmedCount = users.filter(u => u.email_confirmed_at === null).length;
+
   const statsCards = [
     {
       title: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       icon: <Users className="h-8 w-8 text-primary-600" />,
       color: 'text-primary-600',
-      change: `+${stats.newUsersToday} today`
+      change: `✓ ${confirmedCount} confirmed • ⚠ ${unconfirmedCount} unconfirmed`
     },
     {
       title: 'New Users (Week)',
@@ -667,6 +701,16 @@ const fetchAssetsForArchiving = async () => {
               <option value="admin">Admins</option>
               <option value="admin_influencer">Admin Influencers</option>
             </select>
+
+            <select
+              value={confirmationFilter}
+              onChange={(e) => setConfirmationFilter(e.target.value as 'all' | 'confirmed' | 'unconfirmed')}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="all">All Users</option>
+              <option value="confirmed">✓ Confirmed</option>
+              <option value="unconfirmed">⚠ Unconfirmed</option>
+            </select>
           </div>
 
           {/* Users Table */}
@@ -676,6 +720,9 @@ const fetchAssetsForArchiving = async () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
@@ -706,6 +753,19 @@ const fetchAssetsForArchiving = async () => {
                           </div>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {user.email_confirmed_at ? (
+                        <div className="flex items-center text-green-600">
+                          <CheckCircle className="h-5 w-5 mr-1" />
+                          <span className="text-sm font-medium">Confirmed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-warning-600">
+                          <AlertCircle className="h-5 w-5 mr-1" />
+                          <span className="text-sm font-medium">Unconfirmed</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
