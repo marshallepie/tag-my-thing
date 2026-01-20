@@ -32,8 +32,10 @@ const META_CONTENT = {
     description: "Tag, manage, and secure your physical and digital assets with blockchain technology. Get 50 TMT tokens free when you sign up!",
     ogTitle: "TagMyThing - Secure Asset Management",
     ogDescription: "Tag, manage, and secure your physical and digital assets with blockchain technology. Get 50 TMT tokens free when you sign up!",
+    ogImage: "https://imagedelivery.net/Ioy7cFzJfvHRkNH1rxgjqw/8aa274fd-5bcf-4c99-f952-ba0f44576b00/public",
     twitterTitle: "TagMyThing - Secure Asset Management",
     twitterDescription: "Tag, manage, and secure your physical and digital assets with blockchain technology. Get 50 TMT tokens free when you sign up!",
+    twitterImage: "https://imagedelivery.net/Ioy7cFzJfvHRkNH1rxgjqw/8aa274fd-5bcf-4c99-f952-ba0f44576b00/public",
     keywords: "asset management, blockchain, digital assets, physical assets, security, tagging, inventory, legacy planning",
     locale: "en_US",
     localeAlternate: "fr_FR",
@@ -44,8 +46,10 @@ const META_CONTENT = {
     description: "Étiquetez, gérez et sécurisez vos actifs physiques et numériques avec la technologie blockchain. Recevez 50 jetons TMT gratuits à l'inscription!",
     ogTitle: "TagMyThing - Gestion Sécurisée des Actifs",
     ogDescription: "Étiquetez, gérez et sécurisez vos actifs physiques et numériques avec la technologie blockchain. Recevez 50 jetons TMT gratuits à l'inscription!",
+    ogImage: "https://imagedelivery.net/Ioy7cFzJfvHRkNH1rxgjqw/8aa274fd-5bcf-4c99-f952-ba0f44576b00/public",
     twitterTitle: "TagMyThing - Gestion Sécurisée des Actifs",
     twitterDescription: "Étiquetez, gérez et sécurisez vos actifs physiques et numériques avec la technologie blockchain. Recevez 50 jetons TMT gratuits à l'inscription!",
+    twitterImage: "https://imagedelivery.net/Ioy7cFzJfvHRkNH1rxgjqw/8aa274fd-5bcf-4c99-f952-ba0f44576b00/public",
     keywords: "gestion des actifs, blockchain, actifs numériques, actifs physiques, sécurité, étiquetage, inventaire, planification successorale",
     locale: "fr_FR",
     localeAlternate: "en_US",
@@ -134,6 +138,18 @@ function injectMetaTags(html, lang) {
   html = html.replace(
     /<meta name="twitter:description" content=".*?" \/>/,
     `<meta name="twitter:description" content="${content.twitterDescription}" />`
+  );
+
+  // Replace OG image
+  html = html.replace(
+    /<meta property="og:image" content=".*?" \/>/,
+    `<meta property="og:image" content="${content.ogImage}" />`
+  );
+
+  // Replace Twitter image
+  html = html.replace(
+    /<meta name="twitter:image" content=".*?" \/>/,
+    `<meta name="twitter:image" content="${content.twitterImage}" />`
   );
 
   // Update HTML lang attribute

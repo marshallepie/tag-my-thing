@@ -19,6 +19,6 @@ compatibility_date = "2024-01-18"
 [observability]
 enabled = true
 
-# Limits
-[limits]
-cpu_ms = 50
+# Limits - Note: CPU limits only available on paid plans
+# [limits]
+# cpu_ms = 50
