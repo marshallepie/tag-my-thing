@@ -206,7 +206,7 @@ export const GeneralTaggingLanding: React.FC = () => {
       // after email verification
 
       // Always redirect to check email page
-      navigate('/check-email', { replace: true });
+      navigate(`/check-email?email=${encodeURIComponent(email.trim())}`, { replace: true });
       return;
 
       // Ensure profile full_name if you maintain a profiles table

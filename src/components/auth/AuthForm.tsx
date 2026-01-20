@@ -139,7 +139,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
     }
 
     toast.success('Account created! Please check your email to confirm your signup.');
-    navigate('/check-email', { state: { email: formData.email } });
+    navigate(`/check-email?email=${encodeURIComponent(formData.email)}`);
   };
 
   const handleSignin = async () => {

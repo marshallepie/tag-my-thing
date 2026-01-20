@@ -219,7 +219,7 @@ export const BusinessTaggingLanding: React.FC = () => {
     }
 
     // Referral processing happens in AuthCallback after email verification
-    navigate('/check-email', { replace: true });
+    navigate(`/check-email?email=${encodeURIComponent(email.trim())}`, { replace: true });
     return;
 
   } catch (err: any) {

@@ -12,8 +12,9 @@ export const CheckEmail: React.FC = () => {
   const navigate = useNavigate();
   const [resending, setResending] = useState(false);
 
-  // Email comes from route state after signup
-  const email = location.state?.email || '';
+  // Email comes from URL parameter after signup
+  const urlParams = new URLSearchParams(location.search);
+  const email = urlParams.get('email') || '';
 
   const handleResend = async () => {
     if (!email) {
