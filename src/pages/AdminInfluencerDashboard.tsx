@@ -143,7 +143,8 @@ export const AdminInfluencerDashboard: React.FC = () => {
           role,
           subscription_plan,
           created_at,
-          referral_code
+          referral_code,
+          email_confirmed_at
         `)
         .order('created_at', { ascending: false });
       
@@ -166,19 +167,6 @@ export const AdminInfluencerDashboard: React.FC = () => {
         console.log(`✅ Fetched ${walletsData?.length || 0} wallet records`);
       }
 
-      // Fetch email confirmation status from auth.users
-      console.log('🔍 Fetching email confirmation status...');
-      const { data: authUsersData, error: authUsersError } = await supabase
-        .from('users')
-        .select('id, email_confirmed_at')
-        .in('id', usersData?.map((u: any) => u.id) || []);
-
-      if (authUsersError) {
-        console.error('❌ Auth users fetch error:', authUsersError);
-      } else {
-        console.log(`✅ Fetched ${authUsersData?.length || 0} auth user records`);
-      }
-
       // Create a map of user_id to balance
       const balanceMap = new Map();
       if (walletsData) {
@@ -187,15 +175,8 @@ export const AdminInfluencerDashboard: React.FC = () => {
         });
       }
 
-      // Create a map of user_id to email_confirmed_at
-      const confirmationMap = new Map();
-      if (authUsersData) {
-        authUsersData.forEach((authUser: any) => {
-          confirmationMap.set(authUser.id, authUser.email_confirmed_at);
-        });
-      }
-
       // Transform users and identify those without wallets
+      // email_confirmed_at is now included in the user_profiles query
       const usersWithoutWallets: string[] = [];
       const transformedUsers = usersData?.map(user => {
         const balance = balanceMap.get(user.id);
@@ -205,8 +186,7 @@ export const AdminInfluencerDashboard: React.FC = () => {
         }
         return {
           ...user,
-          balance: balance ?? 0,
-          email_confirmed_at: confirmationMap.get(user.id) || null
+          balance: balance ?? 0
         };
       }) || [];
 
