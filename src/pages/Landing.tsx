@@ -11,6 +11,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Footer } from '../components/layout/Footer';
 import { LanguageToggle } from '../components/ui/LanguageToggle';
+import { HeroExplainerVideo } from '../components/video/HeroExplainerVideo';
 
 export const Landing: React.FC = () => {
   const { t, ready } = useTranslation();
@@ -101,33 +102,45 @@ export const Landing: React.FC = () => {
         </div>
       </div>
 
-      <header className="py-16 lg:py-24 text-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            {ready ? t('landing.heroTitle') : 'A Digital Message in a Bottle'}
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            {ready ? t('landing.heroDescription') : 'With TagMyThing, you can snap a photo, write a message, and preserve it forever — public or private. Later, you can even pass it on to someone else.'}
-          </p>
-        </motion.div>
+      {/* Hero Section - Side by Side Layout */}
+      <header className="py-16 lg:py-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Hero Copy + CTAs */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="order-1"
+            >
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+                {ready ? t('landing.heroTitle') : 'A Digital Message in a Bottle'}
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                {ready ? t('landing.heroDescription') : 'With TagMyThing, you can snap a photo, write a message, and preserve it forever — public or private. Later, you can even pass it on to someone else.'}
+              </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-        >
-          <Button size="lg" onClick={() => handleNavigation('/tag')}>
-            <Camera className="h-5 w-5 mr-2" /> {ready ? t('landing.tagSomethingNow') : 'Tag Something Now'}
-          </Button>
-          <Button variant="outline" size="lg" onClick={() => handleNavigation('/signup')}>
-            {ready ? t('landing.createAccount') : 'Create Account'} <ArrowRight className="h-5 w-5 ml-2" />
-          </Button>
-        </motion.div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" onClick={() => handleNavigation('/tag')}>
+                  <Camera className="h-5 w-5 mr-2" /> {ready ? t('landing.tagSomethingNow') : 'Tag Something Now'}
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => handleNavigation('/signup')}>
+                  {ready ? t('landing.createAccount') : 'Create Account'} <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              </div>
+            </motion.div>
+
+            {/* Right: Explainer Video */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="order-2"
+            >
+              <HeroExplainerVideo />
+            </motion.div>
+          </div>
+        </div>
       </header>
 
       <section className="py-16 lg:py-24 bg-white">
