@@ -56,35 +56,39 @@ export const Landing: React.FC = () => {
   return (
     <div className="min-h-screen">
       <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <button 
+            <button
               onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity min-w-0"
             >
-              <img 
-                src="/tagmaithing.png" 
-                alt="TagMyThing" 
-                className="w-10 h-10 object-contain"
+              <img
+                src="/tagmaithing.png"
+                alt="TagMyThing"
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0"
               />
-              <span className="text-xl font-bold text-gray-900">
+              {/* Hide text on very small screens, show on 400px+ */}
+              <span className="hidden min-[400px]:inline text-lg sm:text-xl font-bold text-gray-900 truncate">
                 Tag<span className="text-primary-400">My</span>Thing
               </span>
             </button>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
               <LanguageToggle />
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              {/* Hide Launch button on mobile to save space */}
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handleNavigation('/launch')}
+                className="hidden md:flex"
               >
                 <Megaphone className="h-4 w-4 mr-1" /> {ready ? t('navigation.launch') || 'Launch' : 'Launch'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => handleNavigation('/auth')}
+                className="text-xs sm:text-sm"
               >
                 {ready ? t('buttons.signIn') : 'Sign In'}
               </Button>
@@ -120,13 +124,23 @@ export const Landing: React.FC = () => {
                 {ready ? t('landing.heroDescription') : 'With TagMyThing, you can snap a photo, write a message, and preserve it forever — public or private. Later, you can even pass it on to someone else.'}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <Button size="lg" onClick={() => handleNavigation('/tag')}>
                   <Camera className="h-5 w-5 mr-2" /> {ready ? t('landing.tagSomethingNow') : 'Tag Something Now'}
                 </Button>
                 <Button variant="outline" size="lg" onClick={() => handleNavigation('/signup')}>
                   {ready ? t('landing.createAccount') : 'Create Account'} <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
+              </div>
+
+              {/* Prominent Sign In link for existing users */}
+              <div className="text-center sm:text-left">
+                <button
+                  onClick={() => handleNavigation('/auth')}
+                  className="text-lg font-medium text-primary-600 hover:text-primary-700 underline decoration-2 underline-offset-4 transition-colors"
+                >
+                  {ready ? t('landing.alreadyHaveAccount') : 'Already have an account? Sign In →'}
+                </button>
               </div>
             </motion.div>
 
