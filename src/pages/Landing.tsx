@@ -6,7 +6,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Camera, ArrowRight, Megaphone, CheckCircle, Package, Palette, Heart, Building } from 'lucide-react';
+import { Camera, ArrowRight, CheckCircle, Package, Palette, Heart, Building } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Footer } from '../components/layout/Footer';
@@ -75,15 +75,6 @@ export const Landing: React.FC = () => {
 
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
               <LanguageToggle />
-              {/* Hide Launch button on mobile to save space */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation('/launch')}
-                className="hidden md:flex"
-              >
-                <Megaphone className="h-4 w-4 mr-1" /> {ready ? t('navigation.launch') || 'Launch' : 'Launch'}
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
