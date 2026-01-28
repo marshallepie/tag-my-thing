@@ -372,7 +372,7 @@ export const Header: React.FC = () => {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-white border-t border-gray-200"
+          className="md:hidden bg-white border-t border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto"
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {/* Language Toggle for mobile */}
