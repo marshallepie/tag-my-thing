@@ -4,6 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import { trackPageView } from './lib/analytics';
+import { CookieConsent } from './components/CookieConsent';
 import { LanguageMetaTags } from './components/SEO/LanguageMetaTags';
 import { AuthCallback } from './pages/AuthCallback';
 import ForgotPassword from './pages/ForgotPassword';
@@ -134,6 +136,11 @@ function App() {
     }
   }, [location.search]);
 
+  // Track SPA page views in Google Analytics on every route change.
+  React.useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+
   // Show loading screen while auth is being determined
   if (!initialized || loading) {
     console.log('App: Showing loading screen', { initialized, loading });
@@ -151,6 +158,7 @@ function App() {
     <>
       <LanguageMetaTags />
       <ScrollToTop />
+      <CookieConsent />
       <React.Suspense fallback={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">

@@ -106,7 +106,6 @@
     "email": "Email",
     "password": "Mot de passe",
     "fullName": "Nom complet",
-    "forgotPassword": "Mot de passe oublié ?",
     "forgotPasswordTitle": "Mot de passe oublié ?",
     "forgotPasswordDescription": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
     "emailAddress": "Adresse email",
@@ -215,23 +214,20 @@
     }
   },
   "assets": {
-    "title": "Mes Biens",
-    "addNew": "Ajouter un Nouveau Bien",
-    "photoTag": "Étiquette Photo",
-    "videoTag": "Étiquetez Vidéo",
-    "assetTitle": "Titre du Bien",
-    "description": "Description",
-    "estimatedValue": "Valeur Estimée",
-    "location": "Localisation",
-    "manualLocation": "Lieu de Stockage de l'Objet",
-    "autoLocation": "Coordonnées GPS",
-    "tags": "Étiquettes",
-    "category": "Catégorie",
-    "createdAt": "Créé le",
-    "lastModified": "Dernière Modification",
+    "title": "Mes Actifs",
+    "searchPlaceholder": "Rechercher des actifs...",
+    "noAssetsFound": "Aucun actif trouvé",
+    "tryAdjustingSearch": "Essayez d'ajuster votre recherche ou vos filtres",
+    "loading": "Chargement des actifs...",
+    "createNewAsset": "Créer un Nouvel Actif",
     "viewDetails": "Voir les Détails",
-    "editAsset": "Modifier le Bien",
-    "deleteAsset": "Supprimer le Bien"
+    "editAsset": "Modifier l'Actif",
+    "deleteAsset": "Supprimer l'Actif",
+    "assignToNOK": "Assigner au NOK",
+    "totalAssets": "Total des Actifs",
+    "publicAssets": "Actifs Publics",
+    "privateAssets": "Actifs Privés",
+    "recentlyAdded": "Récemment Ajoutés"
   },
   "tokens": {
     "balance": "Solde de Jetons",
@@ -244,41 +240,97 @@
     "purchaseMore": "Acheter plus de jetons"
   },
   "nextOfKin": {
-    "title": "Proche de Confiance",
-    "addNew": "Ajouter un Proche de Confiance",
+    "title": "Proche Parent",
+    "subtitle": "Gérez qui peut accéder à vos actifs avec la protection du Commutateur d'Homme Mort",
+    "addNextOfKin": "Ajouter un Proche Parent",
+    "addFirstNOK": "Ajoutez Votre Premier Proche Parent",
+    "noNOKAdded": "Aucun Proche Parent Ajouté",
+    "secureDigitalLegacy": "Sécurisez votre héritage numérique en ajoutant des personnes de confiance qui peuvent accéder à vos actifs avec la protection du Commutateur d'Homme Mort.",
+    "totalNOK": "Total NOK",
+    "incomingNOK": "NOK Entrants",
+    "outgoingNOK": "NOK Sortants",
+    "upcomingDMS": "DMS Prochains",
+    "nokList": "Liste des Proches Parents",
+    "incoming": "Entrants",
+    "outgoing": "Sortants",
+    "noNOKFound": "Aucun Proche Parent trouvé",
+    "tryAdjustingFilters": "Essayez d'ajuster votre recherche ou vos filtres",
+    "assignAllAssets": "Assigner Tous les Actifs",
+    "verificationPending": "Vérification en Attente",
+    "sendInvitation": "Envoyez une invitation à cette personne pour qu'elle puisse accepter la nomination.",
+    "invitationSent": "Invitation Envoyée",
+    "waitingAcceptance": "En attente que cette personne accepte votre invitation.",
+    "verified": "Vérifié",
+    "pending": "En Attente",
+    "declined": "Refusé",
+    "allStatus": "Tous les Statuts",
+    "loading": "Chargement des données des Proches Parents...",
+    "refresh": "Actualiser",
     "fullName": "Nom Complet",
-    "email": "Adresse Email",
-    "phone": "Numéro de Téléphone",
+    "emailAddress": "Adresse Email",
+    "phoneNumber": "Numéro de Téléphone",
     "relationship": "Relation",
     "notes": "Notes",
-    "assignAssets": "Assigner des Biens",
-    "deadManSwitch": "Interrupteur de Sécurité",
-    "dmsSettings": "Paramètres DMS",
-    "inactivityPeriod": "Période d'Inactivité",
-    "oneYear": "1 An",
-    "twoYears": "2 Ans",
-    "threeYears": "3 Ans",
-    "fourYears": "4 Ans",
-    "fiveYears": "5 Ans",
-    "incomingAssignments": "Assignations Reçues",
-    "outgoingAssignments": "Assignations Données",
-    "privacyProtection": "Protection de la Vie Privée : Le proche de confiance peut voir les assignations mais pas les détails des biens jusqu'à ce que le DMS se déclenche."
+    "cancel": "Annuler",
+    "removeNextOfKin": "Retirer le Proche Parent",
+    "confirmRemoval": "Êtes-vous sûr de vouloir retirer ce Proche Parent ? Il perdra l'accès à tous les actifs assignés.",
+    "massAssignment": "Attribution en Masse",
+    "massAssignmentDesc": "Cela assignera TOUS vos actifs actuels à cette personne. Elle n'y aura accès que si le Commutateur d'Homme Mort est déclenché.",
+    "dmsYears": "Commutateur d'Homme Mort (Années)",
+    "dmsDescription": "Si vous ne vous connectez pas pendant cette période, cette personne aura accès à tous vos actifs.",
+    "privacyProtection": "Protection de la Vie Privée",
+    "nokAssignmentPrivacy": "Cette personne saura seulement qu'elle a été assignée comme votre Proche Parent sans voir les détails des actifs jusqu'à ce que le Commutateur d'Homme Mort soit déclenché.",
+    "whatWillHappen": "Ce qui va se passer :",
+    "createNOK": "Créer cette personne comme votre Proche Parent",
+    "assignAsset": "Assigner l'actif à cette personne",
+    "setDMS": "Configurer le Commutateur d'Homme Mort",
+    "notifyAssignment": "Elle sera notifiée de l'assignation (sans les détails des actifs)",
+    "selectNextOfKin": "Sélectionner un Proche Parent",
+    "reassignToNOK": "Réassigner au NOK"
   },
   "referrals": {
-    "title": "Parrainages",
-    "yourCode": "Votre Code de Parrainage",
-    "shareCode": "Partagez Votre Code",
+    "title": "Programme de Parrainage",
+    "yourReferralCode": "Votre Code de Parrainage",
+    "shareReferralLink": "Partagez Votre Lien de Parrainage",
     "totalReferrals": "Total des Parrainages",
     "tokensEarned": "Jetons Gagnés",
     "recentReferrals": "Parrainages Récents",
-    "referralLink": "Lien de Parrainage",
+    "referralStats": "Statistiques de Parrainage",
     "copyLink": "Copier le Lien",
-    "linkCopied": "Lien copié dans le presse-papiers !",
-    "level1": "Niveau 1 (50 TMT)",
-    "level2": "Niveau 2 (30 TMT)",
-    "level3": "Niveau 3 (20 TMT)",
-    "level4": "Niveau 4 (10 TMT)",
-    "level5": "Niveau 5 (5 TMT)"
+    "linkCopied": "Lien copié !",
+    "shareViaEmail": "Partager par Email",
+    "generateQRCode": "Générer un Code QR",
+    "selectLandingPage": "Sélectionner la Page de Destination",
+    "generalTagging": "Étiquetage de Propriété Générale (Recommandé)",
+    "generalTaggingDesc": "Documenter et vérifier la propriété",
+    "nftTagging": "Étiquetage d'Actifs Numériques et NFT",
+    "nftTaggingDesc": "Protégez les œuvres créatives et les NFT",
+    "myWillTagging": "Étiquetage MyWill et Héritage",
+    "myWillTaggingDesc": "Sécurisez votre héritage numérique",
+    "businessTagging": "Étiquetage Commercial et d'Inventaire",
+    "businessTaggingDesc": "Authentification de produits pour entreprises",
+    "refreshStats": "Actualiser les Statistiques",
+    "howItWorks": "Comment Ça Marche",
+    "step1": "Partagez votre lien de parrainage unique",
+    "step2": "Les amis s'inscrivent en utilisant votre lien",
+    "step3": "Vous gagnez tous les deux des jetons TMT !",
+    "rewardStructure": "Structure des Récompenses",
+    "level1": "Niveau 1: {{amount}} TMT (Parrainages directs)",
+    "level2": "Niveau 2: {{amount}} TMT (2ème niveau)",
+    "level3": "Niveau 3: {{amount}} TMT (3ème niveau)",
+    "level4": "Niveau 4: {{amount}} TMT (4ème niveau)",
+    "level5": "Niveau 5 : {{amount}} TMT (5ème niveau)",
+    "noReferralsYet": "Aucun parrainage pour le moment",
+    "startReferring": "Commencez à parrainer des amis pour gagner des jetons !",
+    "loading": "Chargement...",
+    "totalReferred": "Total Parrainé",
+    "totalEarned": "Total Gagné",
+    "pendingRewards": "Récompenses en Attente",
+    "usersReferred": "Utilisateurs que vous avez parrainés",
+    "rewardsProcessing": "Récompenses en cours de traitement",
+    "shareLink": "Partager le Lien",
+    "showQRCode": "Afficher le Code QR",
+    "level": "Niveau"
   },
   "language": {
     "switchTo": "Passer à {{language}}",
@@ -408,67 +460,6 @@
     "viewRewards": "Voir les Récompenses",
     "seeAllRewards": "Voir toutes les récompenses disponibles"
   },
-  "referrals": {
-    "title": "Programme de Parrainage",
-    "yourReferralCode": "Votre Code de Parrainage",
-    "shareReferralLink": "Partagez Votre Lien de Parrainage",
-    "totalReferrals": "Total des Parrainages",
-    "tokensEarned": "Jetons Gagnés",
-    "recentReferrals": "Parrainages Récents",
-    "referralStats": "Statistiques de Parrainage",
-    "copyLink": "Copier le Lien",
-    "linkCopied": "Lien copié !",
-    "shareViaEmail": "Partager par Email",
-    "generateQRCode": "Générer un Code QR",
-    "selectLandingPage": "Sélectionner la Page de Destination",
-    "generalTagging": "Étiquetage de Propriété Générale (Recommandé)",
-    "generalTaggingDesc": "Documenter et vérifier la propriété",
-    "nftTagging": "Étiquetage d'Actifs Numériques et NFT",
-    "nftTaggingDesc": "Protégez les œuvres créatives et les NFT",
-    "myWillTagging": "Étiquetage MyWill et Héritage",
-    "myWillTaggingDesc": "Sécurisez votre héritage numérique",
-    "businessTagging": "Étiquetage Commercial et d'Inventaire",
-    "businessTaggingDesc": "Authentification de produits pour entreprises",
-    "refreshStats": "Actualiser les Statistiques",
-    "howItWorks": "Comment Ça Marche",
-    "step1": "Partagez votre lien de parrainage unique",
-    "step2": "Les amis s'inscrivent en utilisant votre lien",
-    "step3": "Vous gagnez tous les deux des jetons TMT !",
-    "rewardStructure": "Structure de Récompenses",
-    "level1": "Niveau 1: {{amount}} TMT (Parrainages directs)",
-    "level2": "Niveau 2: {{amount}} TMT (2ème niveau)",
-    "level3": "Niveau 3: {{amount}} TMT (3ème niveau)",
-    "level4": "Niveau 4: {{amount}} TMT (4ème niveau)",
-    "level5": "Niveau 5 : {{amount}} TMT (5ème niveau)",
-    "noReferralsYet": "Aucun parrainage pour le moment",
-    "startReferring": "Commencez à parrainer des amis pour gagner des jetons !",
-    "loading": "Chargement...",
-    "totalReferred": "Total Parrainé",
-    "totalEarned": "Total Gagné",
-    "pendingRewards": "Récompenses en Attente",
-    "usersReferred": "Utilisateurs que vous avez parrainés",
-    "rewardsProcessing": "Récompenses en cours de traitement",
-    "shareLink": "Partager le Lien",
-    "showQRCode": "Afficher le Code QR",
-    "rewardStructure": "Structure des Récompenses",
-    "level": "Niveau"
-  },
-  "assets": {
-    "title": "Mes Actifs",
-    "searchPlaceholder": "Rechercher des actifs...",
-    "noAssetsFound": "Aucun actif trouvé",
-    "tryAdjustingSearch": "Essayez d'ajuster votre recherche ou vos filtres",
-    "loading": "Chargement des actifs...",
-    "createNewAsset": "Créer un Nouvel Actif",
-    "viewDetails": "Voir les Détails",
-    "editAsset": "Modifier l'Actif",
-    "deleteAsset": "Supprimer l'Actif",
-    "assignToNOK": "Assigner au NOK",
-    "totalAssets": "Total des Actifs",
-    "publicAssets": "Actifs Publics",
-    "privateAssets": "Actifs Privés",
-    "recentlyAdded": "Récemment Ajoutés"
-  },
   "publicAssets": {
     "title": "Actifs Publics",
     "subtitle": "Explorez les actifs partagés publiquement par les utilisateurs de TagMyThing",
@@ -485,59 +476,9 @@
     "sortByTitle": "Titre",
     "sortByUser": "Utilisateur"
   },
-  "nextOfKin": {
-    "title": "Proche Parent",
-    "subtitle": "Gérez qui peut accéder à vos actifs avec la protection du Commutateur d'Homme Mort",
-    "addNextOfKin": "Ajouter un Proche Parent",
-    "addFirstNOK": "Ajoutez Votre Premier Proche Parent",
-    "noNOKAdded": "Aucun Proche Parent Ajouté",
-    "secureDigitalLegacy": "Sécurisez votre héritage numérique en ajoutant des personnes de confiance qui peuvent accéder à vos actifs avec la protection du Commutateur d'Homme Mort.",
-    "totalNOK": "Total NOK",
-    "incomingNOK": "NOK Entrants",
-    "outgoingNOK": "NOK Sortants",
-    "upcomingDMS": "DMS Prochains",
-    "nokList": "Liste des Proches Parents",
-    "incoming": "Entrants",
-    "outgoing": "Sortants",
-    "noNOKFound": "Aucun Proche Parent trouvé",
-    "tryAdjustingFilters": "Essayez d'ajuster votre recherche ou vos filtres",
-    "assignAllAssets": "Assigner Tous les Actifs",
-    "verificationPending": "Vérification en Attente",
-    "sendInvitation": "Envoyez une invitation à cette personne pour qu'elle puisse accepter la nomination.",
-    "invitationSent": "Invitation Envoyée",
-    "waitingAcceptance": "En attente que cette personne accepte votre invitation.",
-    "verified": "Vérifié",
-    "pending": "En Attente",
-    "declined": "Refusé",
-    "allStatus": "Tous les Statuts",
-    "loading": "Chargement des données des Proches Parents...",
-    "refresh": "Actualiser",
-    "fullName": "Nom Complet",
-    "emailAddress": "Adresse Email",
-    "phoneNumber": "Numéro de Téléphone",
-    "relationship": "Relation",
-    "notes": "Notes",
-    "cancel": "Annuler",
-    "removeNextOfKin": "Retirer le Proche Parent",
-    "confirmRemoval": "Êtes-vous sûr de vouloir retirer ce Proche Parent ? Il perdra l'accès à tous les actifs assignés.",
-    "massAssignment": "Attribution en Masse",
-    "massAssignmentDesc": "Cela assignera TOUS vos actifs actuels à cette personne. Elle n'y aura accès que si le Commutateur d'Homme Mort est déclenché.",
-    "dmsYears": "Commutateur d'Homme Mort (Années)",
-    "dmsDescription": "Si vous ne vous connectez pas pendant cette période, cette personne aura accès à tous vos actifs.",
-    "privacyProtection": "Protection de la Vie Privée",
-    "nokAssignmentPrivacy": "Cette personne saura seulement qu'elle a été assignée comme votre Proche Parent sans voir les détails des actifs jusqu'à ce que le Commutateur d'Homme Mort soit déclenché.",
-    "whatWillHappen": "Ce qui va se passer :",
-    "createNOK": "Créer cette personne comme votre Proche Parent",
-    "assignAsset": "Assigner l'actif à cette personne",
-    "setDMS": "Configurer le Commutateur d'Homme Mort",
-    "notifyAssignment": "Elle sera notifiée de l'assignation (sans les détails des actifs)",
-    "selectNextOfKin": "Sélectionner un Proche Parent",
-    "reassignToNOK": "Réassigner au NOK"
-  },
   "tagAsset": {
-    "title": "Étiqueter un Actif",
-    "assetDetails": "Détails de l'Actif",
     "title": "Titre",
+    "assetDetails": "Détails de l'Actif",
     "titlePlaceholder": "Donnez un titre descriptif à votre actif",
     "description": "Description",
     "descriptionPlaceholder": "Ajoutez des détails supplémentaires sur cet actif",
@@ -772,13 +713,23 @@
         "name": "Supabase",
         "role": "Plateforme de Base de Données Cloud",
         "compliance": "Entièrement conforme RGPD avec chiffrement et sécurité de niveau entreprise",
-        "features": ["Chiffrement de bout en bout", "Options de résidence des données UE", "Certifié SOC 2 Type II", "Audits de sécurité réguliers"]
+        "features": [
+          "Chiffrement de bout en bout",
+          "Options de résidence des données UE",
+          "Certifié SOC 2 Type II",
+          "Audits de sécurité réguliers"
+        ]
       },
       "stripe": {
         "name": "Stripe",
         "role": "Partenaire de Traitement des Paiements",
         "compliance": "Certifié PCI DSS et adhère aux exigences RGPD",
-        "features": ["Certifié PCI DSS Niveau 1", "Conforme RGPD", "Authentification forte du client", "Protection contre la fraude"]
+        "features": [
+          "Certifié PCI DSS Niveau 1",
+          "Conforme RGPD",
+          "Authentification forte du client",
+          "Protection contre la fraude"
+        ]
       }
     },
     "additionalMeasures": {
@@ -821,22 +772,42 @@
       "essential": {
         "title": "Cookies Essentiels",
         "description": "Nécessaires au fonctionnement de la plateforme (ex: authentification, sécurité).",
-        "examples": ["Gestion des sessions", "Jetons d'authentification", "Fonctionnalités de sécurité", "Fonctionnalités de base"]
+        "examples": [
+          "Gestion des sessions",
+          "Jetons d'authentification",
+          "Fonctionnalités de sécurité",
+          "Fonctionnalités de base"
+        ]
       },
       "functional": {
         "title": "Cookies Fonctionnels",
         "description": "Mémorisent vos paramètres et préférences.",
-        "examples": ["Préférences de langue", "Paramètres de thème", "Personnalisations d'interface", "Préférences sauvegardées"]
+        "examples": [
+          "Préférences de langue",
+          "Paramètres de thème",
+          "Personnalisations d'interface",
+          "Préférences sauvegardées"
+        ]
       },
       "analytics": {
         "title": "Cookies d'Analyse",
         "description": "Nous aident à comprendre les modèles d'utilisation et améliorer le service (ex: Google Analytics).",
-        "examples": ["Vues de pages", "Interactions utilisateur", "Métriques de performance", "Statistiques d'utilisation"]
+        "examples": [
+          "Vues de pages",
+          "Interactions utilisateur",
+          "Métriques de performance",
+          "Statistiques d'utilisation"
+        ]
       },
       "thirdParty": {
         "title": "Cookies Tiers",
         "description": "Stripe et Supabase peuvent définir des cookies pour les paiements sécurisés et la gestion des sessions.",
-        "examples": ["Traitement des paiements", "Sessions de base de données", "Intégration de services externes", "Vérification de sécurité"]
+        "examples": [
+          "Traitement des paiements",
+          "Sessions de base de données",
+          "Intégration de services externes",
+          "Vérification de sécurité"
+        ]
       },
       "required": "Requis",
       "examples": "Exemples :"
@@ -932,11 +903,19 @@
       },
       "dataSubjects": {
         "title": "3. Catégories de Personnes Concernées",
-        "list": ["Utilisateurs de TagMyThing", "Personnes dont les données peuvent apparaître dans le contenu téléchargé"]
+        "list": [
+          "Utilisateurs de TagMyThing",
+          "Personnes dont les données peuvent apparaître dans le contenu téléchargé"
+        ]
       },
       "personalData": {
         "title": "4. Catégories de Données Personnelles",
-        "list": ["Coordonnées", "Identifiants de connexion", "Fichiers téléchargés et métadonnées", "Informations liées aux paiements"]
+        "list": [
+          "Coordonnées",
+          "Identifiants de connexion",
+          "Fichiers téléchargés et métadonnées",
+          "Informations liées aux paiements"
+        ]
       },
       "subProcessors": {
         "title": "5. Sous-traitants Ultérieurs",
@@ -1457,5 +1436,12 @@
       "authenticateProducts": "Commencer l'Authentification Produit",
       "createAccount": "Créer un Compte Entreprise"
     }
+  },
+  "cookieConsent": {
+    "title": "Nous respectons votre vie privée",
+    "description": "Nous utilisons des cookies d’analyse pour comprendre comment vous utilisez TagMyThing et améliorer l’expérience. Aucun suivi n’est effectué tant que vous n’avez pas accepté.",
+    "learnMore": "En savoir plus",
+    "accept": "Accepter",
+    "decline": "Refuser"
   }
 }

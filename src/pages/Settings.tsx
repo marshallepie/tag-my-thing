@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Settings as SettingsIcon, Bell, Shield, Globe, Smartphone, Eye, EyeOff, Moon, Sun, Monitor, Languages, CreditCard, Download, Upload, Trash2, Save, RefreshCw, AlertCircle, CheckCircle, Lock, Mail, Camera, Video, Users, Zap, Database, FileText, HelpCircle, ExternalLink, ToggleLeft as Toggle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { hasAnalyticsConsent, grantAnalyticsConsent, revokeAnalyticsConsent } from '../lib/analytics';
 import { Layout } from '../components/layout/Layout';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -59,12 +60,13 @@ export const Settings: React.FC = () => {
     weekly_digest: true
   });
 
-  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
+  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>(() => ({
     profile_visibility: 'private',
     asset_discovery: false,
-    analytics_tracking: true,
+    // Reflect the actual persisted Google Analytics consent state.
+    analytics_tracking: hasAnalyticsConsent(),
     data_sharing: false
-  });
+  }));
 
   const [appSettings, setAppSettings] = useState<AppSettings>({
     theme: 'system',
@@ -500,7 +502,17 @@ export const Settings: React.FC = () => {
               </div>
               <ToggleSwitch
                 enabled={privacySettings[setting.key as keyof PrivacySettings] as boolean}
-                onChange={(enabled) => setPrivacySettings(prev => ({ ...prev, [setting.key]: enabled }))}
+                onChange={(enabled) => {
+                  if (setting.key === 'analytics_tracking') {
+                    // Apply Google Analytics consent immediately (loads/disables GA).
+                    if (enabled) {
+                      grantAnalyticsConsent();
+                    } else {
+                      revokeAnalyticsConsent();
+                    }
+                  }
+                  setPrivacySettings(prev => ({ ...prev, [setting.key]: enabled }));
+                }}
               />
             </div>
           ))}

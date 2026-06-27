@@ -5,6 +5,10 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App.tsx';
 import './index.css';
 import './lib/i18n';
+import { initAnalytics } from './lib/analytics';
+
+// Load Google Analytics (consent-gated; no-op if not configured or consent denied).
+initAnalytics();
 
 // Suppress React Router v7 deprecation warnings
 const router = {
