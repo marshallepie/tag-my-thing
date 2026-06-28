@@ -85,7 +85,10 @@ function loadGtag(): void {
     send_page_view: false,
   };
   if (LINKER_DOMAINS && LINKER_DOMAINS.length > 0) {
-    config.linker = { domains: LINKER_DOMAINS };
+    config.linker = {
+      domains: LINKER_DOMAINS,
+      accept_incoming: true,
+    };
   }
   window.gtag('config', MEASUREMENT_ID, config);
 }
