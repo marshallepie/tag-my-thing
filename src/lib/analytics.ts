@@ -9,11 +9,18 @@
  *
  * Config comes from build-time env vars (must be referenced here so Vite inlines
  * them into the bundle):
- *   VITE_GA_MEASUREMENT_ID   - e.g. G-SLMCVVRSX4
+ *   VITE_GA_MEASUREMENT_ID   - one or more GA4 IDs, comma-separated
+ *                              (e.g. "G-SLMCVVRSX4,G-HX6LDPGK4F"). Every ID gets
+ *                              its own gtag config; events fan out to all of them.
  *   VITE_GA_LINKER_DOMAINS   - comma-separated domains for cross-domain linking
  */
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
+const MEASUREMENT_IDS = (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)
+  ?.split(',')
+  .map((id) => id.trim())
+  .filter(Boolean) ?? [];
+// First ID is treated as primary for the gtag.js loader URL.
+const PRIMARY_ID = MEASUREMENT_IDS[0];
 const LINKER_DOMAINS = (import.meta.env.VITE_GA_LINKER_DOMAINS as string | undefined)
   ?.split(',')
   .map((d) => d.trim())
@@ -58,7 +65,7 @@ export function hasMadeConsentChoice(): boolean {
 }
 
 function isConfigured(): boolean {
-  return Boolean(MEASUREMENT_ID);
+  return MEASUREMENT_IDS.length > 0;
 }
 
 /** Inject gtag.js and run the standard GA4 bootstrap. Idempotent. */
@@ -75,7 +82,7 @@ function loadGtag(): void {
 
   const script = document.createElement('script');
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${PRIMARY_ID}`;
   document.head.appendChild(script);
 
   window.gtag('js', new Date());
@@ -90,7 +97,11 @@ function loadGtag(): void {
       accept_incoming: true,
     };
   }
-  window.gtag('config', MEASUREMENT_ID, config);
+  // Configure every measurement ID. gtag('event', ...) without an explicit
+  // send_to fans out to all configured streams.
+  for (const id of MEASUREMENT_IDS) {
+    window.gtag('config', id, config);
+  }
 }
 
 /**
@@ -112,7 +123,7 @@ export function initAnalytics(): void {
 
 /** Record a SPA page view. No-op until GA has been loaded. */
 export function trackPageView(path: string): void {
-  if (!window.gtag || !MEASUREMENT_ID) return;
+  if (!window.gtag || !isConfigured()) return;
   window.gtag('event', 'page_view', {
     page_path: path,
     page_location: window.location.href,
@@ -147,8 +158,8 @@ export function revokeAnalyticsConsent(): void {
   } catch {
     /* ignore */
   }
-  if (MEASUREMENT_ID) {
-    // Standard GA opt-out flag honored by gtag.js.
-    (window as unknown as Record<string, boolean>)[`ga-disable-${MEASUREMENT_ID}`] = true;
+  // Standard GA opt-out flag honored by gtag.js — set for every configured ID.
+  for (const id of MEASUREMENT_IDS) {
+    (window as unknown as Record<string, boolean>)[`ga-disable-${id}`] = true;
   }
 }
